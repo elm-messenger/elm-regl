@@ -1,12 +1,8 @@
-# Elm-Ogl
+# Elm-regl
 
-Elm bindings for Ogl.
+Elm bindings for [regl](https://github.com/regl-project/regl).
 
-Aims to provide a set of declarative APIs to use WebGL through Ogl.
-
-## Backend
-
-Currently we choose to use Ogl as WebGL backend for its simplicity. Other options are regl.
+Aims to provide a set of declarative APIs to use WebGL through regl.
 
 ## Design
 
