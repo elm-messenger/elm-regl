@@ -73,6 +73,13 @@ rdc =
     ]
 
 
+rdt : List ( String, Encode.Value )
+rdt =
+    [ ( "cmd", Encode.int 0 )
+    , ( "program", Encode.string "renderTexture" )
+    ]
+
+
 renderTri : ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> List ( String, Encode.Value )
 renderTri ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) =
     ( "args"
@@ -87,15 +94,13 @@ renderTri ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) =
 
 renderTexture : ( Float, Float ) -> List ( String, Encode.Value )
 renderTexture ( x, y ) =
-    [ ( "cmd", Encode.int 0 )
-    , ( "program", Encode.string "renderTexture" )
-    , ( "args"
-      , Encode.object
-            [ ( "offset", Encode.list Encode.float [ x, y ] )
-            ]
-      )
-    , ( "texture", Encode.list (Encode.list Encode.string) [ [ "texture", "enemy" ] ] )
-    ]
+    ( "args"
+    , Encode.object
+        [ ( "offset", Encode.list Encode.float [ x, y ] )
+        , ( "texture", Encode.string "enemy" )
+        ]
+    )
+        :: rdt
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
