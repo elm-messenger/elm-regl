@@ -1,0 +1,28 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Elm</title>
+    <script type="text/javascript" src="build/main.js"></script>
+    <script type="text/javascript" src="build/regl.js"></script>
+    <link rel="stylesheet" href="build/style.css">
+</head>
+
+<body oncontextmenu="return false;">
+    <div id="myapp"></div>
+</body>
+
+<script type="text/javascript">
+    var app = Elm.Main.init({
+        node: document.getElementById('myapp')
+    });
+    app.ports.setView.subscribe(function(v) {
+        elmregl.setView(v);
+    });
+    const canvas = document.getElementById('elm-regl-canvas');
+    elmregl.init(canvas);
+    elmregl.start(app);
+</script>
+
+</html>
