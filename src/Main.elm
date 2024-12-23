@@ -25,13 +25,13 @@ main =
 
 
 type alias Model =
-    { totTime : Float
+    { lasttime : Float
     }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { totTime = 0
+    ( { lasttime = 0
       }
     , Cmd.none
     )
@@ -73,15 +73,18 @@ renderTri ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) uTime =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Tick delta ->
+        Tick t ->
             let
                 numx =
                     50
 
                 numy =
                     30
+
+                delta =
+                    t - model.lasttime
             in
-            ( { model | totTime = model.totTime + delta }
+            ( { model | lasttime = t }
             , Cmd.batch
                 [ setView <|
                     Encode.list Encode.object
@@ -92,10 +95,10 @@ update msg model =
                                             List.map
                                                 (\y ->
                                                     renderTri
-                                                        ( model.totTime / 10 + toFloat x / numx - 1, toFloat y / numy - 1 )
-                                                        ( model.totTime / 10 + toFloat x / numx - 1 + 0.01, toFloat y / numy - 1 + 0.03 )
-                                                        ( model.totTime / 10 + toFloat x / numx - 1 + 0.02, toFloat y / numy - 1 )
-                                                        model.totTime
+                                                        ( t / 10 + toFloat x / numx - 1, toFloat y / numy - 1 )
+                                                        ( t / 10 + toFloat x / numx - 1 + 0.01, toFloat y / numy - 1 + 0.03 )
+                                                        ( t / 10 + toFloat x / numx - 1 + 0.02, toFloat y / numy - 1 )
+                                                        (t + toFloat x + toFloat y)
                                                 )
                                                 (List.range 0 (numy * 2))
                                         )
