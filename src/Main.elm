@@ -1,12 +1,14 @@
 port module Main exposing (..)
 
 import Browser
+import Color as EC
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
-import Html.Keyed as Keyed
 import Json.Decode as Decode
 import Json.Encode as Encode
+import REGL exposing (render, toHtmlWith)
+import REGL.Common exposing (Color(..), Renderable)
 
 
 port setView : Encode.Value -> Cmd msg
@@ -48,59 +50,53 @@ init _ =
     )
 
 
+toMColor : EC.Color -> Color
+toMColor c =
+    let
+        cc =
+            EC.toRgba c
+    in
+    ColorRGBA (cc.red * 255) (cc.green * 255) (cc.blue * 255) (cc.alpha * 255)
+
+
 type Msg
     = Tick Float
     | TextureLoaded Encode.Value
 
 
-clear : List ( String, Encode.Value )
-clear =
-    [ ( "cmd", Encode.int 1 )
-    , ( "name", Encode.string "clear" )
-    , ( "args"
-      , Encode.object
-            [ ( "color", Encode.list Encode.float [ 0.0, 0.0, 0.0, 0.0 ] )
-            , ( "depth", Encode.float 1.0 )
-            ]
-      )
-    ]
+genRenderable : Model -> Renderable
+genRenderable model =
+    let
+        numx =
+            50
 
+        numy =
+            30
 
-rdc : List ( String, Encode.Value )
-rdc =
-    [ ( "cmd", Encode.int 0 )
-    , ( "program", Encode.string "renderTriangle" )
-    ]
+        bgColor =
+            toMColor <| EC.rgba 0 0 0 0
 
-
-rdt : List ( String, Encode.Value )
-rdt =
-    [ ( "cmd", Encode.int 0 )
-    , ( "program", Encode.string "renderTexture" )
-    ]
-
-
-renderTri : ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> List ( String, Encode.Value )
-renderTri ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) =
-    ( "args"
-    , Encode.object
-        [ ( "x", Encode.list Encode.float [ x1, y1 ] )
-        , ( "y", Encode.list Encode.float [ x2, y2 ] )
-        , ( "z", Encode.list Encode.float [ x3, y3 ] )
-        ]
-    )
-        :: rdc
-
-
-renderTexture : ( Float, Float ) -> List ( String, Encode.Value )
-renderTexture ( x, y ) =
-    ( "args"
-    , Encode.object
-        [ ( "offset", Encode.list Encode.float [ x, y ] )
-        , ( "texture", Encode.string "enemy" )
-        ]
-    )
-        :: rdt
+        redC =
+            toMColor EC.red
+    in
+    REGL.group <|
+        REGL.clear bgColor 1
+            :: (List.concat <|
+                    List.map
+                        (\x ->
+                            List.map
+                                (\y ->
+                                    -- renderTexture
+                                    --     ( t / 10 + toFloat x / numx - 1, toFloat y / numy - 1 )
+                                    REGL.triangle ( model.lasttime / 10 + toFloat x / numx - 1, toFloat y / numy - 1 )
+                                        ( model.lasttime / 10 + toFloat x / numx - 1 + 0.01, toFloat y / numy - 1 + 0.03 )
+                                        ( model.lasttime / 10 + toFloat x / numx - 1 + 0.02, toFloat y / numy - 1 )
+                                        redC
+                                )
+                                (List.range 0 (numy * 2))
+                        )
+                        (List.range 0 (numx * 2))
+               )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -111,34 +107,24 @@ update msg model =
                 ( model, setView Encode.null )
 
             else
-                let
-                    numx =
-                        50
-
-                    numy =
-                        30
-
-                    delta =
-                        t - model.lasttime
-                in
                 ( { model | lasttime = t }
                 , Cmd.batch
-                    [ setView <|
-                        Encode.list Encode.object
-                            (clear
-                                :: (List.concat <|
-                                        List.map
-                                            (\x ->
-                                                List.map
-                                                    (\y ->
-                                                        renderTexture
-                                                            ( t / 10 + toFloat x / numx - 1, toFloat y / numy - 1 )
-                                                    )
-                                                    (List.range 0 (numy * 2))
-                                            )
-                                            (List.range 0 (numx * 2))
-                                   )
-                            )
+                    [ setView <| render <| genRenderable model
+
+                    -- Encode.list Encode.object
+                    --     ((List.concat <|
+                    --                 List.map
+                    --                     (\x ->
+                    --                         List.map
+                    --                             (\y ->
+                    --                                 renderTexture
+                    --                                     ( t / 10 + toFloat x / numx - 1, toFloat y / numy - 1 )
+                    --                             )
+                    --                             (List.range 0 (numy * 2))
+                    --                     )
+                    --                     (List.range 0 (numx * 2))
+                    --            )
+                    --     )
                     ]
                 )
 
@@ -153,26 +139,12 @@ update msg model =
             ( { model | loadednum = 1 }, Cmd.none )
 
 
-
--- _ ->
---     ( model, Cmd.none )
--- SUBSCRIPTIONS
--- Subscribe to the `messageReceiver` port to hear about messages coming in
--- from JS. Check out the index.html file to see how this is hooked up to a
--- WebSocket.
---
-
-
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
         [ reglupdate Tick
         , textureLoaded TextureLoaded
         ]
-
-
-
--- VIEW
 
 
 view : Model -> Html Msg
@@ -182,15 +154,3 @@ view _ =
         , style "top" "0px"
         , style "position" "fixed"
         ]
-
-
-toHtmlWith :
-    { width : Int
-    , height : Int
-    }
-    -> List (Attribute msg)
-    -> Html msg
-toHtmlWith options attrs =
-    Keyed.node "elm-regl"
-        attrs
-        [ ( "__canvas", canvas [ height options.height, width options.width, id "elm-regl-canvas" ] [] ) ]
