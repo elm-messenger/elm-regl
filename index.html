@@ -20,6 +20,10 @@
     app.ports.setView.subscribe(function(v) {
         elmregl.setView(v);
     });
+    app.ports.loadTexture.subscribe(function(v) {
+        // elmregl.setView(v);
+        elmregl.loadTexture(v[0], v[1]);
+    });
     const canvas = document.getElementById('elm-regl-canvas');
     elmregl.init(canvas, app);
     elmregl.start();

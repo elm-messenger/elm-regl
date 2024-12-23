@@ -5,10 +5,17 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Html.Keyed as Keyed
+import Json.Decode as Decode
 import Json.Encode as Encode
 
 
 port setView : Encode.Value -> Cmd msg
+
+
+port loadTexture : ( String, String ) -> Cmd msg
+
+
+port textureLoaded : (Encode.Value -> msg) -> Sub msg
 
 
 port reglupdate : (Float -> msg) -> Sub msg
@@ -26,20 +33,24 @@ main =
 
 type alias Model =
     { lasttime : Float
+    , loadednum : Int
     }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( { lasttime = 0
+      , loadednum = 0
       }
-    , Cmd.none
+    , Cmd.batch
+        [ loadTexture ( "enemy", "asset/enemy.png" )
+        ]
     )
 
 
 type Msg
     = Tick Float
-    | TextureLoaded String
+    | TextureLoaded Encode.Value
 
 
 clear : List ( String, Encode.Value )
@@ -55,18 +66,35 @@ clear =
     ]
 
 
-renderTri : ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> Float -> List ( String, Encode.Value )
-renderTri ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) uTime =
+rdc : List ( String, Encode.Value )
+rdc =
     [ ( "cmd", Encode.int 0 )
     , ( "program", Encode.string "renderTriangle" )
+    ]
+
+
+renderTri : ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> List ( String, Encode.Value )
+renderTri ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) =
+    ( "args"
+    , Encode.object
+        [ ( "x", Encode.list Encode.float [ x1, y1 ] )
+        , ( "y", Encode.list Encode.float [ x2, y2 ] )
+        , ( "z", Encode.list Encode.float [ x3, y3 ] )
+        ]
+    )
+        :: rdc
+
+
+renderTexture : ( Float, Float ) -> List ( String, Encode.Value )
+renderTexture ( x, y ) =
+    [ ( "cmd", Encode.int 0 )
+    , ( "program", Encode.string "renderTexture" )
     , ( "args"
       , Encode.object
-            [ ( "x", Encode.list Encode.float [ x1, y1 ] )
-            , ( "y", Encode.list Encode.float [ x2, y2 ] )
-            , ( "z", Encode.list Encode.float [ x3, y3 ] )
-            , ( "uTime", Encode.float uTime )
+            [ ( "offset", Encode.list Encode.float [ x, y ] )
             ]
       )
+    , ( "texture", Encode.list (Encode.list Encode.string) [ [ "texture", "enemy" ] ] )
     ]
 
 
@@ -74,45 +102,55 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Tick t ->
+            if model.loadednum < 1 then
+                ( model, setView Encode.null )
+
+            else
+                let
+                    numx =
+                        50
+
+                    numy =
+                        30
+
+                    delta =
+                        t - model.lasttime
+                in
+                ( { model | lasttime = t }
+                , Cmd.batch
+                    [ setView <|
+                        Encode.list Encode.object
+                            (clear
+                                :: (List.concat <|
+                                        List.map
+                                            (\x ->
+                                                List.map
+                                                    (\y ->
+                                                        renderTexture
+                                                            ( t / 10 + toFloat x / numx - 1, toFloat y / numy - 1 )
+                                                    )
+                                                    (List.range 0 (numy * 2))
+                                            )
+                                            (List.range 0 (numx * 2))
+                                   )
+                            )
+                    ]
+                )
+
+        TextureLoaded x ->
             let
-                numx =
-                    50
+                success =
+                    Decode.decodeValue (Decode.at [ "success" ] Decode.bool) x
 
-                numy =
-                    30
-
-                delta =
-                    t - model.lasttime
+                ss =
+                    Decode.decodeValue (Decode.at [ "texture" ] Decode.string) x
             in
-            ( { model | lasttime = t }
-            , Cmd.batch
-                [ setView <|
-                    Encode.list Encode.object
-                        (clear
-                            :: (List.concat <|
-                                    List.map
-                                        (\x ->
-                                            List.map
-                                                (\y ->
-                                                    renderTri
-                                                        ( t / 10 + toFloat x / numx - 1, toFloat y / numy - 1 )
-                                                        ( t / 10 + toFloat x / numx - 1 + 0.01, toFloat y / numy - 1 + 0.03 )
-                                                        ( t / 10 + toFloat x / numx - 1 + 0.02, toFloat y / numy - 1 )
-                                                        (t + toFloat x + toFloat y)
-                                                )
-                                                (List.range 0 (numy * 2))
-                                        )
-                                        (List.range 0 (numx * 2))
-                               )
-                        )
-                ]
-            )
-
-        _ ->
-            ( model, Cmd.none )
+            ( { model | loadednum = 1 }, Cmd.none )
 
 
 
+-- _ ->
+--     ( model, Cmd.none )
 -- SUBSCRIPTIONS
 -- Subscribe to the `messageReceiver` port to hear about messages coming in
 -- from JS. Check out the index.html file to see how this is hooked up to a
@@ -124,6 +162,7 @@ subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
         [ reglupdate Tick
+        , textureLoaded TextureLoaded
         ]
 
 

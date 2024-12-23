@@ -11,7 +11,7 @@ release: format
 	uglifyjs build/main.js -c -m --in-situ
 	cp -f public/index.html .
 	cp -f public/style.css build/style.css
-	cp -f public/*.js build/
+	# cp -f public/*.js build/
 
 host:
 	python3 -m webbrowser http://localhost:8123
