@@ -16,6 +16,7 @@ type Renderable
     = AtomicRenderable Value
     | GroupRenderable (List Renderable)
 
+
 {-| Render a renderable object.
 -}
 render : Renderable -> Value
