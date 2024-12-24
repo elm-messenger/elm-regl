@@ -46,18 +46,26 @@ void main() {
     var app = Elm.Main.init({
         node: document.getElementById('myapp')
     });
-    app.ports.setView.subscribe(function (v) {
-        ElmREGL.setView(v);
-    });
-    app.ports.loadTexture.subscribe(function (v) {
-        ElmREGL.loadTexture(v[0], v[1]);
-    });
-    app.ports.createREGLProgram.subscribe(function (v) {
-        ElmREGL.createGLProgram(v[0], v[1]);
-    });
-    app.ports.configREGL.subscribe(function (v) {
-        ElmREGL.config(v);
-    });
+    if (app.ports.setView) {
+        app.ports.setView.subscribe(function (v) {
+            ElmREGL.setView(v);
+        });
+    }
+    if (app.ports.loadTexture) {
+        app.ports.loadTexture.subscribe(function (v) {
+            ElmREGL.loadTexture(v[0], v[1]);
+        });
+    }
+    if (app.ports.createREGLProgram) {
+        app.ports.createREGLProgram.subscribe(function (v) {
+            ElmREGL.createGLProgram(v[0], v[1]);
+        });
+    }
+    if (app.ports.configREGL) {
+        app.ports.configREGL.subscribe(function (v) {
+            ElmREGL.config(v);
+        });
+    }
     const canvas = document.getElementById('elm-regl-canvas');
     ElmREGL.init(canvas, app);
     // ElmREGL.loadGLProgram('rectTest', rectTest);

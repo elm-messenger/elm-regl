@@ -55,8 +55,13 @@ triangleProgramHelper =
 triangle : ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> Color -> Renderable
 triangle ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) color =
     genProg <|
-        appendArgs
-            [ ( "pos", Encode.list Encode.float [ x1, y1, x2, y2, x3, y3 ] )
-            , ( "color", Encode.list Encode.float (toRgbaList color) )
+        Encode.object
+            [ ( "cmd", Encode.int 0 )
+            , ( "program", Encode.string "triangle" )
+            , ( "args"
+              , Encode.object
+                    [ ( "pos", Encode.list Encode.float [ x1, y1, x2, y2, x3, y3 ] )
+                    , ( "color", Encode.list Encode.float (toRgbaList color) )
+                    ]
+              )
             ]
-            triangleProgramHelper

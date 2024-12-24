@@ -170,7 +170,7 @@ genRenderable model =
             50
 
         numy =
-            30
+            25
 
         bgColor =
             toMColor <| EC.rgba 0 0 0 0
