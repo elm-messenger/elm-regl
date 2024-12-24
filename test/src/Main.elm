@@ -1,17 +1,16 @@
 port module Main exposing (..)
 
 import Browser
-import Color as EC
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Json.Decode as Decode
 import Json.Encode as Encode
 import REGL exposing (genProg, render, toHtmlWith)
-import REGL.API exposing (appendArgs, programBase, toRgbaList)
-import REGL.Common exposing (Color(..), Renderable)
+import REGL.Color as Color exposing (Color(..))
+import REGL.Common exposing (Renderable)
 import REGL.Program exposing (ProgValue(..), REGLProgram, encodeProgram)
-import REGL.Triangle as Triangle
+import Triangle as Triangle
 
 
 port setView : Encode.Value -> Cmd msg
@@ -119,19 +118,19 @@ myTriangleProgram =
     }
 
 
-mytriangleProgram : List ( String, Encode.Value )
-mytriangleProgram =
-    programBase "mytriangle"
-
-
 mytriangle : ( Float, Float ) -> Renderable
 mytriangle ( x1, y1 ) =
     genProg <|
-        appendArgs
-            [ ( "texture", Encode.string "enemy" )
-            , ( "offset", Encode.list Encode.float [ x1, y1 ] )
+        Encode.object
+            [ ( "cmd", Encode.int 0 )
+            , ( "program", Encode.string "enemy" )
+            , ( "args"
+              , Encode.object
+                    [ ( "texture", Encode.string "enemy" )
+                    , ( "offset", Encode.list Encode.float [ x1, y1 ] )
+                    ]
+              )
             ]
-            mytriangleProgram
 
 
 init : () -> ( Model, Cmd Msg )
@@ -149,15 +148,6 @@ init _ =
     )
 
 
-toMColor : EC.Color -> Color
-toMColor c =
-    let
-        cc =
-            EC.toRgba c
-    in
-    ColorRGBA (cc.red * 255) (cc.green * 255) (cc.blue * 255) (cc.alpha * 255)
-
-
 type Msg
     = Tick Float
     | TextureLoaded Encode.Value
@@ -173,10 +163,10 @@ genRenderable model =
             25
 
         bgColor =
-            toMColor <| EC.rgba 0 0 0 0
+            ColorRGBA 0 0 0 0
 
         redC =
-            toMColor EC.red
+            Color.red
     in
     REGL.group <|
         REGL.clear bgColor 1

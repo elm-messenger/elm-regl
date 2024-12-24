@@ -1,38 +1,42 @@
-module REGL.Common exposing (..)
+module REGL.Common exposing (Renderable, genProg, group, render)
 
-import Json.Encode exposing (Value)
+{-|
 
 
+# Common utilities for REGL
+
+-}
+
+import Json.Encode as Encode exposing (Value)
+
+
+{-| A renderable object that can be rendered by REGL.
+-}
 type Renderable
     = AtomicRenderable Value
     | GroupRenderable (List Renderable)
 
+{-| Render a renderable object.
+-}
+render : Renderable -> Value
+render renderable =
+    case renderable of
+        AtomicRenderable value ->
+            value
 
-type Color
-    = ColorRGBA Float Float Float Float
-
-
-type TimeInterval
-    = AnimationFrame
-    | Millisecond Float
-
-
-type alias REGLConfig =
-    { timeInterval : TimeInterval
-    }
+        GroupRenderable renderables ->
+            Encode.list identity (List.map render renderables)
 
 
-encodeConfig : REGLConfig -> Value
-encodeConfig config =
-    let
-        interval =
-            case config.timeInterval of
-                AnimationFrame ->
-                    -1
+{-| Group a list of renderables into a single renderable.
+-}
+group : List Renderable -> Renderable
+group renderables =
+    GroupRenderable renderables
 
-                Millisecond ms ->
-                    ms
-    in
-    Json.Encode.object
-        [ ( "interval", Json.Encode.float interval )
-        ]
+
+{-| Generate a renderable object from an object.
+-}
+genProg : Value -> Renderable
+genProg =
+    AtomicRenderable

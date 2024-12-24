@@ -27,3 +27,6 @@ Vertex + Fragment shader programs.
 Geometry + uniforms.
 
 
+### TODO
+
+Optimize `Encode.object`. It's currently too slow.

@@ -1,9 +1,9 @@
-module REGL.Triangle exposing (..)
+module Triangle exposing (..)
 
 import Json.Encode as Encode exposing (Value)
 import REGL exposing (genProg)
-import REGL.API exposing (appendArgs, programBase, toRgbaList)
-import REGL.Common exposing (Color, Renderable)
+import REGL.Color exposing (Color, toRgbaList)
+import REGL.Common exposing (Renderable)
 import REGL.Program exposing (ProgValue(..), REGLProgram)
 
 
@@ -45,11 +45,6 @@ prog =
     , count = 3
     , primitive = Nothing
     }
-
-
-triangleProgramHelper : List ( String, Value )
-triangleProgramHelper =
-    programBase "triangle"
 
 
 triangle : ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> Color -> Renderable

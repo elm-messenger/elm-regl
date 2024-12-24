@@ -1,14 +1,25 @@
-module REGL.Program exposing (..)
+module REGL.Program exposing (Primitive(..), ProgValue(..), REGLProgram, encodeProgram)
+
+{-|
+
+
+# Custom Program
+
+-}
 
 import Json.Encode as Encode exposing (Value)
 
 
+{-| A value that can be either a static value or a dynamic value
+-}
 type ProgValue
     = DynamicValue String
     | StaticValue Value
     | DynamicTextureValue String -- Dynamic texture value
 
 
+{-| OpenGL primitive types
+-}
 type Primitive
     = Points
     | Lines
@@ -19,6 +30,8 @@ type Primitive
     | TriangleFan
 
 
+{-| A custom program that can be used with REGL
+-}
 type alias REGLProgram =
     { frag : String
     , vert : String
@@ -107,6 +120,8 @@ getStaticValue x =
         x
 
 
+{-| Encode a custom program to an object
+-}
 encodeProgram : REGLProgram -> Value
 encodeProgram p =
     Encode.object <|
