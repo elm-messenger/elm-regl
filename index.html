@@ -14,20 +14,53 @@
 </body>
 
 <script type="text/javascript">
+    const rectTest = (regl) => [
+        (x) => x
+        , regl({
+            frag: `precision mediump float;
+uniform vec4 color;
+void main() {
+    gl_FragColor = color;
+}`,
+            vert: `precision mediump float;
+attribute vec2 position;
+uniform vec2 off;
+uniform vec2 scale;
+void main() {
+    gl_Position = vec4(position.xy * scale + off, 0, 1);
+}`,
+            attributes: {
+                position: [
+                    [-1, -1], [+1, +1], [-1, +1],
+                    [-1, -1], [+1, -1], [+1, +1]
+                ]
+            },
+            uniforms: {
+                off: regl.prop('off'),
+                scale: regl.prop('scale'),
+                color: regl.prop('color')
+            },
+            count: 6
+        })];
+
     var app = Elm.Main.init({
         node: document.getElementById('myapp')
     });
-    app.ports.setView.subscribe(function(v) {
+    app.ports.setView.subscribe(function (v) {
         ElmREGL.setView(v);
     });
-    app.ports.loadTexture.subscribe(function(v) {
+    app.ports.loadTexture.subscribe(function (v) {
         ElmREGL.loadTexture(v[0], v[1]);
     });
-    app.ports.createGLProgram.subscribe(function(v) {
+    app.ports.createREGLProgram.subscribe(function (v) {
         ElmREGL.createGLProgram(v[0], v[1]);
+    });
+    app.ports.configREGL.subscribe(function (v) {
+        ElmREGL.config(v);
     });
     const canvas = document.getElementById('elm-regl-canvas');
     ElmREGL.init(canvas, app);
+    // ElmREGL.loadGLProgram('rectTest', rectTest);
     ElmREGL.start();
 </script>
 

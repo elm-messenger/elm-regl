@@ -11,11 +11,6 @@ programBase name =
     ]
 
 
-triangleProgram : List ( String, Value )
-triangleProgram =
-    programBase "triangle"
-
-
 rectProgram : List ( String, Value )
 rectProgram =
     programBase "rect"

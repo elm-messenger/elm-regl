@@ -10,7 +10,8 @@ import Json.Encode as Encode
 import REGL exposing (genProg, render, toHtmlWith)
 import REGL.API exposing (appendArgs, programBase, toRgbaList)
 import REGL.Common exposing (Color(..), Renderable)
-import REGL.Program exposing (REGLProgram, encodeProgram)
+import REGL.Program exposing (ProgValue(..), REGLProgram, encodeProgram)
+import REGL.Triangle as Triangle
 
 
 port setView : Encode.Value -> Cmd msg
@@ -19,7 +20,10 @@ port setView : Encode.Value -> Cmd msg
 port loadTexture : ( String, String ) -> Cmd msg
 
 
-port createGLProgram : ( String, Encode.Value ) -> Cmd msg
+port createREGLProgram : ( String, Encode.Value ) -> Cmd msg
+
+
+port configREGL : Encode.Value -> Cmd msg
 
 
 port textureLoaded : (Encode.Value -> msg) -> Sub msg
@@ -78,38 +82,40 @@ myTriangleProgram =
     , attributes =
         Just
             [ ( "position"
-              , Encode.list Encode.float
-                    [ 0.02
-                    , 0.02
-                    , 0.02
-                    , -0.02
-                    , -0.02
-                    , -0.02
-                    , -0.02
-                    , 0.02
-                    ]
+              , StaticValue <|
+                    Encode.list Encode.float
+                        [ 0.02
+                        , 0.02
+                        , 0.02
+                        , -0.02
+                        , -0.02
+                        , -0.02
+                        , -0.02
+                        , 0.02
+                        ]
               )
             , ( "texc"
-              , Encode.list Encode.float
-                    [ 1
-                    , 1
-                    , 1
-                    , 0
-                    , 0
-                    , 0
-                    , 0
-                    , 1
-                    ]
+              , StaticValue <|
+                    Encode.list Encode.float
+                        [ 1
+                        , 1
+                        , 1
+                        , 0
+                        , 0
+                        , 0
+                        , 0
+                        , 1
+                        ]
               )
             ]
     , uniforms =
         Just
-            [ ( "texture", Encode.null )
-            , ( "offset", Encode.list Encode.float [ 0, 0 ] )
+            [ ( "texture", DynamicTextureValue "texture" )
+            , ( "offset", DynamicValue "offset" )
             ]
-    , textureUniformKeys = Just [ "texture" ]
     , elements = Just [ 0, 1, 2, 0, 2, 3 ]
     , count = 6
+    , primitive = Nothing
     }
 
 
@@ -123,7 +129,7 @@ mytriangle ( x1, y1 ) =
     genProg <|
         appendArgs
             [ ( "texture", Encode.string "enemy" )
-            , ( "offset", Encode.list Encode.float [ 0.5, 0.5 ] )
+            , ( "offset", Encode.list Encode.float [ x1, y1 ] )
             ]
             mytriangleProgram
 
@@ -135,7 +141,10 @@ init _ =
       }
     , Cmd.batch
         [ loadTexture ( "enemy", "asset/enemy.png" )
-        , createGLProgram <| ( "mytriangle", encodeProgram myTriangleProgram )
+        , createREGLProgram <| ( "mytriangle", encodeProgram myTriangleProgram )
+        , configREGL <| Encode.object [ ( "interval", Encode.float 0 ) ]
+
+        -- , createGLProgram <| ( "triangle", encodeProgram Triangle.prog )
         ]
     )
 
@@ -158,10 +167,10 @@ genRenderable : Model -> Renderable
 genRenderable model =
     let
         numx =
-            10
+            50
 
         numy =
-            10
+            30
 
         bgColor =
             toMColor <| EC.rgba 0 0 0 0
@@ -170,26 +179,23 @@ genRenderable model =
             toMColor EC.red
     in
     REGL.group <|
-        [ REGL.clear bgColor 1, mytriangle ( 0, 0 ) ]
-
-
-
--- :: (List.concat <|
---         List.map
---             (\x ->
---                 List.map
---                     (\y ->
---                         -- renderTexture
---                         --     ( t / 10 + toFloat x / numx - 1, toFloat y / numy - 1 )
---                         mytriangle ( model.lasttime / 10 + toFloat x / numx - 1, toFloat y / numy - 1 )
---                             ( model.lasttime / 10 + toFloat x / numx - 1 + 0.01, toFloat y / numy - 1 + 0.03 )
---                             ( model.lasttime / 10 + toFloat x / numx - 1 + 0.02, toFloat y / numy - 1 )
---                             redC
---                     )
---                     (List.range 0 (numy * 2))
---             )
---             (List.range 0 (numx * 2))
---    )
+        REGL.clear bgColor 1
+            :: (List.concat <|
+                    List.map
+                        (\x ->
+                            List.map
+                                (\y ->
+                                    -- mytriangle
+                                    --     ( model.lasttime / 10 + toFloat x / numx - 1, toFloat y / numy - 1 )
+                                    Triangle.triangle ( model.lasttime / 10 + toFloat x / numx - 1, toFloat y / numy - 1 )
+                                        ( model.lasttime / 10 + toFloat x / numx - 1 + 0.01, toFloat y / numy - 1 + 0.03 )
+                                        ( model.lasttime / 10 + toFloat x / numx - 1 + 0.02, toFloat y / numy - 1 )
+                                        redC
+                                )
+                                (List.range 0 (numy * 2))
+                        )
+                        (List.range 0 (numx * 2))
+               )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
