@@ -1,9 +1,22 @@
-module REGL.Program exposing (Primitive(..), ProgValue(..), REGLProgram, encodeProgram)
+module REGL.Program exposing
+    ( ProgValue(..)
+    , REGLProgram, Primitive(..), encodeProgram
+    )
 
 {-|
 
 
 # Custom Program
+
+
+## Program Value
+
+@docs ProgValue
+
+
+## Program Construction
+
+@docs REGLProgram, Primitive, encodeProgram
 
 -}
 

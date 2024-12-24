@@ -1,38 +1,6 @@
 module REGL.Color exposing
-    ( Color(..)
-    , black
-    , blue
-    , brown
-    , charcoal
-    , darkBlue
-    , darkBrown
-    , darkCharcoal
-    , darkGray
-    , darkGreen
-    , darkGrey
-    , darkOrange
-    , darkPurple
-    , darkRed
-    , darkYellow
-    , gray
-    , green
-    , grey
-    , lightBlue
-    , lightBrown
-    , lightCharcoal
-    , lightGray
-    , lightGreen
-    , lightGrey
-    , lightOrange
-    , lightPurple
-    , lightRed
-    , lightYellow
-    , orange
-    , purple
-    , red
-    , toRgbaList
-    , white
-    , yellow
+    ( Color(..), toRgbaList
+    , lightRed, red, darkRed, lightOrange, orange, darkOrange, lightYellow, yellow, darkYellow, lightGreen, green, darkGreen, lightBlue, blue, darkBlue, lightPurple, purple, darkPurple, lightBrown, brown, darkBrown, black, white, lightGrey, grey, darkGrey, lightGray, gray, darkGray, lightCharcoal, charcoal, darkCharcoal
     )
 
 {-|
@@ -43,6 +11,10 @@ module REGL.Color exposing
 A color type and a set of predefined colors.
 
 It uses `Float` values between 0 and 255 for each channel.
+
+@docs Color, toRgbaList
+
+@docs lightRed, red, darkRed, lightOrange, orange, darkOrange, lightYellow, yellow, darkYellow, lightGreen, green, darkGreen, lightBlue, blue, darkBlue, lightPurple, purple, darkPurple, lightBrown, brown, darkBrown, black, white, lightGrey, grey, darkGrey, lightGray, gray, darkGray, lightCharcoal, charcoal, darkCharcoal
 
 -}
 
