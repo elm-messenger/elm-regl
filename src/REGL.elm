@@ -1,5 +1,5 @@
 module REGL exposing
-    ( Renderable, group, empty, render
+    ( Renderable, genProg, group, empty, render
     , clear, triangle, simpTexture
     , REGLConfig, TimeInterval(..), encodeConfig
     , toHtmlWith

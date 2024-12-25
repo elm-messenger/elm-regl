@@ -10,7 +10,7 @@ import REGL exposing (genProg, render, toHtmlWith)
 import REGL.Color as Color exposing (Color(..))
 import REGL.Common exposing (Renderable)
 import REGL.Program exposing (ProgValue(..), REGLProgram, encodeProgram)
-import Triangle as Triangle
+import Triangle
 
 
 port setView : Encode.Value -> Cmd msg
@@ -199,21 +199,6 @@ update msg model =
                 ( { model | lasttime = t }
                 , Cmd.batch
                     [ setView <| render <| genRenderable model
-
-                    -- Encode.list Encode.object
-                    --     ((List.concat <|
-                    --                 List.map
-                    --                     (\x ->
-                    --                         List.map
-                    --                             (\y ->
-                    --                                 renderTexture
-                    --                                     ( t / 10 + toFloat x / numx - 1, toFloat y / numy - 1 )
-                    --                             )
-                    --                             (List.range 0 (numy * 2))
-                    --                     )
-                    --                     (List.range 0 (numx * 2))
-                    --            )
-                    --     )
                     ]
                 )
 
