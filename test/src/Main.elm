@@ -1,16 +1,15 @@
 port module Main exposing (..)
 
 import Browser
+import Color
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Json.Decode as Decode
 import Json.Encode as Encode
-import REGL exposing (genProg, render, toHtmlWith)
-import REGL.Color as Color exposing (Color(..))
+import REGL exposing (genProg, render, toHtmlWith, triangle)
 import REGL.Common exposing (Renderable)
 import REGL.Program exposing (ProgValue(..), REGLProgram, encodeProgram)
-import Triangle
 
 
 port setView : Encode.Value -> Cmd msg
@@ -163,10 +162,10 @@ genRenderable model =
             25
 
         bgColor =
-            ColorRGBA 0 0 0 0
+            Color.rgba 0 0 0 0
 
         redC =
-            Color.red
+            Color.rgba 1 0 0 0.5
     in
     REGL.group <|
         REGL.clear bgColor 1
@@ -177,7 +176,7 @@ genRenderable model =
                                 (\y ->
                                     -- mytriangle
                                     --     ( model.lasttime / 10 + toFloat x / numx - 1, toFloat y / numy - 1 )
-                                    Triangle.triangle ( model.lasttime / 10 + toFloat x / numx - 1, toFloat y / numy - 1 )
+                                    triangle ( model.lasttime / 10 + toFloat x / numx - 1, toFloat y / numy - 1 )
                                         ( model.lasttime / 10 + toFloat x / numx - 1 + 0.01, toFloat y / numy - 1 + 0.03 )
                                         ( model.lasttime / 10 + toFloat x / numx - 1 + 0.02, toFloat y / numy - 1 )
                                         redC

@@ -27,11 +27,11 @@ module REGL exposing
 
 -}
 
+import Color exposing (Color)
 import Html exposing (Attribute, Html, canvas)
 import Html.Attributes exposing (height, id, width)
 import Html.Keyed as Keyed
 import Json.Encode as Encode exposing (Value)
-import REGL.Color exposing (Color, toRgbaList)
 import REGL.Common as C
 
 
@@ -67,6 +67,15 @@ empty =
 render : Renderable -> Value
 render =
     C.render
+
+
+toRgbaList : Color -> List Float
+toRgbaList c =
+    let
+        rgba =
+            Color.toRgba c
+    in
+    [ rgba.red, rgba.green, rgba.blue, rgba.alpha ]
 
 
 {-| Clear the canvas with a color and a depth value.

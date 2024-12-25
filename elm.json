@@ -4,20 +4,17 @@
     "summary": "Elm bindings for REGL",
     "license": "BSD-3-Clause",
     "version": "1.0.0",
-    "source-directories": [
-        "src"
-    ],
     "exposed-modules": {
         "Main": [
             "REGL"
         ],
         "Utilities": [
-            "REGL.Color",
             "REGL.Program"
         ]
     },
     "elm-version": "0.19.1 <= v < 0.20.0",
     "dependencies": {
+        "avh4/elm-color": "1.0.0 <= v < 2.0.0",
         "elm/core": "1.0.0 <= v < 2.0.0",
         "elm/html": "1.0.0 <= v < 2.0.0",
         "elm/json": "1.0.0 <= v < 2.0.0"
