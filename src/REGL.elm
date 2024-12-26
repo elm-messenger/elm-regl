@@ -1,8 +1,9 @@
 module REGL exposing
     ( Renderable, genProg, group, empty, render
-    , clear, triangle, simpTexture
-    , REGLConfig, TimeInterval(..), encodeConfig
-    , toHtmlWith
+    , clear, triangle, simpTexture, simpText
+    , REGLConfig, TimeInterval(..), configREGL
+    , REGLStartConfig, TextureMagOption(..), TextureMinOption(..), TextureOptions, batchExec, createREGLProgram, loadTexture, startREGL, loadMSDFFont
+    , toHtmlWith, toRgbaList
     )
 
 {-|
@@ -18,12 +19,22 @@ module REGL exposing
 
 ## Builtin Commands
 
-@docs clear, triangle, simpTexture
+@docs clear, triangle, simpTexture, simpText
 
 
 ## User Configuration
 
-@docs REGLConfig, TimeInterval, encodeConfig
+@docs REGLConfig, TimeInterval, configREGL
+
+
+## Direct REGL Commands
+
+@docs REGLStartConfig, TextureMagOption, TextureMinOption, TextureOptions, batchExec, createREGLProgram, loadTexture, startREGL, loadMSDFFont
+
+
+## Miscellaneous
+
+@docs toHtmlWith, toRgbaList
 
 -}
 
@@ -33,6 +44,7 @@ import Html.Attributes exposing (height, id, width)
 import Html.Keyed as Keyed
 import Json.Encode as Encode exposing (Value)
 import REGL.Common as C
+import REGL.Program exposing (REGLProgram, encodeProgram)
 
 
 {-| A renderable object that can be rendered by REGL.
@@ -69,6 +81,8 @@ render =
     C.render
 
 
+{-| Convert a color to a list of RGBA values.
+-}
 toRgbaList : Color -> List Float
 toRgbaList c =
     let
@@ -76,6 +90,36 @@ toRgbaList c =
             Color.toRgba c
     in
     [ rgba.red, rgba.green, rgba.blue, rgba.alpha ]
+
+
+{-| A time interval for the REGL configuration.
+-}
+type TimeInterval
+    = AnimationFrame
+    | Millisecond Float
+
+
+{-| The user configuration for REGL.
+-}
+type alias REGLConfig =
+    { timeInterval : TimeInterval
+    }
+
+
+encodeConfig : REGLConfig -> Value
+encodeConfig config =
+    let
+        interval =
+            case config.timeInterval of
+                AnimationFrame ->
+                    -1
+
+                Millisecond ms ->
+                    ms
+    in
+    Encode.object
+        [ ( "interval", Encode.float interval )
+        ]
 
 
 {-| Clear the canvas with a color and a depth value.
@@ -113,6 +157,8 @@ triangle ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) color =
             ]
 
 
+{-| Render a texture with an offset.
+-}
 simpTexture : ( Float, Float ) -> String -> Renderable
 simpTexture ( x1, y1 ) name =
     genProg <|
@@ -123,6 +169,22 @@ simpTexture ( x1, y1 ) name =
               , Encode.object
                     [ ( "texture", Encode.string name )
                     , ( "offset", Encode.list Encode.float [ x1, y1 ] )
+                    ]
+              )
+            ]
+
+
+{-| Render a text.
+-}
+simpText : String -> Renderable
+simpText text =
+    genProg <|
+        Encode.object
+            [ ( "cmd", Encode.int 0 )
+            , ( "program", Encode.string "simpText" )
+            , ( "args"
+              , Encode.object
+                    [ ( "text", Encode.string text )
                     ]
               )
             ]
@@ -142,33 +204,139 @@ toHtmlWith options attrs =
         [ ( "__canvas", canvas [ height options.height, width options.width, id "elm-regl-canvas" ] [] ) ]
 
 
-{-| A time interval for the REGL configuration.
--}
-type TimeInterval
-    = AnimationFrame
-    | Millisecond Float
+type alias ExecPort msg =
+    Value -> Cmd msg
 
 
-{-| The user configuration for REGL.
--}
-type alias REGLConfig =
-    { timeInterval : TimeInterval
+
+-- Direct commands
+
+
+type TextureMagOption
+    = MagNearest
+    | MagLinear
+
+
+type TextureMinOption
+    = MinNearest
+    | MinLinear
+    | NearestMipmapNearest
+    | LinearMipmapNearest
+    | NearestMipmapLinear
+    | LinearMipmapLinear
+
+
+type alias TextureOptions =
+    { mag : Maybe TextureMagOption
+    , min : Maybe TextureMinOption
     }
 
 
-{-| Encode the REGL configuration to an object.
--}
-encodeConfig : REGLConfig -> Value
-encodeConfig config =
-    let
-        interval =
-            case config.timeInterval of
-                AnimationFrame ->
-                    -1
+batchExec : ExecPort msg -> List (ExecPort msg -> Cmd msg) -> List (Cmd msg)
+batchExec execPort cmds =
+    List.map (\cmd -> cmd execPort) cmds
 
-                Millisecond ms ->
-                    ms
-    in
-    Encode.object
-        [ ( "interval", Encode.float interval )
-        ]
+
+encodeTextureOptions : Maybe TextureOptions -> List ( String, Value )
+encodeTextureOptions topts =
+    case topts of
+        Just opts ->
+            [ ( "mag"
+              , Encode.string <|
+                    case opts.mag of
+                        Just MagNearest ->
+                            "nearest"
+
+                        Just MagLinear ->
+                            "linear"
+
+                        Nothing ->
+                            "linear"
+              )
+            , ( "min"
+              , Encode.string <|
+                    case opts.min of
+                        Just MinNearest ->
+                            "nearest"
+
+                        Just MinLinear ->
+                            "linear"
+
+                        Just NearestMipmapNearest ->
+                            "nearest mipmap nearest"
+
+                        Just LinearMipmapNearest ->
+                            "linear mipmap nearest"
+
+                        Just NearestMipmapLinear ->
+                            "nearest mipmap linear"
+
+                        Just LinearMipmapLinear ->
+                            "linear mipmap linear"
+
+                        Nothing ->
+                            "linear"
+              )
+            ]
+
+        Nothing ->
+            []
+
+
+loadTexture : String -> String -> Maybe TextureOptions -> ExecPort msg -> Cmd msg
+loadTexture name url topts execPort =
+    execPort <|
+        Encode.object
+            [ ( "cmd", Encode.string "loadTexture" )
+            , ( "name", Encode.string name )
+            , ( "opts"
+              , Encode.object
+                    (( "data", Encode.string url ) :: encodeTextureOptions topts)
+              )
+            ]
+
+
+type alias REGLStartConfig =
+    { virtWidth : Float
+    , virtHeight : Float
+    }
+
+
+startREGL : REGLStartConfig -> ExecPort msg -> Cmd msg
+startREGL config execPort =
+    execPort <|
+        Encode.object
+            [ ( "cmd", Encode.string "start" )
+            , ( "virtWidth", Encode.float config.virtWidth )
+            , ( "virtHeight", Encode.float config.virtHeight )
+            ]
+
+
+createREGLProgram : String -> REGLProgram -> ExecPort msg -> Cmd msg
+createREGLProgram name program execPort =
+    execPort <|
+        Encode.object
+            [ ( "cmd", Encode.string "createGLProgram" )
+            , ( "name", Encode.string name )
+            , ( "proto", encodeProgram program )
+            ]
+
+
+configREGL : REGLConfig -> ExecPort msg -> Cmd msg
+configREGL config execPort =
+    execPort <|
+        Encode.object
+            [ ( "cmd", Encode.string "config" )
+            , ( "config", encodeConfig config )
+            ]
+
+
+loadMSDFFont : String -> String -> String -> ExecPort msg -> Cmd msg
+loadMSDFFont name imgurl jsonurl execPort =
+    execPort <|
+        Encode.object
+            [ ( "cmd", Encode.string "loadFont" )
+            , ( "name", Encode.string name )
+            , ( "img", Encode.string imgurl )
+            , ( "json", Encode.string jsonurl )
+            ]

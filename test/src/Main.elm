@@ -10,18 +10,22 @@ import Json.Encode as Encode
 import REGL exposing (genProg, render, toHtmlWith, triangle)
 import REGL.Common exposing (Renderable)
 import REGL.Program exposing (ProgValue(..), REGLProgram, encodeProgram)
+import String exposing (fromFloat, fromInt)
 
 
 port setView : Encode.Value -> Cmd msg
 
 
-port loadTexture : ( String, String ) -> Cmd msg
+-- port loadTexture : ( String, String ) -> Cmd msg
 
 
-port createREGLProgram : ( String, Encode.Value ) -> Cmd msg
+port execREGLCmd : Encode.Value -> Cmd msg
 
 
-port configREGL : Encode.Value -> Cmd msg
+-- port createREGLProgram : ( String, Encode.Value ) -> Cmd msg
+
+
+-- port configREGL : Encode.Value -> Cmd msg
 
 
 port textureLoaded : (Encode.Value -> msg) -> Sub msg
@@ -152,8 +156,8 @@ type Msg
     | TextureLoaded Encode.Value
 
 
-genRenderable : Model -> Renderable
-genRenderable model =
+genRenderable1 : Model -> Renderable
+genRenderable1 model =
     let
         numx =
             50
@@ -187,6 +191,14 @@ genRenderable model =
                )
 
 
+genRenderable2 : Model -> Renderable
+genRenderable2 model =
+    REGL.group
+        [ REGL.clear (Color.rgba 0 0 0 0) 1
+        , REGL.simpText ("happy 你好呀happy 你好呀" ++ fromFloat model.lasttime)
+        ]
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
@@ -197,7 +209,7 @@ update msg model =
             else
                 ( { model | lasttime = t }
                 , Cmd.batch
-                    [ setView <| render <| genRenderable model
+                    [ setView <| render <| genRenderable2 model
                     ]
                 )
 
@@ -222,8 +234,8 @@ subscriptions _ =
 
 view : Model -> Html Msg
 view _ =
-    toHtmlWith { width = 1264, height = 711 }
-        [ style "left" "136px"
+    toHtmlWith { width = 1280, height = 720 }
+        [ style "left" "0px"
         , style "top" "0px"
         , style "position" "fixed"
         ]
