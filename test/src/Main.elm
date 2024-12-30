@@ -7,13 +7,14 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Json.Decode as Decode
 import Json.Encode as Encode
-import REGL exposing (genProg, render, toHtmlWith, triangle)
+import REGL exposing (REGLStartConfig, batchExec, genProg, loadMSDFFont, loadTexture, render, startREGL, toHtmlWith, triangle)
 import REGL.Common exposing (Renderable)
-import REGL.Program exposing (ProgValue(..), REGLProgram, encodeProgram)
+import REGL.Program exposing (ProgValue(..), REGLProgram)
 import String exposing (fromFloat, fromInt)
 
 
 port setView : Encode.Value -> Cmd msg
+
 
 
 -- port loadTexture : ( String, String ) -> Cmd msg
@@ -22,9 +23,8 @@ port setView : Encode.Value -> Cmd msg
 port execREGLCmd : Encode.Value -> Cmd msg
 
 
+
 -- port createREGLProgram : ( String, Encode.Value ) -> Cmd msg
-
-
 -- port configREGL : Encode.Value -> Cmd msg
 
 
@@ -142,12 +142,18 @@ init _ =
       , loadednum = 0
       }
     , Cmd.batch
-        [ loadTexture ( "enemy", "asset/enemy.png" )
-        , createREGLProgram <| ( "mytriangle", encodeProgram myTriangleProgram )
-        , configREGL <| Encode.object [ ( "interval", Encode.float 0 ) ]
+        -- [ loadTexture ( "enemy", "asset/enemy.png" )
+        -- , createREGLProgram <| ( "mytriangle", encodeProgram myTriangleProgram )
+        -- , configREGL <| Encode.object [ ( "interval", Encode.float 0 ) ]
+        -- -- , createGLProgram <| ( "triangle", encodeProgram Triangle.prog )
+        -- ]
+        (batchExec execREGLCmd
+            [ loadTexture "enemy" "asset/enemy.png" Nothing
 
-        -- , createGLProgram <| ( "triangle", encodeProgram Triangle.prog )
-        ]
+            -- , loadMSDFFont "firacode" "asset/fira.png" "asset/fira.json"
+            , startREGL (REGLStartConfig 1280 720)
+            ]
+        )
     )
 
 
@@ -195,7 +201,9 @@ genRenderable2 : Model -> Renderable
 genRenderable2 model =
     REGL.group
         [ REGL.clear (Color.rgba 0 0 0 0) 1
-        , REGL.simpText ("happy 你好呀happy 你好呀" ++ fromFloat model.lasttime)
+
+        -- , REGL.simpText ("hello world\nhihi jijiji" ++ fromInt (floor model.lasttime))
+        , REGL.triangle ( 0, 720 ) ( 1280, 720 ) ( 1280, 720 / 2 ) Color.red
         ]
 
 
