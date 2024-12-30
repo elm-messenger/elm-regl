@@ -200,10 +200,11 @@ genRenderable1 model =
 genRenderable2 : Model -> Renderable
 genRenderable2 model =
     REGL.group
-        [ REGL.clear (Color.rgba 0 0 0 0) 1
+        [ REGL.clear Color.white 1
 
         -- , REGL.simpText ("hello world\nhihi jijiji" ++ fromInt (floor model.lasttime))
         , REGL.triangle ( 0, 720 ) ( 1280, 720 ) ( 1280, 720 / 2 ) Color.red
+        , REGL.quad ( 0, 0 ) ( 1280, 0 ) ( 1280 / 3, 720 / 3 ) ( 0, 720 ) Color.green
         ]
 
 

@@ -1,6 +1,6 @@
 module REGL exposing
     ( Renderable, genProg, group, empty, render
-    , clear, triangle, simpTexture, simpText
+    , clear, triangle, quad, simpTexture, simpText
     , REGLConfig, TimeInterval(..), configREGL
     , REGLStartConfig, TextureMagOption(..), TextureMinOption(..), TextureOptions, batchExec, createREGLProgram, loadTexture, startREGL, loadMSDFFont
     , toHtmlWith, toRgbaList
@@ -19,7 +19,7 @@ module REGL exposing
 
 ## Builtin Commands
 
-@docs clear, triangle, simpTexture, simpText
+@docs clear, triangle, quad, simpTexture, simpText
 
 
 ## User Configuration
@@ -151,6 +151,23 @@ triangle ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) color =
             , ( "args"
               , Encode.object
                     [ ( "pos", Encode.list Encode.float [ x1, y1, x2, y2, x3, y3 ] )
+                    , ( "color", Encode.list Encode.float (toRgbaList color) )
+                    ]
+              )
+            ]
+
+
+{-| Render a quad with three vertices and a color.
+-}
+quad : ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> Color -> Renderable
+quad ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) ( x4, y4 ) color =
+    genProg <|
+        Encode.object
+            [ ( "cmd", Encode.int 0 )
+            , ( "program", Encode.string "quad" )
+            , ( "args"
+              , Encode.object
+                    [ ( "pos", Encode.list Encode.float [ x1, y1, x2, y2, x3, y3, x4, y4 ] )
                     , ( "color", Encode.list Encode.float (toRgbaList color) )
                     ]
               )
