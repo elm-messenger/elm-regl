@@ -3,6 +3,7 @@ module REGL exposing
     , clear, triangle, quad, simpTexture, simpText
     , REGLConfig, TimeInterval(..), configREGL
     , REGLStartConfig, TextureMagOption(..), TextureMinOption(..), TextureOptions, batchExec, createREGLProgram, loadTexture, startREGL, loadMSDFFont
+    , blur
     , toHtmlWith, toRgbaList
     )
 
@@ -32,6 +33,11 @@ module REGL exposing
 @docs REGLStartConfig, TextureMagOption, TextureMinOption, TextureOptions, batchExec, createREGLProgram, loadTexture, startREGL, loadMSDFFont
 
 
+## Effects
+
+@docs blur
+
+
 ## Miscellaneous
 
 @docs toHtmlWith, toRgbaList
@@ -53,6 +59,12 @@ type alias Renderable =
     C.Renderable
 
 
+{-| A post-processing effect.
+-}
+type alias Effect =
+    C.Effect
+
+
 {-| Generate a renderable object from an object.
 -}
 genProg : Value -> Renderable
@@ -62,7 +74,7 @@ genProg =
 
 {-| Group a list of renderables into a single renderable.
 -}
-group : List Renderable -> Renderable
+group : List Effect -> List Renderable -> Renderable
 group =
     C.group
 
@@ -147,7 +159,7 @@ triangle ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) color =
     genProg <|
         Encode.object
             [ ( "cmd", Encode.int 0 )
-            , ( "program", Encode.string "triangle" )
+            , ( "prog", Encode.string "triangle" )
             , ( "args"
               , Encode.object
                     [ ( "pos", Encode.list Encode.float [ x1, y1, x2, y2, x3, y3 ] )
@@ -164,7 +176,7 @@ quad ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) ( x4, y4 ) color =
     genProg <|
         Encode.object
             [ ( "cmd", Encode.int 0 )
-            , ( "program", Encode.string "quad" )
+            , ( "prog", Encode.string "quad" )
             , ( "args"
               , Encode.object
                     [ ( "pos", Encode.list Encode.float [ x1, y1, x2, y2, x3, y3, x4, y4 ] )
@@ -181,7 +193,7 @@ simpTexture ( x1, y1 ) name =
     genProg <|
         Encode.object
             [ ( "cmd", Encode.int 0 )
-            , ( "program", Encode.string "simpTexture" )
+            , ( "prog", Encode.string "simpTexture" )
             , ( "args"
               , Encode.object
                     [ ( "texture", Encode.string name )
@@ -198,10 +210,11 @@ simpText text =
     genProg <|
         Encode.object
             [ ( "cmd", Encode.int 0 )
-            , ( "program", Encode.string "simpText" )
+            , ( "prog", Encode.string "simpText" )
             , ( "args"
               , Encode.object
                     [ ( "text", Encode.string text )
+                    , ( "size", Encode.float 50 )
                     ]
               )
             ]
@@ -357,3 +370,17 @@ loadMSDFFont name imgurl jsonurl execPort =
             , ( "img", Encode.string imgurl )
             , ( "json", Encode.string jsonurl )
             ]
+
+
+{-| Blurs a renderable.
+-}
+blur : Float -> Effect
+blur radius =
+    Encode.object
+        [ ( "prog", Encode.string "blur" )
+        , ( "args"
+          , Encode.object
+                [ ( "radius", Encode.float radius )
+                ]
+          )
+        ]

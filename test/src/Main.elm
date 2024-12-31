@@ -7,7 +7,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Json.Decode as Decode
 import Json.Encode as Encode
-import REGL exposing (REGLStartConfig, batchExec, genProg, loadMSDFFont, loadTexture, render, startREGL, toHtmlWith, triangle)
+import REGL exposing (REGLStartConfig, batchExec, blur, genProg, loadMSDFFont, loadTexture, render, startREGL, toHtmlWith, triangle)
 import REGL.Common exposing (Renderable)
 import REGL.Program exposing (ProgValue(..), REGLProgram)
 import String exposing (fromFloat, fromInt)
@@ -126,7 +126,7 @@ mytriangle ( x1, y1 ) =
     genProg <|
         Encode.object
             [ ( "cmd", Encode.int 0 )
-            , ( "program", Encode.string "enemy" )
+            , ( "prog", Encode.string "enemy" )
             , ( "args"
               , Encode.object
                     [ ( "texture", Encode.string "enemy" )
@@ -169,7 +169,7 @@ genRenderable1 model =
             50
 
         numy =
-            25
+            50
 
         bgColor =
             Color.rgba 0 0 0 0
@@ -177,7 +177,7 @@ genRenderable1 model =
         redC =
             Color.rgba 1 0 0 0.5
     in
-    REGL.group <|
+    REGL.group [] <|
         REGL.clear bgColor 1
             :: (List.concat <|
                     List.map
@@ -186,9 +186,9 @@ genRenderable1 model =
                                 (\y ->
                                     -- mytriangle
                                     --     ( model.lasttime / 10 + toFloat x / numx - 1, toFloat y / numy - 1 )
-                                    triangle ( model.lasttime / 10 + toFloat x / numx - 1, toFloat y / numy - 1 )
-                                        ( model.lasttime / 10 + toFloat x / numx - 1 + 0.01, toFloat y / numy - 1 + 0.03 )
-                                        ( model.lasttime / 10 + toFloat x / numx - 1 + 0.02, toFloat y / numy - 1 )
+                                    triangle ( model.lasttime * 30 + toFloat x / numx * 1280, toFloat y / numy * 720 + 10 )
+                                        ( model.lasttime * 30 + toFloat x / numx * 1280 + 10, toFloat y / numy * 720 + 30 )
+                                        ( model.lasttime * 30 + toFloat x / numx * 1280 + 20, toFloat y / numy * 720 + 10 )
                                         redC
                                 )
                                 (List.range 0 (numy * 2))
@@ -199,12 +199,11 @@ genRenderable1 model =
 
 genRenderable2 : Model -> Renderable
 genRenderable2 model =
-    REGL.group
+    REGL.group []
         [ REGL.clear Color.white 1
-
-        -- , REGL.simpText ("hello world\nhihi jijiji" ++ fromInt (floor model.lasttime))
-        , REGL.triangle ( 0, 720 ) ( 1280, 720 ) ( 1280, 720 / 2 ) Color.red
         , REGL.quad ( 0, 0 ) ( 1280, 0 ) ( 1280 / 3, 720 / 3 ) ( 0, 720 ) Color.green
+        , REGL.triangle ( 10, 300 ) ( 10 + 100, 300 ) ( 10 + 100, 300 / 2 ) Color.red
+        , REGL.simpText ("hello world\nhihi jijiji" ++ fromInt (floor model.lasttime))
         ]
 
 
@@ -218,7 +217,7 @@ update msg model =
             else
                 ( { model | lasttime = t }
                 , Cmd.batch
-                    [ setView <| render <| genRenderable2 model
+                    [ setView <| render <| genRenderable1 model
                     ]
                 )
 

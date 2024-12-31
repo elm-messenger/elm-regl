@@ -1,4 +1,4 @@
-module REGL.Common exposing (Renderable, genProg, group, render)
+module REGL.Common exposing (Effect, Renderable, genProg, group, render)
 
 {-|
 
@@ -10,11 +10,17 @@ module REGL.Common exposing (Renderable, genProg, group, render)
 import Json.Encode as Encode exposing (Value)
 
 
+{-| A post-processing effect.
+-}
+type alias Effect =
+    Value
+
+
 {-| A renderable object that can be rendered by REGL.
 -}
 type Renderable
     = AtomicRenderable Value
-    | GroupRenderable (List Renderable)
+    | GroupRenderable (List Effect) (List Renderable)
 
 
 {-| Render a renderable object.
@@ -25,15 +31,45 @@ render renderable =
         AtomicRenderable value ->
             value
 
-        GroupRenderable renderables ->
-            Encode.list identity (List.map render renderables)
+        GroupRenderable effects renderables ->
+            Encode.object
+                [ ( "e", Encode.list identity effects )
+                , ( "c", Encode.list identity (List.map render renderables) )
+                , ( "cmd", Encode.int 2 )
+                ]
+
+
+-- renderHelper : Renderable -> List Value -> List Value
+-- renderHelper renderable old =
+--     case renderable of
+--         AtomicRenderable value ->
+--             old ++ [ value ]
+
+--         GroupRenderable _ [] ->
+--             old
+
+--         GroupRenderable [] renderables ->
+--             List.foldl renderHelper old renderables
+
+--         GroupRenderable effects renderables ->
+--             let
+--                 rs =
+--                     Encode.list identity (List.foldl renderHelper [] renderables)
+--             in
+--             old
+--                 ++ [ Encode.object
+--                         [ ( "e", Encode.list identity effects )
+--                         , ( "c", rs )
+--                         , ( "cmd", Encode.int 2 )
+--                         ]
+--                    ]
 
 
 {-| Group a list of renderables into a single renderable.
 -}
-group : List Renderable -> Renderable
-group renderables =
-    GroupRenderable renderables
+group : List Effect -> List Renderable -> Renderable
+group effects renderables =
+    GroupRenderable effects renderables
 
 
 {-| Generate a renderable object from an object.

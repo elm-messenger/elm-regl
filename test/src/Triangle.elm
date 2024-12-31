@@ -2,7 +2,6 @@ module Triangle exposing (..)
 
 import Json.Encode as Encode exposing (Value)
 import REGL exposing (genProg)
-import REGL.Color exposing (Color, toRgbaList)
 import REGL.Common exposing (Renderable)
 import REGL.Program exposing (ProgValue(..), REGLProgram)
 
@@ -52,7 +51,7 @@ triangle ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) color =
     genProg <|
         Encode.object
             [ ( "cmd", Encode.int 0 )
-            , ( "program", Encode.string "triangle" )
+            , ( "prog", Encode.string "triangle" )
             , ( "args"
               , Encode.object
                     [ ( "pos", Encode.list Encode.float [ x1, y1, x2, y2, x3, y3 ] )
