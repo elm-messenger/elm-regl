@@ -166,10 +166,10 @@ genRenderable1 : Model -> Renderable
 genRenderable1 model =
     let
         numx =
-            50
+            10
 
         numy =
-            50
+            10
 
         bgColor =
             Color.rgba 0 0 0 0
@@ -186,9 +186,9 @@ genRenderable1 model =
                                 (\y ->
                                     -- mytriangle
                                     --     ( model.lasttime / 10 + toFloat x / numx - 1, toFloat y / numy - 1 )
-                                    triangle ( model.lasttime * 30 + toFloat x / numx * 1280, toFloat y / numy * 720 + 10 )
-                                        ( model.lasttime * 30 + toFloat x / numx * 1280 + 10, toFloat y / numy * 720 + 30 )
-                                        ( model.lasttime * 30 + toFloat x / numx * 1280 + 20, toFloat y / numy * 720 + 10 )
+                                    triangle ( model.lasttime * 30 + toFloat x / numx * 640, toFloat y / numy * 360 + 5 )
+                                        ( model.lasttime * 30 + toFloat x / numx * 640 + 5, toFloat y / numy * 360 + 15 )
+                                        ( model.lasttime * 30 + toFloat x / numx * 640 + 10, toFloat y / numy * 360 + 5 )
                                         redC
                                 )
                                 (List.range 0 (numy * 2))
@@ -199,11 +199,15 @@ genRenderable1 model =
 
 genRenderable2 : Model -> Renderable
 genRenderable2 model =
-    REGL.group []
+    REGL.group [ ]
         [ REGL.clear Color.white 1
+        , REGL.triangle ( 400, 300 ) ( 400 + 100, 300 ) ( 400 + 100, 300 / 2 ) Color.red
         , REGL.quad ( 0, 0 ) ( 1280, 0 ) ( 1280 / 3, 720 / 3 ) ( 0, 720 ) Color.green
-        , REGL.triangle ( 10, 300 ) ( 10 + 100, 300 ) ( 10 + 100, 300 / 2 ) Color.red
         , REGL.simpText ("hello world\nhihi jijiji" ++ fromInt (floor model.lasttime))
+
+        -- , REGL.group []
+        --     [ REGL.triangle ( 700, 300 ) ( 700 + 100, 300 ) ( 700 + 100, 300 / 2 ) Color.red
+        --     ]
         ]
 
 
@@ -217,7 +221,7 @@ update msg model =
             else
                 ( { model | lasttime = t }
                 , Cmd.batch
-                    [ setView <| render <| genRenderable1 model
+                    [ setView <| render <| genRenderable2 model
                     ]
                 )
 
