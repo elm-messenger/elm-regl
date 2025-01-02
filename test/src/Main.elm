@@ -82,8 +82,8 @@ genRenderable1 model =
         redC =
             Color.rgba 1 0 0 0.5
     in
-    REGL.group [] <|
-        REGL.clear bgColor 1
+    REGL.group <|
+        REGL.clear bgColor
             :: (List.concat <|
                     List.map
                         (\x ->
@@ -104,17 +104,17 @@ genRenderable1 model =
 
 genRenderable2 : Model -> Renderable
 genRenderable2 model =
-    REGL.group []
-        [ REGL.clear (Color.rgba 1 1 1 1) 1
-        , REGL.triangle ( 400, 300 ) ( 400 + 100, 300 ) ( 400 + 100, 300 / 2 ) Color.red
-        , REGL.quad ( 0, 0 ) ( 1280, 0 ) ( 1280 / 3, 720 / 3 ) ( 0, 720 ) (Color.rgba 1 0 1 1)
-        , REGL.triangle ( 700, 100 ) ( 700 + 100, 100 ) ( 700 + 100, 100 / 2 ) (Color.rgba 0 0 0 1)
+    REGL.group
+        [ REGL.clear (Color.rgba 1 1 1 1)
         , REGL.simpText ("hello world\nhihi jijiji" ++ fromInt (floor model.lasttime))
-        , REGL.group [ blur 1 ]
-            [ REGL.clear (Color.rgba 1 0 1 0) 1
+        , REGL.triangle ( 400, 300 ) ( 400 + 100, 300 ) ( 400 + 100, 300 / 2 ) Color.red
+        , REGL.quad ( 0, 0 ) ( 1280, 0 ) ( 1280 / 3, 720 / 3 ) ( 0, 720 ) (Color.rgba 0.5 0.5 0.7 1)
+        , REGL.groupEffects [ blur 2 ]
+            [ REGL.clear (Color.rgba 0.5 0.5 0.7 0)
             , REGL.triangle ( 700, 100 ) ( 700 + 100, 100 ) ( 700 + 100, 100 / 2 ) Color.red
-            , REGL.triangle ( 700, 100 ) ( 700 + 100, 100 ) ( 700 + 100, 100 / 2 ) Color.green
+            , REGL.triangle ( 500, 100 ) ( 500 + 100, 100 ) ( 500 + 100, 100 / 2 ) Color.green
             ]
+        , REGL.triangle ( 700, 200 ) ( 700 + 100, 200 ) ( 700 + 100, 200 / 2 ) (Color.rgba 0 0 0 1)
         ]
 
 
