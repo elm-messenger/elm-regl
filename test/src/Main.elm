@@ -9,6 +9,7 @@ import Json.Decode as Decode
 import Json.Encode as Encode
 import REGL exposing (REGLStartConfig, batchExec, blur, genProg, loadMSDFFont, loadTexture, render, startREGL, toHtmlWith, triangle)
 import REGL.Common exposing (Renderable)
+import REGL.Compositors as Comp
 import REGL.Program exposing (ProgValue(..), REGLProgram)
 import String exposing (fromFloat, fromInt)
 
@@ -105,7 +106,7 @@ genRenderable1 model =
 genRenderable2 : Model -> Renderable
 genRenderable2 model =
     REGL.group
-        [ REGL.clear (Color.rgba 1 1 1 1)
+        [ REGL.clear (Color.rgba 0 0 0 0)
         , REGL.simpText ("hello world\nhihi jijiji" ++ fromInt (floor model.lasttime))
         , REGL.triangle ( 400, 300 ) ( 400 + 100, 300 ) ( 400 + 100, 300 / 2 ) Color.red
         , REGL.quad ( 0, 0 ) ( 1280, 0 ) ( 1280 / 3, 720 / 3 ) ( 0, 720 ) (Color.rgba 0.5 0.5 0.7 1)
@@ -114,7 +115,16 @@ genRenderable2 model =
             , REGL.triangle ( 700, 100 ) ( 700 + 100, 100 ) ( 700 + 100, 100 / 2 ) Color.red
             , REGL.triangle ( 500, 100 ) ( 500 + 100, 100 ) ( 500 + 100, 100 / 2 ) Color.green
             ]
-        , REGL.triangle ( 700, 200 ) ( 700 + 100, 200 ) ( 700 + 100, 200 / 2 ) (Color.rgba 0 0 0 1)
+        , REGL.triangle ( 700, 150 ) ( 700 + 100, 150 ) ( 700 + 100, 150 / 2 ) (Color.rgba 0 0 0 1)
+        , Comp.dstOverSrc
+            (REGL.group
+                [ REGL.triangle ( 500, 150 ) ( 500 + 100, 150 ) ( 500 + 100, 150 / 2 ) Color.green
+                ]
+            )
+            (REGL.group
+                [ REGL.triangle ( 550, 150 ) ( 550 + 100, 150 ) ( 550 + 100, 150 / 2 ) Color.red
+                ]
+            )
         ]
 
 

@@ -9,7 +9,8 @@
             "REGL"
         ],
         "Utilities": [
-            "REGL.Program"
+            "REGL.Program",
+            "REGL.Compositors"
         ]
     },
     "elm-version": "0.19.1 <= v < 0.20.0",
