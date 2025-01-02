@@ -6,6 +6,7 @@ module REGL exposing
     , blur
     , toHtmlWith, toRgbaList
     , saveAsTexture
+    , gblur
     )
 
 {-|
@@ -404,6 +405,20 @@ blur radius =
         , ( "args"
           , Encode.object
                 [ ( "radius", Encode.float radius )
+                ]
+          )
+        ]
+
+
+{-| Blurs a renderable.
+-}
+gblur : Float -> Effect
+gblur sigma =
+    Encode.object
+        [ ( "prog", Encode.string "gblur" )
+        , ( "args"
+          , Encode.object
+                [ ( "sigma", Encode.float sigma )
                 ]
           )
         ]
