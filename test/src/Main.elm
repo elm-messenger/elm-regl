@@ -16,16 +16,7 @@ import String exposing (fromFloat, fromInt)
 port setView : Encode.Value -> Cmd msg
 
 
-
--- port loadTexture : ( String, String ) -> Cmd msg
-
-
 port execREGLCmd : Encode.Value -> Cmd msg
-
-
-
--- port createREGLProgram : ( String, Encode.Value ) -> Cmd msg
--- port configREGL : Encode.Value -> Cmd msg
 
 
 port textureLoaded : (Encode.Value -> msg) -> Sub msg
@@ -48,92 +39,6 @@ type alias Model =
     { lasttime : Float
     , loadednum : Int
     }
-
-
-frag =
-    """
-precision mediump float;
-uniform sampler2D texture;
-varying vec2 uv;
-void main() {
-    gl_FragColor = texture2D(texture, uv);
-}
-
-"""
-
-
-vert =
-    """
-precision mediump float;
-attribute vec2 position;
-attribute vec2 texc;
-uniform vec2 offset;
-varying vec2 uv;
-void main() {
-    uv = texc;
-    gl_Position = vec4(-position + offset, 0, 1);
-}
-
-"""
-
-
-myTriangleProgram : REGLProgram
-myTriangleProgram =
-    { frag = frag
-    , vert = vert
-    , attributes =
-        Just
-            [ ( "position"
-              , StaticValue <|
-                    Encode.list Encode.float
-                        [ 0.02
-                        , 0.02
-                        , 0.02
-                        , -0.02
-                        , -0.02
-                        , -0.02
-                        , -0.02
-                        , 0.02
-                        ]
-              )
-            , ( "texc"
-              , StaticValue <|
-                    Encode.list Encode.float
-                        [ 1
-                        , 1
-                        , 1
-                        , 0
-                        , 0
-                        , 0
-                        , 0
-                        , 1
-                        ]
-              )
-            ]
-    , uniforms =
-        Just
-            [ ( "texture", DynamicTextureValue "texture" )
-            , ( "offset", DynamicValue "offset" )
-            ]
-    , elements = Just [ 0, 1, 2, 0, 2, 3 ]
-    , count = 6
-    , primitive = Nothing
-    }
-
-
-mytriangle : ( Float, Float ) -> Renderable
-mytriangle ( x1, y1 ) =
-    genProg <|
-        Encode.object
-            [ ( "cmd", Encode.int 0 )
-            , ( "prog", Encode.string "enemy" )
-            , ( "args"
-              , Encode.object
-                    [ ( "texture", Encode.string "enemy" )
-                    , ( "offset", Encode.list Encode.float [ x1, y1 ] )
-                    ]
-              )
-            ]
 
 
 init : () -> ( Model, Cmd Msg )
@@ -199,15 +104,17 @@ genRenderable1 model =
 
 genRenderable2 : Model -> Renderable
 genRenderable2 model =
-    REGL.group [ ]
-        [ REGL.clear Color.white 1
+    REGL.group []
+        [ REGL.clear (Color.rgba 1 1 1 1) 1
         , REGL.triangle ( 400, 300 ) ( 400 + 100, 300 ) ( 400 + 100, 300 / 2 ) Color.red
-        , REGL.quad ( 0, 0 ) ( 1280, 0 ) ( 1280 / 3, 720 / 3 ) ( 0, 720 ) Color.green
+        , REGL.quad ( 0, 0 ) ( 1280, 0 ) ( 1280 / 3, 720 / 3 ) ( 0, 720 ) (Color.rgba 1 0 1 1)
+        , REGL.triangle ( 700, 100 ) ( 700 + 100, 100 ) ( 700 + 100, 100 / 2 ) (Color.rgba 0 0 0 1)
         , REGL.simpText ("hello world\nhihi jijiji" ++ fromInt (floor model.lasttime))
-
-        -- , REGL.group []
-        --     [ REGL.triangle ( 700, 300 ) ( 700 + 100, 300 ) ( 700 + 100, 300 / 2 ) Color.red
-        --     ]
+        , REGL.group [ blur 1 ]
+            [ REGL.clear (Color.rgba 1 0 1 0) 1
+            , REGL.triangle ( 700, 100 ) ( 700 + 100, 100 ) ( 700 + 100, 100 / 2 ) Color.red
+            , REGL.triangle ( 700, 100 ) ( 700 + 100, 100 ) ( 700 + 100, 100 / 2 ) Color.green
+            ]
         ]
 
 

@@ -5,6 +5,7 @@ module REGL exposing
     , REGLStartConfig, TextureMagOption(..), TextureMinOption(..), TextureOptions, batchExec, createREGLProgram, loadTexture, startREGL, loadMSDFFont
     , blur
     , toHtmlWith, toRgbaList
+    , saveAsTexture
     )
 
 {-|
@@ -41,6 +42,11 @@ module REGL exposing
 ## Miscellaneous
 
 @docs toHtmlWith, toRgbaList
+
+
+## Advanced
+
+@docs saveAsTexture
 
 -}
 
@@ -217,6 +223,17 @@ simpText text =
                     , ( "size", Encode.float 50 )
                     ]
               )
+            ]
+
+
+{-| Save the current FBO as a texture.
+-}
+saveAsTexture : String -> Renderable
+saveAsTexture text =
+    genProg <|
+        Encode.object
+            [ ( "cmd", Encode.int 4 )
+            , ( "name", Encode.string text )
             ]
 
 
