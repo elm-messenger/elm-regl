@@ -1,0 +1,64 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Elm</title>
+    <script type="text/javascript" src="build/main.js"></script>
+    <script type="text/javascript" src="build/regl.js"></script>
+    <link rel="stylesheet" href="build/style.css">
+</head>
+
+<body oncontextmenu="return false;">
+    <div id="myapp"></div>
+</body>
+
+<script type="text/javascript">
+    const rectTest = (regl) => [
+        (x) => x
+        , regl({
+            frag: `precision mediump float;
+uniform vec4 color;
+void main() {
+    gl_FragColor = color;
+}`,
+            vert: `precision mediump float;
+attribute vec2 position;
+uniform vec2 off;
+uniform vec2 scale;
+void main() {
+    gl_Position = vec4(position.xy * scale + off, 0, 1);
+}`,
+            attributes: {
+                position: [
+                    [-1, -1], [+1, +1], [-1, +1],
+                    [-1, -1], [+1, -1], [+1, +1]
+                ]
+            },
+            uniforms: {
+                off: regl.prop('off'),
+                scale: regl.prop('scale'),
+                color: regl.prop('color')
+            },
+            count: 6
+        })];
+
+    var app = Elm.Main.init({
+        node: document.getElementById('myapp')
+    });
+    if (app.ports.setView) {
+        app.ports.setView.subscribe(function (v) {
+            ElmREGL.setView(v);
+        });
+    }
+    if (app.ports.execREGLCmd) {
+        app.ports.execREGLCmd.subscribe(function (v) {
+            ElmREGL.execCmd(v);
+        });
+    }
+    const canvas = document.getElementById('elm-regl-canvas');
+    ElmREGL.init(canvas, app, []);
+    // ElmREGL.loadGLProgram('rectTest', rectTest);
+</script>
+
+</html>
