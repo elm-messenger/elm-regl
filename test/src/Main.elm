@@ -116,6 +116,14 @@ genRenderable2 model =
             , REGL.triangle ( 700, 100 ) ( 700 + 100, 100 ) ( 700 + 100, 100 / 2 ) Color.red
             , REGL.triangle ( 500, 100 ) ( 500 + 100, 100 ) ( 500 + 100, 100 / 2 ) Color.green
             ]
+        , REGL.poly
+            [ ( 100, 100 )
+            , ( 100, 200 )
+            , ( 200, 200 )
+            , ( 300, 150 )
+            , ( 200, 100 )
+            ]
+            Color.blue
 
         -- , REGL.triangle ( 700, 150 ) ( 700 + 100, 150 ) ( 700 + 100, 150 / 2 ) (Color.rgba 0 0 0 1)
         -- , Comp.dstOverSrc

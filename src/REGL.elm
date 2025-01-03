@@ -6,6 +6,7 @@ module REGL exposing
     , blur, gblur, crt
     , toHtmlWith, toRgbaList
     , saveAsTexture
+    , poly
     )
 
 {-|
@@ -164,7 +165,7 @@ clear color =
         )
 
 
-{-| Render a triangle with three vertices and a color.
+{-| Render a triangle with three vertices and color.
 -}
 triangle : ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> Color -> Renderable
 triangle ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) color =
@@ -192,6 +193,31 @@ quad ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) ( x4, y4 ) color =
             , ( "args"
               , Encode.object
                     [ ( "pos", Encode.list Encode.float [ x1, y1, x2, y2, x3, y3, x4, y4 ] )
+                    , ( "color", Encode.list Encode.float (toRgbaList color) )
+                    ]
+              )
+            ]
+
+
+{-| Render a poly with vertices and color.
+-}
+poly : List ( Float, Float ) -> Color -> Renderable
+poly xs color =
+    let
+        pos =
+            List.concatMap (\( x, y ) -> [ x, y ]) xs
+
+        elem =
+            List.concatMap (\x -> [ 0, toFloat x, toFloat x + 1 ]) (List.range 1 (List.length xs - 2))
+    in
+    genProg <|
+        Encode.object
+            [ ( "cmd", Encode.int 0 )
+            , ( "prog", Encode.string "poly" )
+            , ( "args"
+              , Encode.object
+                    [ ( "pos", Encode.list Encode.float pos )
+                    , ( "elem", Encode.list Encode.float elem )
                     , ( "color", Encode.list Encode.float (toRgbaList color) )
                     ]
               )
