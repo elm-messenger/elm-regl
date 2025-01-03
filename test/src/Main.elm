@@ -107,7 +107,7 @@ genRenderable2 : Model -> Renderable
 genRenderable2 model =
     REGL.groupEffects []
         [ REGL.clear (Color.rgba 1 1 1 1)
-        , REGL.simpText ("hello world\ni\nhihi blablablabl blablablabl blablabl:)" ++ fromInt (floor model.lasttime))
+        , REGL.simpText ( 400, 450 ) ("hello world\ni\nhihi blablablabl blablablabl blablabl:)" ++ fromInt (floor model.lasttime))
         , REGL.triangle ( 400, 300 ) ( 400 + 100, 300 ) ( 400 + 100, 300 / 2 ) Color.red
         , REGL.quad ( 0, 0 ) ( 1280, 0 ) ( 1280 / 3, 720 / 3 ) ( 0, 720 ) (Color.rgba 0.5 0.5 0.7 1)
         , REGL.circle ( 200, 100 ) 100 Color.lightBrown
@@ -124,8 +124,8 @@ genRenderable2 model =
             , ( 200, 100 )
             ]
             Color.blue
-        , REGL.simpTexture ( 0, 0 ) "enemy"
 
+        -- , REGL.simpTexture ( 500, 500 ) ( 500, 300 ) ( 300, 300 ) ( 300, 500 ) "enemy"
         -- , REGL.triangle ( 700, 150 ) ( 700 + 100, 150 ) ( 700 + 100, 150 / 2 ) (Color.rgba 0 0 0 1)
         -- , Comp.dstOverSrc
         --     (REGL.group

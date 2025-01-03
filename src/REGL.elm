@@ -244,8 +244,8 @@ circle ( x1, y1 ) r color =
 
 {-| Render a texture with an offset.
 -}
-simpTexture : ( Float, Float ) -> String -> Renderable
-simpTexture ( x1, y1 ) name =
+simpTexture : ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> String -> Renderable
+simpTexture ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) ( x4, y4 ) name =
     genProg <|
         Encode.object
             [ ( "cmd", Encode.int 0 )
@@ -253,7 +253,7 @@ simpTexture ( x1, y1 ) name =
             , ( "args"
               , Encode.object
                     [ ( "texture", Encode.string name )
-                    , ( "offset", Encode.list Encode.float [ x1, y1 ] )
+                    , ( "pos", Encode.list Encode.float [ x1, y1, x2, y2, x3, y3 ] )
                     ]
               )
             ]
@@ -261,8 +261,8 @@ simpTexture ( x1, y1 ) name =
 
 {-| Render a text.
 -}
-simpText : String -> Renderable
-simpText text =
+simpText : ( Float, Float ) -> String -> Renderable
+simpText ( x, y ) text =
     genProg <|
         Encode.object
             [ ( "cmd", Encode.int 0 )
@@ -271,6 +271,7 @@ simpText text =
               , Encode.object
                     [ ( "text", Encode.string text )
                     , ( "size", Encode.float 50 )
+                    , ( "offset", Encode.list Encode.float [ x, y ] )
                     ]
               )
             ]
