@@ -3,10 +3,9 @@ module REGL exposing
     , clear, triangle, quad, simpTexture, simpText, circle
     , REGLConfig, TimeInterval(..), configREGL
     , REGLStartConfig, TextureMagOption(..), TextureMinOption(..), TextureOptions, batchExec, createREGLProgram, loadTexture, startREGL, loadMSDFFont
-    , blur
+    , blur, gblur, crt
     , toHtmlWith, toRgbaList
     , saveAsTexture
-    , gblur
     )
 
 {-|
@@ -37,7 +36,7 @@ module REGL exposing
 
 ## Effects
 
-@docs blur
+@docs blur, gblur, crt
 
 
 ## Miscellaneous
@@ -437,6 +436,20 @@ gblur sigma =
         , ( "args"
           , Encode.object
                 [ ( "sigma", Encode.float sigma )
+                ]
+          )
+        ]
+
+
+{-| CRT effect.
+-}
+crt : Float -> Effect
+crt count =
+    Encode.object
+        [ ( "prog", Encode.string "crt" )
+        , ( "args"
+          , Encode.object
+                [ ( "count", Encode.float count )
                 ]
           )
         ]
