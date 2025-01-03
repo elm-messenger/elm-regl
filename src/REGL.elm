@@ -1,6 +1,6 @@
 module REGL exposing
     ( Renderable, genProg, group, empty, render, groupEffects
-    , clear, triangle, quad, simpTexture, simpText
+    , clear, triangle, quad, simpTexture, simpText, circle
     , REGLConfig, TimeInterval(..), configREGL
     , REGLStartConfig, TextureMagOption(..), TextureMinOption(..), TextureOptions, batchExec, createREGLProgram, loadTexture, startREGL, loadMSDFFont
     , blur
@@ -22,7 +22,7 @@ module REGL exposing
 
 ## Builtin Commands
 
-@docs clear, triangle, quad, simpTexture, simpText
+@docs clear, triangle, quad, simpTexture, simpText, circle
 
 
 ## User Configuration
@@ -182,7 +182,7 @@ triangle ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) color =
             ]
 
 
-{-| Render a quad with three vertices and a color.
+{-| Render a quad with three vertices and color.
 -}
 quad : ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> Color -> Renderable
 quad ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) ( x4, y4 ) color =
@@ -193,6 +193,24 @@ quad ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) ( x4, y4 ) color =
             , ( "args"
               , Encode.object
                     [ ( "pos", Encode.list Encode.float [ x1, y1, x2, y2, x3, y3, x4, y4 ] )
+                    , ( "color", Encode.list Encode.float (toRgbaList color) )
+                    ]
+              )
+            ]
+
+
+{-| Render a circle with center, radius and color.
+-}
+circle : ( Float, Float ) -> Float -> Color -> Renderable
+circle ( x1, y1 ) r color =
+    genProg <|
+        Encode.object
+            [ ( "cmd", Encode.int 0 )
+            , ( "prog", Encode.string "circle" )
+            , ( "args"
+              , Encode.object
+                    [ ( "center", Encode.list Encode.float [ x1, y1 ] )
+                    , ( "radius", Encode.float r )
                     , ( "color", Encode.list Encode.float (toRgbaList color) )
                     ]
               )

@@ -20,7 +20,7 @@ port setView : Encode.Value -> Cmd msg
 port execREGLCmd : Encode.Value -> Cmd msg
 
 
-port textureLoaded : (Encode.Value -> msg) -> Sub msg
+port recvREGLCmd : (Encode.Value -> msg) -> Sub msg
 
 
 port reglupdate : (Float -> msg) -> Sub msg
@@ -65,7 +65,7 @@ init _ =
 
 type Msg
     = Tick Float
-    | TextureLoaded Encode.Value
+    | REGLRecv Encode.Value
 
 
 genRenderable1 : Model -> Renderable
@@ -105,11 +105,12 @@ genRenderable1 model =
 
 genRenderable2 : Model -> Renderable
 genRenderable2 model =
-    REGL.groupEffects [ REGL.gblur (5 - model.lasttime) ]
+    REGL.group
         [ REGL.clear (Color.rgba 1 1 1 1)
         , REGL.simpText ("hello world\nhihi jijiji" ++ fromInt (floor model.lasttime))
         , REGL.triangle ( 400, 300 ) ( 400 + 100, 300 ) ( 400 + 100, 300 / 2 ) Color.red
-        , REGL.quad ( 0, 0 ) ( 1280, 0 ) ( 1280 / 3, 720 / 3 ) ( 0, 720 ) (Color.rgba 0.5 0.5 0.7 1)
+        , REGL.quad ( 0, 0 ) ( 1280, 0 ) ( 1280 / 3, 720 / 3 ) ( 0, 720 ) Color.lightPurple
+        , REGL.circle ( 500, 100 ) 100 Color.lightBrown
 
         -- , REGL.groupEffects [ blur 2 ]
         --     [ REGL.clear (Color.rgba 0.5 0.5 0.7 0)
@@ -143,22 +144,27 @@ update msg model =
                     ]
                 )
 
-        TextureLoaded x ->
+        REGLRecv x ->
             let
-                success =
-                    Decode.decodeValue (Decode.at [ "success" ] Decode.bool) x
-
-                ss =
-                    Decode.decodeValue (Decode.at [ "texture" ] Decode.string) x
+                cmd =
+                    Decode.decodeValue (Decode.at [ "cmd" ] Decode.string) x
             in
-            ( { model | loadednum = model.loadednum + 1 }, Cmd.none )
+            case cmd of
+                Ok "loadTexture" ->
+                    ( { model | loadednum = model.loadednum + 1 }, Cmd.none )
+
+                Ok "loadFont" ->
+                    ( { model | loadednum = model.loadednum + 1 }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
         [ reglupdate Tick
-        , textureLoaded TextureLoaded
+        , recvREGLCmd REGLRecv
         ]
 
 

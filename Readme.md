@@ -2,18 +2,15 @@
 
 Elm bindings for [regl](https://github.com/regl-project/regl).
 
-Aims to provide a set of declarative APIs to use WebGL through regl.
+Aims to provide a set of declarative APIs to use WebGL in Elm through regl.
 
 ## Design
 
-In Elm, we provide data structures and a compile API to form a sequence of drawing commands.
+In Elm, we provide data structures and a `compile` API to form a sequence of drawing commands.
 
-Example:
+### Effect-Composite Pattern
 
-```
-Circle [ Setting... ]
-Group [ Setting ] [ Renderable ]
-```
+Use effects to apply shaders to one group, use compositors to composite two groups.
 
 ### Renderable
 
