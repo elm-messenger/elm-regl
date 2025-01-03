@@ -124,6 +124,7 @@ genRenderable2 model =
             , ( 200, 100 )
             ]
             Color.blue
+        , REGL.simpTexture ( 0, 0 ) "enemy"
 
         -- , REGL.triangle ( 700, 150 ) ( 700 + 100, 150 ) ( 700 + 100, 150 / 2 ) (Color.rgba 0 0 0 1)
         -- , Comp.dstOverSrc
