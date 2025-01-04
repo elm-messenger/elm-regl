@@ -49,6 +49,7 @@ init _ =
         (batchExec execREGLCmd
             [ startREGL (REGLStartConfig 1920 1080)
             , createREGLProgram "mytriangle" prog
+            , createREGLProgram "myblur" blurprog
             ]
         )
     )
@@ -61,7 +62,7 @@ type Msg
 
 genRenderable : Model -> Renderable
 genRenderable model =
-    REGL.groupEffects []
+    REGL.groupEffects [ myblur 10 ]
         [ REGL.clear (Color.rgba 0 0 0 1)
         , mytriangle ( 0, 0 ) ( 1, 0 ) ( 0, 1 ) (Color.rgba 1 0 0 1)
         ]
@@ -164,3 +165,46 @@ mytriangle ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) color =
                     ]
               )
             ]
+
+
+blurfrag =
+    """
+precision mediump float;
+uniform sampler2D texture;
+uniform float radius;
+uniform vec2 view;
+varying vec2 vuv;
+void main() {
+    if(radius < 0.1) {
+        gl_FragColor = texture2D(texture, vuv);
+        return;
+    }
+    vec3 avg = vec3(0.0);
+    float maxa = 0.0;
+    for(int x = -5; x <= 5; x++) {
+        for(int y = -5; y <= 5; y++) {
+            vec4 c = texture2D(texture, vuv + vec2(float(x) * radius / view.x, float(y) * radius / view.y));
+            avg += (1.0 / 121.0) * c.xyz;
+            maxa = max(maxa, c.a);
+        }
+    }
+    gl_FragColor = vec4(avg, maxa);
+}
+"""
+
+
+blurprog : REGLProgram
+blurprog =
+    REGL.Program.makeEffectSimple blurfrag [ ( "radius", DynamicValue "radius" ) ]
+
+
+myblur : Float -> REGL.Effect
+myblur radius =
+    Encode.object
+        [ ( "prog", Encode.string "myblur" )
+        , ( "args"
+          , Encode.object
+                [ ( "radius", Encode.float radius )
+                ]
+          )
+        ]

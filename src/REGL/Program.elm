@@ -182,10 +182,10 @@ makeEffectProgram texname p =
         newuniform =
             case p.uniforms of
                 Just x ->
-                    ( texname, DynamicTextureValue "texture" ) :: x
+                    ( texname, DynamicValue "texture" ) :: x
 
                 Nothing ->
-                    [ ( texname, DynamicTextureValue "texture" ) ]
+                    [ ( texname, DynamicValue "texture" ) ]
     in
     { p
         | uniforms = Just newuniform
@@ -215,7 +215,7 @@ makeEffectSimple frag uniforms =
                     )
               )
             ]
-    , uniforms = Just (( "texture", DynamicTextureValue "texture" ) :: uniforms)
+    , uniforms = Just (( "texture", DynamicValue "texture" ) :: uniforms)
     , elements = Just (StaticValue (Encode.list Encode.int [ 0, 1, 2, 0, 2, 3 ]))
     , primitive = Nothing
     , count = Nothing
@@ -230,10 +230,10 @@ makeCompositorProgram src dst p =
         newuniform =
             case p.uniforms of
                 Just x ->
-                    ( src, DynamicTextureValue "t1" ) :: ( dst, DynamicTextureValue "t2" ) :: x
+                    ( src, DynamicValue "t1" ) :: ( dst, DynamicValue "t2" ) :: x
 
                 Nothing ->
-                    [ ( src, DynamicTextureValue "t1" ), ( dst, DynamicTextureValue "t2" ) ]
+                    [ ( src, DynamicValue "t1" ), ( dst, DynamicValue "t2" ) ]
     in
     { p
         | uniforms = Just newuniform
@@ -263,7 +263,7 @@ makeCompositorSimple frag uniforms =
                     )
               )
             ]
-    , uniforms = Just (( "t1", DynamicTextureValue "t1" ) :: ( "t2", DynamicTextureValue "t2" ) :: uniforms)
+    , uniforms = Just (( "t1", DynamicValue "t1" ) :: ( "t2", DynamicValue "t2" ) :: uniforms)
     , elements = Just (StaticValue (Encode.list Encode.int [ 0, 1, 2, 0, 2, 3 ]))
     , primitive = Nothing
     , count = Nothing

@@ -1,5 +1,5 @@
 module REGL exposing
-    ( Renderable, genProg, group, empty, render, groupEffects
+    ( Renderable, genProg, group, empty, render, groupEffects, Effect
     , clear, triangle, quad, simpTexture, simpText, circle
     , REGLConfig, TimeInterval(..), configREGL
     , REGLStartConfig, TextureMagOption(..), TextureMinOption(..), TextureOptions, batchExec, createREGLProgram, loadTexture, startREGL, loadMSDFFont
@@ -17,7 +17,7 @@ module REGL exposing
 
 ## Basics
 
-@docs Renderable, genProg, group, empty, render, groupEffects
+@docs Renderable, genProg, group, empty, render, groupEffects, Effect
 
 
 ## Builtin Commands
