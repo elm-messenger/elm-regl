@@ -7,7 +7,7 @@ debug: format
 
 release: format
 	mkdir -p build
-	elm make src/Main.elm --output=build/main.js --optimize
+	elm make src/Main.elm --output=build/main.js
 	uglifyjs build/main.js -c -m --in-situ
 	cp -f public/index.html .
 	cp -f public/style.css build/style.css
