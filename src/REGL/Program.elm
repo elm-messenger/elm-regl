@@ -1,6 +1,6 @@
 module REGL.Program exposing
     ( ProgValue(..)
-    , REGLProgram, Primitive(..), encodeProgram
+    , REGLProgram, Primitive(..), primitiveToValue, encodeProgram
     )
 
 {-|
@@ -16,7 +16,7 @@ module REGL.Program exposing
 
 ## Program Construction
 
-@docs REGLProgram, Primitive, encodeProgram
+@docs REGLProgram, Primitive, primitiveToValue, encodeProgram
 
 -}
 
@@ -51,19 +51,9 @@ type alias REGLProgram =
     , attributes : Maybe (List ( String, ProgValue ))
     , uniforms : Maybe (List ( String, ProgValue ))
     , elements : Maybe ProgValue
-    , primitive : Maybe Primitive
+    , primitive : Maybe ProgValue
     , count : Maybe Int
     }
-
-
-maybeToList : Maybe a -> List a
-maybeToList x =
-    case x of
-        Just a ->
-            [ a ]
-
-        Nothing ->
-            []
 
 
 primitiveToValue : Primitive -> Value
@@ -91,46 +81,86 @@ primitiveToValue p =
             Encode.string "triangle fan"
 
 
-getDynamicValue : List ( String, ProgValue ) -> List ( String, Value )
+getDynamicValue : List ( String, ProgValue ) -> Value
 getDynamicValue x =
-    List.filterMap
-        (\( k, v ) ->
-            case v of
-                DynamicValue s ->
-                    Just ( k, Encode.string s )
+    Encode.object <|
+        List.filterMap
+            (\( k, v ) ->
+                case v of
+                    DynamicValue s ->
+                        Just ( k, Encode.string s )
 
-                _ ->
-                    Nothing
-        )
-        x
+                    _ ->
+                        Nothing
+            )
+            x
 
 
-getDynamicTextureValue : List ( String, ProgValue ) -> List ( String, Value )
+getDynamicTextureValue : List ( String, ProgValue ) -> Value
 getDynamicTextureValue x =
-    List.filterMap
-        (\( k, v ) ->
-            case v of
-                DynamicTextureValue s ->
-                    Just ( k, Encode.string s )
+    Encode.object <|
+        List.filterMap
+            (\( k, v ) ->
+                case v of
+                    DynamicTextureValue s ->
+                        Just ( k, Encode.string s )
 
-                _ ->
-                    Nothing
-        )
-        x
+                    _ ->
+                        Nothing
+            )
+            x
 
 
-getStaticValue : List ( String, ProgValue ) -> List ( String, Value )
+getStaticValue : List ( String, ProgValue ) -> Value
 getStaticValue x =
-    List.filterMap
-        (\( k, v ) ->
-            case v of
-                StaticValue s ->
-                    Just ( k, s )
+    Encode.object <|
+        List.filterMap
+            (\( k, v ) ->
+                case v of
+                    StaticValue s ->
+                        Just ( k, s )
 
-                _ ->
-                    Nothing
-        )
-        x
+                    _ ->
+                        Nothing
+            )
+            x
+
+
+getStaticSingleProgValue : ProgValue -> Value
+getStaticSingleProgValue v =
+    case v of
+        StaticValue s ->
+            s
+
+        _ ->
+            Encode.null
+
+
+getDynamicSingleProgValue : ProgValue -> Value
+getDynamicSingleProgValue v =
+    case v of
+        DynamicValue s ->
+            Encode.string s
+
+        _ ->
+            Encode.null
+
+
+encodeProgramHelper : REGLProgram -> List (Maybe ( String, Value ))
+encodeProgramHelper p =
+    [ Just ( "frag", Encode.string p.frag )
+    , Just ( "vert", Encode.string p.vert )
+    , Maybe.map (\x -> ( "count", Encode.int x )) p.count
+    , Maybe.map (\x -> ( "elements", getStaticSingleProgValue x )) p.elements
+    , Maybe.map (\x -> ( "elementsDyn", getDynamicSingleProgValue x )) p.elements
+    , Maybe.map (\x -> ( "primitive", getStaticSingleProgValue x )) p.primitive
+    , Maybe.map (\x -> ( "primitiveDyn", getDynamicSingleProgValue x )) p.primitive
+    , Maybe.map (\x -> ( "attributes", getStaticValue x )) p.attributes
+    , Maybe.map (\x -> ( "attributesDyn", getDynamicValue x )) p.attributes
+    , Maybe.map (\x -> ( "uniforms", getStaticValue x )) p.uniforms
+    , Maybe.map (\x -> ( "uniformsDyn", getDynamicValue x )) p.uniforms
+    , Maybe.map (\x -> ( "uniformsDynTexture", getDynamicTextureValue x )) p.uniforms
+    ]
 
 
 {-| Encode a custom program to an object
@@ -138,28 +168,4 @@ getStaticValue x =
 encodeProgram : REGLProgram -> Value
 encodeProgram p =
     Encode.object <|
-        [ ( "frag", Encode.string p.frag )
-        , ( "vert", Encode.string p.vert )
-        , ( "count", Encode.int p.count )
-        ]
-            ++ (maybeToList <|
-                    Maybe.map (\x -> ( "elements", Encode.list Encode.int x )) p.elements
-               )
-            ++ (maybeToList <|
-                    Maybe.map (\x -> ( "primitive", primitiveToValue x )) p.primitive
-               )
-            ++ (maybeToList <|
-                    Maybe.map (\x -> ( "attributes", Encode.object (getStaticValue x) )) p.attributes
-               )
-            ++ (maybeToList <|
-                    Maybe.map (\x -> ( "attributesDyn", Encode.object (getDynamicValue x) )) p.attributes
-               )
-            ++ (maybeToList <|
-                    Maybe.map (\x -> ( "uniforms", Encode.object (getStaticValue x) )) p.uniforms
-               )
-            ++ (maybeToList <|
-                    Maybe.map (\x -> ( "uniformsDyn", Encode.object (getDynamicValue x) )) p.uniforms
-               )
-            ++ (maybeToList <|
-                    Maybe.map (\x -> ( "uniformsDynTexture", Encode.object (getDynamicTextureValue x) )) p.uniforms
-               )
+        List.filterMap identity (encodeProgramHelper p)
