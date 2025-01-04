@@ -3,7 +3,7 @@ module REGL exposing
     , clear, triangle, quad, simpTexture, simpText, circle
     , REGLConfig, TimeInterval(..), configREGL
     , REGLStartConfig, TextureMagOption(..), TextureMinOption(..), TextureOptions, batchExec, createREGLProgram, loadTexture, startREGL, loadMSDFFont
-    , blur, gblur, crt
+    , blur, gblur, crt, fxaa
     , toHtmlWith, toRgbaList
     , saveAsTexture
     , poly
@@ -37,7 +37,7 @@ module REGL exposing
 
 ## Effects
 
-@docs blur, gblur, crt
+@docs blur, gblur, crt, fxaa
 
 
 ## Miscellaneous
@@ -253,7 +253,7 @@ simpTexture ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) ( x4, y4 ) name =
             , ( "args"
               , Encode.object
                     [ ( "texture", Encode.string name )
-                    , ( "pos", Encode.list Encode.float [ x1, y1, x2, y2, x3, y3 ] )
+                    , ( "pos", Encode.list Encode.float [ x1, y1, x2, y2, x3, y3, x4, y4 ] )
                     ]
               )
             ]
@@ -261,8 +261,8 @@ simpTexture ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) ( x4, y4 ) name =
 
 {-| Render a text.
 -}
-simpText : ( Float, Float ) -> String -> Renderable
-simpText ( x, y ) text =
+simpText : ( Float, Float ) -> Float -> String -> Renderable
+simpText ( x, y ) size text =
     genProg <|
         Encode.object
             [ ( "cmd", Encode.int 0 )
@@ -270,7 +270,7 @@ simpText ( x, y ) text =
             , ( "args"
               , Encode.object
                     [ ( "text", Encode.string text )
-                    , ( "size", Encode.float 50 )
+                    , ( "size", Encode.float size )
                     , ( "offset", Encode.list Encode.float [ x, y ] )
                     ]
               )
@@ -378,7 +378,7 @@ encodeTextureOptions topts =
             ]
 
         Nothing ->
-            []
+            [ ( "mag", Encode.string "linear" ), ( "min", Encode.string "linear" ) ]
 
 
 loadTexture : String -> String -> Maybe TextureOptions -> ExecPort msg -> Cmd msg
@@ -451,6 +451,15 @@ blur radius =
                 [ ( "radius", Encode.float radius )
                 ]
           )
+        ]
+
+
+{-| Apply FXAA to a renderable.
+-}
+fxaa : Effect
+fxaa =
+    Encode.object
+        [ ( "prog", Encode.string "fxaa" )
         ]
 
 

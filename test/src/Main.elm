@@ -39,6 +39,7 @@ main =
 type alias Model =
     { lasttime : Float
     , loadednum : Int
+    , ts : ( Float, Float )
     }
 
 
@@ -46,6 +47,7 @@ init : () -> ( Model, Cmd Msg )
 init _ =
     ( { lasttime = 0
       , loadednum = 0
+      , ts = ( 0, 0 )
       }
     , Cmd.batch
         -- [ loadTexture ( "enemy", "asset/enemy.png" )
@@ -57,7 +59,7 @@ init _ =
             [ loadTexture "enemy" "asset/enemy.png" Nothing
 
             -- , loadMSDFFont "firacode" "asset/fira.png" "asset/fira.json"
-            , startREGL (REGLStartConfig 1280 720)
+            , startREGL (REGLStartConfig 1920 1080)
             ]
         )
     )
@@ -105,27 +107,33 @@ genRenderable1 model =
 
 genRenderable2 : Model -> Renderable
 genRenderable2 model =
+    let
+        ( w, h ) =
+            model.ts
+    in
     REGL.groupEffects []
-        [ REGL.clear (Color.rgba 1 1 1 1)
-        , REGL.simpText ( 400, 450 ) ("hello world\ni\nhihi blablablabl blablablabl blablabl:)" ++ fromInt (floor model.lasttime))
-        , REGL.triangle ( 400, 300 ) ( 400 + 100, 300 ) ( 400 + 100, 300 / 2 ) Color.red
-        , REGL.quad ( 0, 0 ) ( 1280, 0 ) ( 1280 / 3, 720 / 3 ) ( 0, 720 ) (Color.rgba 0.5 0.5 0.7 1)
-        , REGL.circle ( 200, 100 ) 100 Color.lightBrown
-        , REGL.groupEffects [ blur 2 ]
-            [ REGL.clear (Color.rgba 0.5 0.5 0.7 0)
-            , REGL.triangle ( 700, 100 ) ( 700 + 100, 100 ) ( 700 + 100, 100 / 2 ) Color.red
-            , REGL.triangle ( 500, 100 ) ( 500 + 100, 100 ) ( 500 + 100, 100 / 2 ) Color.green
-            ]
-        , REGL.poly
-            [ ( 100, 100 )
-            , ( 100, 200 )
-            , ( 200, 200 )
-            , ( 300, 150 )
-            , ( 200, 100 )
-            ]
-            Color.blue
+        [ REGL.clear (Color.rgba 0 0 0 1)
 
-        -- , REGL.simpTexture ( 500, 500 ) ( 500, 300 ) ( 300, 300 ) ( 300, 500 ) "enemy"
+        -- , REGL.simpText ( 400, 550 ) 200 ("hello :)" ++ fromInt (floor model.lasttime))
+        -- , REGL.triangle ( 400, 300 ) ( 400 + 100, 300 ) ( 400 + 100, 300 / 2 ) Color.red
+        -- , REGL.quad ( 0, 0 ) ( 1280, 0 ) ( 1280 / 3, 720 / 3 ) ( 0, 720 ) (Color.rgba 0.5 0.5 0.7 1)
+        -- , REGL.circle ( 200, 100 ) 100 Color.lightBrown
+        -- , REGL.groupEffects [ blur 2 ]
+        --     [ REGL.clear (Color.rgba 0.5 0.5 0.7 0)
+        --     , REGL.triangle ( 700, 100 ) ( 700 + 100, 100 ) ( 700 + 100, 100 / 2 ) Color.red
+        --     , REGL.triangle ( 500, 100 ) ( 500 + 100, 100 ) ( 500 + 100, 100 / 2 ) Color.green
+        --     ]
+        -- , REGL.poly
+        --     [ ( 100, 100 )
+        --     , ( 100, 200 )
+        --     , ( 200, 200 )
+        --     , ( 300, 150 )
+        --     , ( 200, 100 )
+        --     ]
+        --     Color.blue
+        , REGL.simpTexture ( 0, 0 ) ( w, 0 ) ( w, h ) ( 0, h ) "enemy"
+
+        -- , REGL.quad ( 1920, 1080 ) ( 1920, 0 ) ( 0, 0 ) ( 0, 1080 ) Color.black
         -- , REGL.triangle ( 700, 150 ) ( 700 + 100, 150 ) ( 700 + 100, 150 / 2 ) (Color.rgba 0 0 0 1)
         -- , Comp.dstOverSrc
         --     (REGL.group
@@ -160,7 +168,14 @@ update msg model =
             in
             case cmd of
                 Ok "loadTexture" ->
-                    ( { model | loadednum = model.loadednum + 1 }, Cmd.none )
+                    let
+                        w =
+                            Result.withDefault 0 <| Decode.decodeValue (Decode.at [ "response", "width" ] Decode.float) x
+
+                        h =
+                            Result.withDefault 0 <| Decode.decodeValue (Decode.at [ "response", "height" ] Decode.float) x
+                    in
+                    ( { model | loadednum = model.loadednum + 1, ts = ( w, h ) }, Cmd.none )
 
                 Ok "loadFont" ->
                     ( { model | loadednum = model.loadednum + 1 }, Cmd.none )

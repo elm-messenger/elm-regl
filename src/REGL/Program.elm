@@ -50,9 +50,9 @@ type alias REGLProgram =
     , vert : String
     , attributes : Maybe (List ( String, ProgValue ))
     , uniforms : Maybe (List ( String, ProgValue ))
-    , elements : Maybe (List Int)
+    , elements : Maybe ProgValue
     , primitive : Maybe Primitive
-    , count : Int
+    , count : Maybe Int
     }
 
 
