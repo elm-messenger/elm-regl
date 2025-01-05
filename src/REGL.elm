@@ -568,6 +568,7 @@ loadTexture name url topts execPort =
 type alias REGLStartConfig =
     { virtWidth : Float
     , virtHeight : Float
+    , fboNum : Int
     }
 
 
@@ -578,6 +579,7 @@ startREGL config execPort =
             [ ( "cmd", Encode.string "start" )
             , ( "virtWidth", Encode.float config.virtWidth )
             , ( "virtHeight", Encode.float config.virtHeight )
+            , ( "fboNum", Encode.int config.fboNum )
             ]
 
 
