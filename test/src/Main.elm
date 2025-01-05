@@ -152,6 +152,23 @@ genRenderable2 model =
             , REGL.quad ( 1500, 500 ) ( 1800, 500 ) ( 1800, 900 ) ( 1500, 900 ) (Color.rgba 0.4 0.7 0.9 1)
             ]
         , REGL.textbox ( 1510, 890 ) 30 "Hello\nThis is a clear text on\na blurred background." "arial"
+        , REGL.lineloop
+            [ ( 100, 100 )
+            , ( 200, 100 )
+            , ( 300, 200 )
+            , ( 100, 200 )
+            ]
+            Color.black
+        , REGL.lines
+            [ ( ( 900, 100 )
+              , ( 1000, 100 )
+              )
+            , ( ( 900, 150 )
+              , ( 1000, 150 )
+              )
+            ]
+            Color.black
+        , REGL.functionCurve (\x -> 100 * sin ((x - model.lasttime * 50) / 25)) ( 1000, 100 ) ( 0, 920 ) 0.2 Color.black
         ]
 
 

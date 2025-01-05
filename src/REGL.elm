@@ -1,13 +1,12 @@
 module REGL exposing
     ( Renderable, genProg, group, empty, render, Effect
-    , clear, triangle, quad, texture, textbox, circle, centeredTexture
+    , clear, triangle, quad, texture, textbox, circle, centeredTexture, polyPrim, poly, lines, linestrip, lineloop, functionCurve
     , Primitive(..), primitiveToValue
     , REGLConfig, TimeInterval(..), configREGL
     , REGLStartConfig, TextureMagOption(..), TextureMinOption(..), TextureOptions, batchExec, createREGLProgram, loadTexture, startREGL, loadMSDFFont
     , blur, gblur, crt, fxaa
     , toHtmlWith, toRgbaList
     , saveAsTexture
-    , poly
     )
 
 {-|
@@ -23,7 +22,7 @@ module REGL exposing
 
 ## Builtin Commands
 
-@docs clear, triangle, quad, texture, textbox, circle, centeredTexture
+@docs clear, triangle, quad, texture, textbox, circle, centeredTexture, polyPrim, poly, lines, linestrip, lineloop, functionCurve
 
 @docs Primitive, primitiveToValue
 
@@ -258,7 +257,102 @@ poly xs color =
             ]
 
 
-{-| Render a poly with vertices and color.
+{-| Render lines with vertices and color.
+-}
+lines : List ( ( Float, Float ), ( Float, Float ) ) -> Color -> Renderable
+lines xs color =
+    let
+        pos =
+            List.concatMap (\( ( x1, y1 ), ( x2, y2 ) ) -> [ x1, y1, x2, y2 ]) xs
+
+        elem =
+            List.map toFloat <| List.range 0 (2 * List.length xs - 1)
+    in
+    genProg <|
+        Encode.object
+            [ ( "cmd", Encode.int 0 )
+            , ( "prog", Encode.string "poly" )
+            , ( "args"
+              , Encode.object
+                    [ ( "pos", Encode.list Encode.float pos )
+                    , ( "elem", Encode.list Encode.float elem )
+                    , ( "color", Encode.list Encode.float (toRgbaList color) )
+                    , ( "prim", primitiveToValue Lines )
+                    ]
+              )
+            ]
+
+
+{-| Render line strip with vertices and color.
+-}
+linestrip : List ( Float, Float ) -> Color -> Renderable
+linestrip xs color =
+    let
+        pos =
+            List.concatMap (\( x, y ) -> [ x, y ]) xs
+
+        elem =
+            List.map toFloat <| List.range 0 (List.length xs - 1)
+    in
+    genProg <|
+        Encode.object
+            [ ( "cmd", Encode.int 0 )
+            , ( "prog", Encode.string "poly" )
+            , ( "args"
+              , Encode.object
+                    [ ( "pos", Encode.list Encode.float pos )
+                    , ( "elem", Encode.list Encode.float elem )
+                    , ( "color", Encode.list Encode.float (toRgbaList color) )
+                    , ( "prim", primitiveToValue LineStrip )
+                    ]
+              )
+            ]
+
+
+{-| Render a line loop with vertices and color.
+-}
+lineloop : List ( Float, Float ) -> Color -> Renderable
+lineloop xs color =
+    let
+        pos =
+            List.concatMap (\( x, y ) -> [ x, y ]) xs
+
+        elem =
+            List.map toFloat <| List.range 0 (List.length xs - 1)
+    in
+    genProg <|
+        Encode.object
+            [ ( "cmd", Encode.int 0 )
+            , ( "prog", Encode.string "poly" )
+            , ( "args"
+              , Encode.object
+                    [ ( "pos", Encode.list Encode.float pos )
+                    , ( "elem", Encode.list Encode.float elem )
+                    , ( "color", Encode.list Encode.float (toRgbaList color) )
+                    , ( "prim", primitiveToValue LineLoop )
+                    ]
+              )
+            ]
+
+
+{-| Render a function curve with a function, offset, range, samples, and color.
+-}
+functionCurve : (Float -> Float) -> ( Float, Float ) -> ( Float, Float ) -> Float -> Color -> Renderable
+functionCurve f ( x, y ) ( left, right ) freq color =
+    let
+        samples =
+            ceiling (freq * (right - left))
+
+        xs =
+            List.map (\u -> (toFloat u / toFloat samples) * (right - left) + left) <| List.range 0 samples
+
+        xys =
+            List.map (\posx -> ( posx + x, f posx + y )) xs
+    in
+    linestrip xys color
+
+
+{-| Render a poly with vertices, element array, primitives and color.
 -}
 polyPrim : List ( Float, Float ) -> List Float -> Color -> Primitive -> Renderable
 polyPrim xs elem color prim =
