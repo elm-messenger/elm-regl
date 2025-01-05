@@ -1,6 +1,6 @@
 module REGL.Program exposing
     ( ProgValue(..)
-    , REGLProgram, Primitive(..), primitiveToValue, encodeProgram
+    , REGLProgram, encodeProgram
     , makeCompositorProgram, makeEffectProgram, makeEffectSimple, makeCompositorSimple
     )
 
@@ -17,7 +17,7 @@ module REGL.Program exposing
 
 ## Program Construction
 
-@docs REGLProgram, Primitive, primitiveToValue, encodeProgram
+@docs REGLProgram, encodeProgram
 
 @docs makeCompositorProgram, makeEffectProgram, makeEffectSimple, makeCompositorSimple
 
@@ -34,18 +34,6 @@ type ProgValue
     | DynamicTextureValue String -- Dynamic texture value
 
 
-{-| OpenGL primitive types
--}
-type Primitive
-    = Points
-    | Lines
-    | LineLoop
-    | LineStrip
-    | Triangles
-    | TriangleStrip
-    | TriangleFan
-
-
 {-| A custom program that can be used with REGL
 -}
 type alias REGLProgram =
@@ -58,30 +46,6 @@ type alias REGLProgram =
     , count : Maybe ProgValue
     }
 
-
-primitiveToValue : Primitive -> Value
-primitiveToValue p =
-    case p of
-        Points ->
-            Encode.string "points"
-
-        Lines ->
-            Encode.string "lines"
-
-        LineLoop ->
-            Encode.string "line loop"
-
-        LineStrip ->
-            Encode.string "line strip"
-
-        Triangles ->
-            Encode.string "triangles"
-
-        TriangleStrip ->
-            Encode.string "triangle strip"
-
-        TriangleFan ->
-            Encode.string "triangle fan"
 
 
 getDynamicValue : List ( String, ProgValue ) -> Value

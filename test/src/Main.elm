@@ -127,11 +127,10 @@ genRenderable2 model =
     in
     REGL.group []
         [ REGL.clear (Color.rgba 1 1 1 1)
-        , REGL.simpText ( 0, 1050 ) 100 ("hello :)" ++ fromInt (floor model.lasttime))
+        , REGL.textbox ( 0, 1050 ) 100 ("hello :)" ++ fromInt (floor model.lasttime)) "arial"
         , REGL.quad ( 0, 0 ) ( 1920, 0 ) ( 1920 / 3, 1080 / 3 ) ( 0, 1080 ) (Color.rgba 1 0.2 0.4 1)
-        , REGL.simpText ( 100, 960 ) 30 lorem
-        , REGL.simpText ( 100, 500 ) 500 "[BIG]"
-        , REGL.circle ( 1400, 300 ) 100 Color.black
+        , REGL.textbox ( 100, 960 ) 30 lorem "arial"
+        , REGL.textbox ( 100, 500 ) 500 "[BIG]" "arial"
         , REGL.group [ REGL.blur 1 ]
             [ REGL.clear (Color.rgba 1 0.2 0.4 0)
             , REGL.triangle ( 700, 100 ) ( 700 + 100, 100 ) ( 700 + 100, 100 / 2 ) Color.red
@@ -145,12 +144,14 @@ genRenderable2 model =
             , ( 1200, 600 )
             ]
             Color.blue
-        , REGL.simpTexture ( 0, 0 ) ( w, 0 ) ( w, h ) ( 0, h ) "enemy"
+        , REGL.texture ( 0, 0 ) ( 2 * w, 0 ) ( 2 * w, h ) ( 0, h ) "enemy"
+        , REGL.centeredTexture ( 1400, 300 ) ( w, h ) (model.lasttime / 5) "enemy"
+        , REGL.circle ( 1400, 300 ) 30 Color.black
         , REGL.group [ REGL.gblur 10 ]
             [ REGL.clear (Color.rgba 1 1 1 0)
             , REGL.quad ( 1500, 500 ) ( 1800, 500 ) ( 1800, 900 ) ( 1500, 900 ) (Color.rgba 0.4 0.7 0.9 1)
             ]
-        , REGL.simpText ( 1510, 890 ) 30 "Hello\nThis is a clear text on\na blurred background."
+        , REGL.textbox ( 1510, 890 ) 30 "Hello\nThis is a clear text on\na blurred background." "arial"
         ]
 
 

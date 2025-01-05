@@ -1,6 +1,7 @@
 module REGL exposing
     ( Renderable, genProg, group, empty, render, Effect
-    , clear, triangle, quad, texture, textbox, circle
+    , clear, triangle, quad, texture, textbox, circle, centeredTexture
+    , Primitive(..), primitiveToValue
     , REGLConfig, TimeInterval(..), configREGL
     , REGLStartConfig, TextureMagOption(..), TextureMinOption(..), TextureOptions, batchExec, createREGLProgram, loadTexture, startREGL, loadMSDFFont
     , blur, gblur, crt, fxaa
@@ -22,7 +23,9 @@ module REGL exposing
 
 ## Builtin Commands
 
-@docs clear, triangle, quad, texture, textbox, circle
+@docs clear, triangle, quad, texture, textbox, circle, centeredTexture
+
+@docs Primitive, primitiveToValue
 
 
 ## User Configuration
@@ -193,6 +196,43 @@ quad ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) ( x4, y4 ) color =
             ]
 
 
+{-| OpenGL primitive types
+-}
+type Primitive
+    = Points
+    | Lines
+    | LineLoop
+    | LineStrip
+    | Triangles
+    | TriangleStrip
+    | TriangleFan
+
+
+primitiveToValue : Primitive -> Value
+primitiveToValue p =
+    case p of
+        Points ->
+            Encode.string "points"
+
+        Lines ->
+            Encode.string "lines"
+
+        LineLoop ->
+            Encode.string "line loop"
+
+        LineStrip ->
+            Encode.string "line strip"
+
+        Triangles ->
+            Encode.string "triangles"
+
+        TriangleStrip ->
+            Encode.string "triangle strip"
+
+        TriangleFan ->
+            Encode.string "triangle fan"
+
+
 {-| Render a poly with vertices and color.
 -}
 poly : List ( Float, Float ) -> Color -> Renderable
@@ -213,6 +253,29 @@ poly xs color =
                     [ ( "pos", Encode.list Encode.float pos )
                     , ( "elem", Encode.list Encode.float elem )
                     , ( "color", Encode.list Encode.float (toRgbaList color) )
+                    ]
+              )
+            ]
+
+
+{-| Render a poly with vertices and color.
+-}
+polyPrim : List ( Float, Float ) -> List Float -> Color -> Primitive -> Renderable
+polyPrim xs elem color prim =
+    let
+        pos =
+            List.concatMap (\( x, y ) -> [ x, y ]) xs
+    in
+    genProg <|
+        Encode.object
+            [ ( "cmd", Encode.int 0 )
+            , ( "prog", Encode.string "poly" )
+            , ( "args"
+              , Encode.object
+                    [ ( "pos", Encode.list Encode.float pos )
+                    , ( "elem", Encode.list Encode.float elem )
+                    , ( "color", Encode.list Encode.float (toRgbaList color) )
+                    , ( "prim", primitiveToValue prim )
                     ]
               )
             ]
@@ -248,6 +311,25 @@ texture ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) ( x4, y4 ) name =
               , Encode.object
                     [ ( "texture", Encode.string name )
                     , ( "pos", Encode.list Encode.float [ x1, y1, x2, y2, x3, y3, x4, y4 ] )
+                    ]
+              )
+            ]
+
+
+{-| Render a texture with center, size and angle.
+-}
+centeredTexture : ( Float, Float ) -> ( Float, Float ) -> Float -> String -> Renderable
+centeredTexture ( x, y ) ( w, h ) angle name =
+    genProg <|
+        Encode.object
+            [ ( "cmd", Encode.int 0 )
+            , ( "prog", Encode.string "centeredTexture" )
+            , ( "args"
+              , Encode.object
+                    [ ( "texture", Encode.string name )
+                    , ( "center", Encode.list Encode.float [ x, y ] )
+                    , ( "size", Encode.list Encode.float [ w, h ] )
+                    , ( "angle", Encode.float angle )
                     ]
               )
             ]
