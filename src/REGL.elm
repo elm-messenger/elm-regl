@@ -1,6 +1,6 @@
 module REGL exposing
     ( Renderable, genProg, group, empty, render, Effect
-    , clear, triangle, quad, simpTexture, simpText, circle
+    , clear, triangle, quad, texture, textbox, circle
     , REGLConfig, TimeInterval(..), configREGL
     , REGLStartConfig, TextureMagOption(..), TextureMinOption(..), TextureOptions, batchExec, createREGLProgram, loadTexture, startREGL, loadMSDFFont
     , blur, gblur, crt, fxaa
@@ -22,7 +22,7 @@ module REGL exposing
 
 ## Builtin Commands
 
-@docs clear, triangle, quad, simpTexture, simpText, circle
+@docs clear, triangle, quad, texture, textbox, circle
 
 
 ## User Configuration
@@ -238,12 +238,12 @@ circle ( x1, y1 ) r color =
 
 {-| Render a texture with an offset.
 -}
-simpTexture : ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> String -> Renderable
-simpTexture ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) ( x4, y4 ) name =
+texture : ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> String -> Renderable
+texture ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) ( x4, y4 ) name =
     genProg <|
         Encode.object
             [ ( "cmd", Encode.int 0 )
-            , ( "prog", Encode.string "simpTexture" )
+            , ( "prog", Encode.string "texture" )
             , ( "args"
               , Encode.object
                     [ ( "texture", Encode.string name )
@@ -253,19 +253,20 @@ simpTexture ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) ( x4, y4 ) name =
             ]
 
 
-{-| Render a text.
+{-| Render a textbox.
 -}
-simpText : ( Float, Float ) -> Float -> String -> Renderable
-simpText ( x, y ) size text =
+textbox : ( Float, Float ) -> Float -> String -> String -> Renderable
+textbox ( x, y ) size text font =
     genProg <|
         Encode.object
             [ ( "cmd", Encode.int 0 )
-            , ( "prog", Encode.string "simpText" )
+            , ( "prog", Encode.string "textbox" )
             , ( "args"
               , Encode.object
                     [ ( "text", Encode.string text )
                     , ( "size", Encode.float size )
                     , ( "offset", Encode.list Encode.float [ x, y ] )
+                    , ( "font", Encode.string font )
                     ]
               )
             ]
@@ -471,7 +472,7 @@ gblur sigma =
         ]
 
 
-{-| CRT effect.
+{-| Simple CRT effect. Must be applied at the outermost layer.
 -}
 crt : Float -> Effect
 crt count =
