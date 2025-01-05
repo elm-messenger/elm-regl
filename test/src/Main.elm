@@ -7,11 +7,9 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Json.Decode as Decode
 import Json.Encode as Encode
-import REGL exposing (REGLStartConfig, batchExec, blur, genProg, loadMSDFFont, loadTexture, render, startREGL, toHtmlWith, triangle)
+import REGL exposing (REGLStartConfig, batchExec, loadTexture, render, startREGL, toHtmlWith, triangle)
 import REGL.Common exposing (Renderable)
-import REGL.Compositors as Comp
-import REGL.Program exposing (ProgValue(..), REGLProgram)
-import String exposing (fromFloat, fromInt)
+import String exposing (fromInt)
 
 
 port setView : Encode.Value -> Cmd msg
@@ -85,7 +83,7 @@ genRenderable1 model =
         redC =
             Color.rgba 1 0 0 0.5
     in
-    REGL.group <|
+    REGL.group [] <|
         REGL.clear bgColor
             :: (List.concat <|
                     List.map
@@ -105,45 +103,54 @@ genRenderable1 model =
                )
 
 
+lorem =
+    """
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Vivamus tortor massa, hendrerit eu tellus non, iaculis cursus purus.
+Phasellus at tempor ipsum.
+Quisque efficitur tortor sed tincidunt elementum.
+Aliquam erat volutpat.
+Morbi eu diam a mauris venenatis tincidunt eu et diam.
+In hac habitasse platea dictumst.
+Curabitur vitae massa at justo pellentesque molestie nec a diam. Fusce sed neque neque.
+Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.
+Etiam ut augue gravida,
+dictum felis in, semper nisi.
+Vestibulum a odio quis neque lobortis luctus eget at orci."""
+
+
 genRenderable2 : Model -> Renderable
 genRenderable2 model =
     let
         ( w, h ) =
             model.ts
     in
-    REGL.groupEffects []
-        [ REGL.clear (Color.rgba 0 0 0 1)
-
-        -- , REGL.simpText ( 400, 550 ) 200 ("hello :)" ++ fromInt (floor model.lasttime))
-        -- , REGL.triangle ( 400, 300 ) ( 400 + 100, 300 ) ( 400 + 100, 300 / 2 ) Color.red
-        -- , REGL.quad ( 0, 0 ) ( 1280, 0 ) ( 1280 / 3, 720 / 3 ) ( 0, 720 ) (Color.rgba 0.5 0.5 0.7 1)
-        -- , REGL.circle ( 200, 100 ) 100 Color.lightBrown
-        -- , REGL.groupEffects [ blur 2 ]
-        --     [ REGL.clear (Color.rgba 0.5 0.5 0.7 0)
-        --     , REGL.triangle ( 700, 100 ) ( 700 + 100, 100 ) ( 700 + 100, 100 / 2 ) Color.red
-        --     , REGL.triangle ( 500, 100 ) ( 500 + 100, 100 ) ( 500 + 100, 100 / 2 ) Color.green
-        --     ]
-        -- , REGL.poly
-        --     [ ( 100, 100 )
-        --     , ( 100, 200 )
-        --     , ( 200, 200 )
-        --     , ( 300, 150 )
-        --     , ( 200, 100 )
-        --     ]
-        --     Color.blue
+    REGL.group []
+        [ REGL.clear (Color.rgba 1 1 1 1)
+        , REGL.simpText ( 0, 1050 ) 100 ("hello :)" ++ fromInt (floor model.lasttime))
+        , REGL.quad ( 0, 0 ) ( 1920, 0 ) ( 1920 / 3, 1080 / 3 ) ( 0, 1080 ) (Color.rgba 1 0.2 0.4 1)
+        , REGL.simpText ( 100, 960 ) 30 lorem
+        , REGL.simpText ( 100, 500 ) 500 "[BIG]"
+        , REGL.circle ( 1400, 300 ) 100 Color.black
+        , REGL.group [ REGL.blur 1 ]
+            [ REGL.clear (Color.rgba 1 0.2 0.4 0)
+            , REGL.triangle ( 700, 100 ) ( 700 + 100, 100 ) ( 700 + 100, 100 / 2 ) Color.red
+            , REGL.triangle ( 500, 100 ) ( 500 + 100, 100 ) ( 500 + 100, 100 / 2 ) Color.green
+            ]
+        , REGL.poly
+            [ ( 1100, 600 )
+            , ( 1100, 650 )
+            , ( 1200, 680 )
+            , ( 1300, 650 )
+            , ( 1200, 600 )
+            ]
+            Color.blue
         , REGL.simpTexture ( 0, 0 ) ( w, 0 ) ( w, h ) ( 0, h ) "enemy"
-
-        -- , REGL.quad ( 1920, 1080 ) ( 1920, 0 ) ( 0, 0 ) ( 0, 1080 ) Color.black
-        -- , REGL.triangle ( 700, 150 ) ( 700 + 100, 150 ) ( 700 + 100, 150 / 2 ) (Color.rgba 0 0 0 1)
-        -- , Comp.dstOverSrc
-        --     (REGL.group
-        --         [ REGL.triangle ( 500, 150 ) ( 500 + 100, 150 ) ( 500 + 100, 150 / 2 ) Color.green
-        --         ]
-        --     )
-        --     (REGL.group
-        --         [ REGL.triangle ( 550, 150 ) ( 550 + 100, 150 ) ( 550 + 100, 150 / 2 ) Color.red
-        --         ]
-        --     )
+        , REGL.group [ REGL.gblur 10 ]
+            [ REGL.clear (Color.rgba 1 1 1 0)
+            , REGL.quad ( 1500, 500 ) ( 1800, 500 ) ( 1800, 900 ) ( 1500, 900 ) (Color.rgba 0.4 0.7 0.9 1)
+            ]
+        , REGL.simpText ( 1510, 890 ) 30 "Hello\nThis is a clear text on\na blurred background."
         ]
 
 

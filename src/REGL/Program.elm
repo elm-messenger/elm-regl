@@ -55,7 +55,7 @@ type alias REGLProgram =
     , uniforms : Maybe (List ( String, ProgValue ))
     , elements : Maybe ProgValue
     , primitive : Maybe ProgValue
-    , count : Maybe Int
+    , count : Maybe ProgValue
     }
 
 
@@ -153,7 +153,8 @@ encodeProgramHelper : REGLProgram -> List (Maybe ( String, Value ))
 encodeProgramHelper p =
     [ Just ( "frag", Encode.string p.frag )
     , Just ( "vert", Encode.string p.vert )
-    , Maybe.map (\x -> ( "count", Encode.int x )) p.count
+    , Maybe.map (\x -> ( "count", getStaticSingleProgValue x )) p.count
+    , Maybe.map (\x -> ( "countDyn", getDynamicSingleProgValue x )) p.count
     , Maybe.map (\x -> ( "elements", getStaticSingleProgValue x )) p.elements
     , Maybe.map (\x -> ( "elementsDyn", getDynamicSingleProgValue x )) p.elements
     , Maybe.map (\x -> ( "primitive", getStaticSingleProgValue x )) p.primitive

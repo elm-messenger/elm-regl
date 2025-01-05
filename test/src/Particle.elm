@@ -7,9 +7,10 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Json.Decode as Decode
 import Json.Encode as Encode
-import REGL exposing (REGLStartConfig, batchExec, createREGLProgram, genProg, render, startREGL, toHtmlWith)
+import REGL exposing (REGLStartConfig, batchExec, createREGLProgram, genProg, render, startREGL, toHtmlWith, triangle)
 import REGL.Common exposing (Renderable)
-import REGL.Program exposing (ProgValue(..), REGLProgram)
+import REGL.Compositors
+import REGL.Program exposing (ProgValue(..), REGLProgram, primitiveToValue)
 
 
 port setView : Encode.Value -> Cmd msg
@@ -48,7 +49,7 @@ init _ =
     , Cmd.batch
         (batchExec execREGLCmd
             [ startREGL (REGLStartConfig 1920 1080)
-            , createREGLProgram "mytriangle" prog
+            , createREGLProgram "particle" prog
             , createREGLProgram "myblur" blurprog
             ]
         )
@@ -62,9 +63,24 @@ type Msg
 
 genRenderable : Model -> Renderable
 genRenderable model =
-    REGL.groupEffects [ myblur 10 ]
-        [ REGL.clear (Color.rgba 0 0 0 1)
-        , mytriangle ( 0, 0 ) ( 1, 0 ) ( 0, 1 ) (Color.rgba 1 0 0 1)
+    REGL.group []
+        [ REGL.clear (Color.rgba 0 0 0 0)
+        , particles model.lasttime
+
+        -- , triangle (0, 0) (1920, 0) (1920, 1080) (Color.rgba 1 0 0 1)
+        -- , triangle (0, 0) (1920/2, 0) (1920/2, 1080) (Color.rgba 0 1 0 1)
+        -- , triangle ( 1920 / 2, 0 ) ( 1920 , 0 ) ( 1920, 1080 ) (Color.rgba 0 1 0 0.5)
+        -- , REGL.Compositors.dstOverSrc
+        --     (REGL.group
+        --         [ REGL.clear (Color.rgba 0 0 0 0)
+        --         -- , triangle ( 0, 0 ) ( 1920, 0 ) ( 1920, 1080 ) (Color.rgba 1 0 0 1)
+        --         ]
+        --     )
+        --     (REGL.group
+        --         [ REGL.clear (Color.rgba 0 0 0 0)
+        --         , triangle ( 0, 0 ) ( 1920 / 2, 0 ) ( 1920 / 2, 1080 ) (Color.rgba 0 1 0 1)
+        --         ]
+        --     )
         ]
 
 
@@ -115,9 +131,16 @@ view _ =
 frag =
     """
 precision mediump float;
-uniform vec4 color;
+varying vec2 vRandom;
+uniform float t;
 void main() {
-    gl_FragColor = color;
+    vec2 uv = gl_PointCoord.xy;
+
+    float d = length(uv - 0.5);
+    float circle = 1. - smoothstep(0.4, 0.5, d);
+
+    gl_FragColor.rgb = (0.6 + 0.3 * sin(uv.yxx + t + vRandom.x * 6.28) + vec3(0.1, 0.0, 0.3))*circle;
+    gl_FragColor.a = circle;
 }
 """
 
@@ -126,42 +149,58 @@ vert =
     """
 precision mediump float;
 attribute vec2 pos;
+uniform vec2 view;
+uniform float t;
+
+varying vec2 vRandom;
 void main() {
-    gl_Position = vec4(pos, 0, 1);
+    vec2 mpos = pos;
+    vRandom = vec2(sin(mpos.x * 12. + mpos.y * 78.), sin(-mpos.x * 44. + mpos.y * 23.));
+    float mt = t * 0.6;
+    mpos.x += sin(mt * vRandom.x + 6.28 * vRandom.y) * mix(0., 400., vRandom.x);
+    mpos.y += cos(mt * vRandom.y + 6.28 * vRandom.x) * mix(0., 300., vRandom.y);
+    gl_Position = vec4((mpos.x / view.x) * 2. - 1., (mpos.y / view.y) * 2. - 1., 0, 1);
+    gl_PointSize = 10. + vRandom.x * 5.;
 }
 """
 
 
 prog : REGLProgram
 prog =
+    let
+        len =
+            2000
+
+        randomPos =
+            List.map (\x -> sin (toFloat x * 7.34) * 500 + 500) (List.range 1 (len * 2))
+    in
     { frag = frag
     , vert = vert
     , attributes =
         Just
             [ ( "pos"
-              , DynamicValue "pos"
+              , StaticValue (Encode.list Encode.float randomPos)
               )
             ]
     , uniforms =
         Just
-            [ ( "color", DynamicValue "color" )
+            [ ( "t", DynamicValue "t" )
             ]
     , elements = Nothing
-    , count = Just 3
-    , primitive = Nothing
+    , count = Just <| StaticValue (Encode.int len)
+    , primitive = Just (StaticValue (primitiveToValue REGL.Program.Points))
     }
 
 
-mytriangle : ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> Color -> Renderable
-mytriangle ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) color =
+particles : Float -> Renderable
+particles t =
     genProg <|
         Encode.object
             [ ( "cmd", Encode.int 0 )
-            , ( "prog", Encode.string "mytriangle" )
+            , ( "prog", Encode.string "particle" )
             , ( "args"
               , Encode.object
-                    [ ( "pos", Encode.list Encode.float [ x1, y1, x2, y2, x3, y3 ] )
-                    , ( "color", Encode.list Encode.float (REGL.toRgbaList color) )
+                    [ ( "t", Encode.float t )
                     ]
               )
             ]

@@ -1,5 +1,5 @@
 module REGL exposing
-    ( Renderable, genProg, group, empty, render, groupEffects, Effect
+    ( Renderable, genProg, group, empty, render, Effect
     , clear, triangle, quad, simpTexture, simpText, circle
     , REGLConfig, TimeInterval(..), configREGL
     , REGLStartConfig, TextureMagOption(..), TextureMinOption(..), TextureOptions, batchExec, createREGLProgram, loadTexture, startREGL, loadMSDFFont
@@ -17,7 +17,7 @@ module REGL exposing
 
 ## Basics
 
-@docs Renderable, genProg, group, empty, render, groupEffects, Effect
+@docs Renderable, genProg, group, empty, render, Effect
 
 
 ## Builtin Commands
@@ -79,17 +79,10 @@ genProg =
     C.genProg
 
 
-{-| Group a list of renderables into a single renderable.
--}
-group : List Renderable -> Renderable
-group =
-    groupEffects []
-
-
 {-| Group a list of renderables into a single renderable with effects.
 -}
-groupEffects : List Effect -> List Renderable -> Renderable
-groupEffects =
+group : List Effect -> List Renderable -> Renderable
+group =
     C.group
 
 
@@ -159,6 +152,7 @@ clear color =
             , ( "args"
               , Encode.object
                     [ ( "color", Encode.list Encode.float (toRgbaList color) )
+                    , ( "depth", Encode.float 1 )
                     ]
               )
             ]
