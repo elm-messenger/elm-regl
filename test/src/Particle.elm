@@ -7,10 +7,10 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Json.Decode as Decode
 import Json.Encode as Encode
-import REGL exposing (REGLStartConfig, batchExec, createREGLProgram, genProg, render, startREGL, toHtmlWith, triangle)
+import REGL exposing (REGLStartConfig, batchExec, createREGLProgram, genProg, primitiveToValue, render, startREGL, toHtmlWith, triangle)
 import REGL.Common exposing (Renderable)
 import REGL.Compositors
-import REGL.Program exposing (ProgValue(..), REGLProgram, primitiveToValue)
+import REGL.Program exposing (ProgValue(..), REGLProgram)
 
 
 port setView : Encode.Value -> Cmd msg
@@ -48,7 +48,7 @@ init _ =
       }
     , Cmd.batch
         (batchExec execREGLCmd
-            [ startREGL (REGLStartConfig 1920 1080)
+            [ startREGL (REGLStartConfig 1920 1080 5 Nothing)
             , createREGLProgram "particle" prog
             , createREGLProgram "myblur" blurprog
             ]
@@ -188,7 +188,7 @@ prog =
             ]
     , elements = Nothing
     , count = Just <| StaticValue (Encode.int len)
-    , primitive = Just (StaticValue (primitiveToValue REGL.Program.Points))
+    , primitive = Just (StaticValue (primitiveToValue REGL.Points))
     }
 
 
