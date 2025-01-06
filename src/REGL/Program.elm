@@ -1,13 +1,17 @@
 module REGL.Program exposing
     ( ProgValue(..)
     , REGLProgram, encodeProgram
-    , makeCompositorProgram, makeEffectProgram, makeEffectSimple, makeCompositorSimple
+    , makeEffectSimple, makeCompositorSimple
+    , makeCompositorProgram, makeEffectProgram
     )
 
 {-|
 
 
-# Custom Program
+# Custom REGL Program
+
+Users could define their own custom REGL program using this module.
+REGL programs could be used as a renderable generator, effect, or compositor.
 
 
 ## Program Value
@@ -19,14 +23,20 @@ module REGL.Program exposing
 
 @docs REGLProgram, encodeProgram
 
-@docs makeCompositorProgram, makeEffectProgram, makeEffectSimple, makeCompositorSimple
+Usually users could use the following functions to construct a custom program by only providing the fragment shader and uniforms:
+
+@docs makeEffectSimple, makeCompositorSimple
+
+If more customization is needed, users could use the following functions:
+
+@docs makeCompositorProgram, makeEffectProgram
 
 -}
 
 import Json.Encode as Encode exposing (Value)
 
 
-{-| A value that can be either a static value or a dynamic value
+{-| A value that can be either a static value or a dynamic value.
 -}
 type ProgValue
     = DynamicValue String
@@ -34,7 +44,7 @@ type ProgValue
     | DynamicTextureValue String -- Dynamic texture value
 
 
-{-| A custom program that can be used with REGL
+{-| A custom program that can be used with REGL.
 -}
 type alias REGLProgram =
     { frag : String
@@ -45,7 +55,6 @@ type alias REGLProgram =
     , primitive : Maybe ProgValue
     , count : Maybe ProgValue
     }
-
 
 
 getDynamicValue : List ( String, ProgValue ) -> Value
@@ -140,6 +149,9 @@ encodeProgram p =
 
 
 {-| Make a custom effect program.
+
+`texname` is the name of the texture uniform in the program.
+
 -}
 makeEffectProgram : String -> REGLProgram -> REGLProgram
 makeEffectProgram texname p =
@@ -158,6 +170,11 @@ makeEffectProgram texname p =
 
 
 {-| Make a custom effect program simply.
+
+In the fragment shader, use `texture2D(texture, vuv)` to sample the texture.
+
+You could also use `vec2 view` to get the size of virtual canvas.
+
 -}
 makeEffectSimple : String -> List ( String, ProgValue ) -> REGLProgram
 makeEffectSimple frag uniforms =
@@ -188,6 +205,9 @@ makeEffectSimple frag uniforms =
 
 
 {-| Make a custom composite program.
+
+`src` and `dst` are the names of the texture uniforms in the program.
+
 -}
 makeCompositorProgram : String -> String -> REGLProgram -> REGLProgram
 makeCompositorProgram src dst p =
@@ -206,6 +226,9 @@ makeCompositorProgram src dst p =
 
 
 {-| Make a custom composite program simply.
+
+`t1` and `t2` are the names of the texture uniforms in the program.
+
 -}
 makeCompositorSimple : String -> List ( String, ProgValue ) -> REGLProgram
 makeCompositorSimple frag uniforms =

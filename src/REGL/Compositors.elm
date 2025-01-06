@@ -8,7 +8,16 @@ module REGL.Compositors exposing
 
 # Compositors
 
+Compose two renderables using various shaders.
+
+
+## Default Compositors
+
 @docs dstOverSrc, maskBySrc
+
+
+## Fading Compositor
+
 @docs linearFade, imgFade
 
 -}
@@ -53,7 +62,10 @@ maskBySrc src dst =
             ]
 
 
-{-| Fading effect using mask image.
+{-| Fading effect using a mask image.
+
+Mask image is a gradient image, similar to [this](https://github.com/linsyking/elm-regl/blob/main/docs/asset/mask.jpg).
+
 -}
 imgFade : String -> Float -> Renderable -> Renderable -> Renderable
 imgFade mask t src dst =
@@ -72,7 +84,7 @@ imgFade mask t src dst =
             ]
 
 
-{-| Linear fading effect using computed shader.
+{-| Linear fading effect.
 -}
 linearFade : Float -> Renderable -> Renderable -> Renderable
 linearFade t src dst =

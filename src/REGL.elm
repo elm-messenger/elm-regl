@@ -14,6 +14,8 @@ module REGL exposing
 
 # REGL
 
+This module exposes basic primitives for rendering with REGL.
+
 
 ## Basics
 
@@ -74,7 +76,7 @@ type alias Effect =
     C.Effect
 
 
-{-| Generate a renderable object from an object.
+{-| Generate a renderable object from settings. Users can use this function to create custom renderable generators.
 -}
 genProg : Value -> Renderable
 genProg =
@@ -95,7 +97,7 @@ empty =
     genProg Encode.null
 
 
-{-| Render a renderable object.
+{-| Render a renderable object. Users need to use it to pass the render result to REGL in JS through a port.
 -}
 render : Renderable -> Value
 render =
@@ -114,13 +116,18 @@ toRgbaList c =
 
 
 {-| A time interval for the REGL configuration.
+
+Use `Millisecond` for fixed time intervals, and `AnimationFrame` for rendering at the refresh rate of the display.
+
+`Millisecond` should be considered as a debugging tool, and `AnimationFrame` should be used for production.
+
 -}
 type TimeInterval
     = AnimationFrame
     | Millisecond Float
 
 
-{-| The user configuration for REGL.
+{-| The user configuration for REGL. Differing from the starting options. Users could change this at runtime.
 -}
 type alias REGLConfig =
     { timeInterval : TimeInterval
@@ -143,7 +150,7 @@ encodeConfig config =
         ]
 
 
-{-| Clear the canvas with a color and a depth value.
+{-| Clear the canvas with a color.
 -}
 clear : Color -> Renderable
 clear color =
@@ -395,7 +402,7 @@ circle ( x1, y1 ) r color =
             ]
 
 
-{-| Render a texture with an offset.
+{-| Render a texture with 4 points.
 -}
 texture : ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> String -> Renderable
 texture ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) ( x4, y4 ) name =
@@ -412,7 +419,7 @@ texture ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) ( x4, y4 ) name =
             ]
 
 
-{-| Render a texture with center, size and angle.
+{-| Render a texture with center, size and angle for rotation.
 -}
 centeredTexture : ( Float, Float ) -> ( Float, Float ) -> Float -> String -> Renderable
 centeredTexture ( x, y ) ( w, h ) angle name =
@@ -451,6 +458,9 @@ textbox ( x, y ) size text font =
 
 
 {-| Save the current FBO as a texture.
+
+This is only an experimental feature and should be used with caution.
+
 -}
 saveAsTexture : String -> Renderable
 saveAsTexture text =
@@ -484,6 +494,10 @@ type alias ExecPort msg =
 
 
 {-| The magnification option for textures.
+
+Users should use `MagLinear` for most cases.
+However, if pixel art is used, `MagNearest` should be used.
+
 -}
 type TextureMagOption
     = MagNearest
@@ -491,6 +505,9 @@ type TextureMagOption
 
 
 {-| The minification option for textures.
+
+Similar to the magnification option, users should use `MinLinear` for most cases.
+
 -}
 type TextureMinOption
     = MinNearest
@@ -562,7 +579,7 @@ encodeTextureOptions topts =
             [ ( "mag", Encode.string "linear" ), ( "min", Encode.string "linear" ) ]
 
 
-{-| Load a texture.
+{-| Load a texture with name, url and options.
 -}
 loadTexture : String -> String -> Maybe TextureOptions -> ExecPort msg -> Cmd msg
 loadTexture name url topts execPort =
@@ -578,6 +595,13 @@ loadTexture name url topts execPort =
 
 
 {-| The configuration for starting REGL.
+
+`virtWidth` and `virtHeight` are the virtual width and height users defined.
+
+`fboNum` is the number of framebuffers created.
+
+`builtinPrograms` is a list of built-in programs that users want to enable.
+
 -}
 type alias REGLStartConfig =
     { virtWidth : Float
@@ -612,7 +636,7 @@ startREGL config execPort =
             def
 
 
-{-| Create a REGL program.
+{-| Create a user-defined REGL program.
 -}
 createREGLProgram : String -> REGLProgram -> ExecPort msg -> Cmd msg
 createREGLProgram name program execPort =
@@ -685,7 +709,7 @@ fxaa =
         ]
 
 
-{-| Blurs a renderable.
+{-| Blurs a renderable. Gaussian blur.
 -}
 gblur : Float -> Effect
 gblur sigma =
