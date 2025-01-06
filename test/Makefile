@@ -1,17 +1,15 @@
 debug: format
 	mkdir -p build
-	elm make src/Main.elm --output=build/main.js
-	cp -f public/index.html .
+	elm make src/$(NAME).elm --output=build/main.js
+	cp -f public/$(NAME).html ./index.html
 	cp -f public/style.css build/style.css
-	# cp -f public/*.js build/
 
 release: format
 	mkdir -p build
-	elm make src/Main.elm --output=build/main.js
+	elm make src/$(NAME).elm --output=build/main.js
 	uglifyjs build/main.js -c -m --in-situ
-	cp -f public/index.html .
+	cp -f public/$(NAME).html ./index.html
 	cp -f public/style.css build/style.css
-	# cp -f public/*.js build/
 
 host:
 	python3 -m webbrowser http://localhost:8123

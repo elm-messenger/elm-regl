@@ -1,0 +1,34 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Elm</title>
+    <script type="text/javascript" src="build/main.js"></script>
+    <script type="text/javascript" src="build/regl.js"></script>
+    <link rel="stylesheet" href="build/style.css">
+</head>
+
+<body oncontextmenu="return false;">
+    <div id="myapp"></div>
+</body>
+
+<script type="text/javascript">
+    var app = Elm.Particle.init({
+        node: document.getElementById('myapp')
+    });
+    if (app.ports.setView) {
+        app.ports.setView.subscribe(function (v) {
+            ElmREGL.setView(v);
+        });
+    }
+    if (app.ports.execREGLCmd) {
+        app.ports.execREGLCmd.subscribe(function (v) {
+            ElmREGL.execCmd(v);
+        });
+    }
+    const canvas = document.getElementById('elm-regl-canvas');
+    ElmREGL.init(canvas, app, []);
+</script>
+
+</html>
