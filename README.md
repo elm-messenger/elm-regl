@@ -3,7 +3,7 @@
 Elm bindings for [regl](https://github.com/regl-project/regl).
 
 Aims to provide a set of declarative APIs to use WebGL in Elm through regl.
-Users don't need to worry about the low-level implementation but are able to write custom effects using shaders.
+Users don't need to worry about the low-level implementation but can write flexible, powerful effects using shaders efficiently.
 
 ![](docs/basic.jpg)
 ![](docs/mask.jpg)
@@ -52,3 +52,11 @@ REGL.Compositors.imgFade "mask" t renderable1 renderable2
 ```
 
 to composite two groups of `Renderable`s. Users also could write custom compositors through the GLSL shader language.
+
+## Notable Features
+
+- Use Framebuffer Objects (**FBO**) to draw.
+- Use Multi-channel Signed Distance Field (**MSDF**) to render text.
+- Efficient port in JS.
+
+The corresponding JS port is open-sourced at [elm-regl-js](https://github.com/linsyking/elm-regl-js).
