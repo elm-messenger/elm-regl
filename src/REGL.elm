@@ -207,6 +207,8 @@ type Primitive
     | TriangleFan
 
 
+{-| Convert a primitive to a value.
+-}
 primitiveToValue : Primitive -> Value
 primitiveToValue p =
     case p of
@@ -481,11 +483,15 @@ type alias ExecPort msg =
 -- Direct commands
 
 
+{-| The magnification option for textures.
+-}
 type TextureMagOption
     = MagNearest
     | MagLinear
 
 
+{-| The minification option for textures.
+-}
 type TextureMinOption
     = MinNearest
     | MinLinear
@@ -495,12 +501,16 @@ type TextureMinOption
     | LinearMipmapLinear
 
 
+{-| The texture options.
+-}
 type alias TextureOptions =
     { mag : Maybe TextureMagOption
     , min : Maybe TextureMinOption
     }
 
 
+{-| Execute a batch of commands.
+-}
 batchExec : ExecPort msg -> List (ExecPort msg -> Cmd msg) -> List (Cmd msg)
 batchExec execPort cmds =
     List.map (\cmd -> cmd execPort) cmds
@@ -552,6 +562,8 @@ encodeTextureOptions topts =
             [ ( "mag", Encode.string "linear" ), ( "min", Encode.string "linear" ) ]
 
 
+{-| Load a texture.
+-}
 loadTexture : String -> String -> Maybe TextureOptions -> ExecPort msg -> Cmd msg
 loadTexture name url topts execPort =
     execPort <|
@@ -600,6 +612,8 @@ startREGL config execPort =
             def
 
 
+{-| Create a REGL program.
+-}
 createREGLProgram : String -> REGLProgram -> ExecPort msg -> Cmd msg
 createREGLProgram name program execPort =
     execPort <|
@@ -610,6 +624,8 @@ createREGLProgram name program execPort =
             ]
 
 
+{-| Reconfigure REGL at runtime.
+-}
 configREGL : REGLConfig -> ExecPort msg -> Cmd msg
 configREGL config execPort =
     execPort <|
@@ -619,6 +635,8 @@ configREGL config execPort =
             ]
 
 
+{-| Load a MSDF font.
+-}
 loadMSDFFont : String -> String -> String -> ExecPort msg -> Cmd msg
 loadMSDFFont name imgurl jsonurl execPort =
     execPort <|

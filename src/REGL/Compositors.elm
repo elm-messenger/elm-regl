@@ -1,4 +1,13 @@
-module REGL.Compositors exposing (dstOverSrc,maskBySrc)
+module REGL.Compositors exposing (dstOverSrc, maskBySrc)
+
+{-|
+
+
+# Compositors
+
+@docs dstOverSrc, maskBySrc
+
+-}
 
 import Json.Encode as Encode
 import REGL.Common exposing (Renderable, genProg, render)
