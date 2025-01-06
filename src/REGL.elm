@@ -4,7 +4,7 @@ module REGL exposing
     , Primitive(..), primitiveToValue
     , REGLConfig, TimeInterval(..), configREGL
     , REGLStartConfig, TextureMagOption(..), TextureMinOption(..), TextureOptions, batchExec, createREGLProgram, loadTexture, startREGL, loadMSDFFont
-    , blur, gblur, crt, fxaa
+    , blur, gblur, crt, fxaa, alphamult
     , toHtmlWith, toRgbaList
     , saveAsTexture
     )
@@ -39,7 +39,7 @@ module REGL exposing
 
 ## Effects
 
-@docs blur, gblur, crt, fxaa
+@docs blur, gblur, crt, fxaa, alphamult
 
 
 ## Miscellaneous
@@ -657,6 +657,20 @@ blur radius =
         , ( "args"
           , Encode.object
                 [ ( "radius", Encode.float radius )
+                ]
+          )
+        ]
+
+
+{-| Multiply the alpha of a renderable.
+-}
+alphamult : Float -> Effect
+alphamult a =
+    Encode.object
+        [ ( "prog", Encode.string "alphamult" )
+        , ( "args"
+          , Encode.object
+                [ ( "alpha", Encode.float a )
                 ]
           )
         ]

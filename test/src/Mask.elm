@@ -62,7 +62,15 @@ type Msg
 
 genRenderable : Model -> Renderable
 genRenderable model =
-    REGL.group [ mask 0.3 ]
+    REGL.group
+        [ mask
+            (if model.lasttime >= 2 || model.lasttime < 1 then
+                0
+
+             else
+                model.lasttime - 1
+            )
+        ]
         [ REGL.clear (Color.rgba 0 0 0 0)
         , triangle ( 0, 0 ) ( 1920, 0 ) ( 1920, 1080 ) (Color.rgba 1 0 0 1)
         , triangle ( 0, 0 ) ( 1920 / 2, 0 ) ( 1920 / 2, 1080 ) (Color.rgba 0 1 0 1)
@@ -127,7 +135,8 @@ uniform vec2 view;
 varying vec2 vuv;
 void main() {
     float t0 = texture2D(mask, vec2(vuv.x, 1.-vuv.y)).x;
-    float a = smoothstep(0., 1., clamp(0.5 + 1. * (t - t0), 0.0, 1.0));
+    t0 = t0 * .5 + .5;
+    float a = smoothstep(-0.5, 0.,  (t - t0));
     gl_FragColor = mix(texture2D(texture, vuv), vec4(0., 0., 0., 1.), a);
 }
 """
