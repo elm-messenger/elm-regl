@@ -1,4 +1,7 @@
-module REGL.Compositors exposing (dstOverSrc, maskBySrc)
+module REGL.Compositors exposing
+    ( dstOverSrc, maskBySrc
+    , linearFade, imgFade
+    )
 
 {-|
 
@@ -6,6 +9,7 @@ module REGL.Compositors exposing (dstOverSrc, maskBySrc)
 # Compositors
 
 @docs dstOverSrc, maskBySrc
+@docs linearFade, imgFade
 
 -}
 
@@ -44,6 +48,44 @@ maskBySrc src dst =
             , ( "args"
               , Encode.object
                     [ ( "mode", Encode.int 1 )
+                    ]
+              )
+            ]
+
+
+{-| Fading effect using mask image.
+-}
+imgFade : String -> Float -> Renderable -> Renderable -> Renderable
+imgFade mask t src dst =
+    genProg <|
+        Encode.object
+            [ ( "cmd", Encode.int 3 )
+            , ( "prog", Encode.string "imgFade" )
+            , ( "r1", render src )
+            , ( "r2", render dst )
+            , ( "args"
+              , Encode.object
+                    [ ( "mask", Encode.string mask )
+                    , ( "t", Encode.float t )
+                    ]
+              )
+            ]
+
+
+{-| Linear fading effect using computed shader.
+-}
+linearFade : Float -> Renderable -> Renderable -> Renderable
+linearFade t src dst =
+    genProg <|
+        Encode.object
+            [ ( "cmd", Encode.int 3 )
+            , ( "prog", Encode.string "compFade" )
+            , ( "r1", render src )
+            , ( "r2", render dst )
+            , ( "args"
+              , Encode.object
+                    [ ( "mode", Encode.int 0 )
+                    , ( "t", Encode.float t )
                     ]
               )
             ]
