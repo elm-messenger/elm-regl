@@ -565,22 +565,39 @@ loadTexture name url topts execPort =
             ]
 
 
+{-| The configuration for starting REGL.
+-}
 type alias REGLStartConfig =
     { virtWidth : Float
     , virtHeight : Float
     , fboNum : Int
+    , builtinPrograms : Maybe (List String)
     }
 
 
+{-| Execute the start command for REGL.
+-}
 startREGL : REGLStartConfig -> ExecPort msg -> Cmd msg
 startREGL config execPort =
-    execPort <|
-        Encode.object
+    let
+        olddef =
             [ ( "cmd", Encode.string "start" )
             , ( "virtWidth", Encode.float config.virtWidth )
             , ( "virtHeight", Encode.float config.virtHeight )
             , ( "fboNum", Encode.int config.fboNum )
             ]
+
+        def =
+            case config.builtinPrograms of
+                Just progs ->
+                    ( "programs", Encode.list Encode.string progs ) :: olddef
+
+                Nothing ->
+                    olddef
+    in
+    execPort <|
+        Encode.object
+            def
 
 
 createREGLProgram : String -> REGLProgram -> ExecPort msg -> Cmd msg

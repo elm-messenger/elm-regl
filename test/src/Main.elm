@@ -57,7 +57,7 @@ init _ =
             [ loadTexture "enemy" "asset/enemy.png" Nothing
 
             -- , loadMSDFFont "firacode" "asset/fira.png" "asset/fira.json"
-            , startREGL (REGLStartConfig 1920 1080 5)
+            , startREGL (REGLStartConfig 1920 1080 5 Nothing)
             ]
         )
     )
