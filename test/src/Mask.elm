@@ -9,6 +9,7 @@ import Json.Decode as Decode
 import Json.Encode as Encode
 import REGL exposing (REGLStartConfig, batchExec, createREGLProgram, genProg, loadTexture, primitiveToValue, render, startREGL, toHtmlWith, triangle)
 import REGL.Common exposing (Renderable)
+import REGL.Compositors
 import REGL.Program exposing (ProgValue(..), REGLProgram)
 
 
@@ -62,19 +63,34 @@ type Msg
 
 genRenderable : Model -> Renderable
 genRenderable model =
-    REGL.group
-        [ mask
-            (if model.lasttime >= 2 || model.lasttime < 1 then
-                0
+    let
+        t =
+            if model.lasttime > 10 then
+                1
 
-             else
-                model.lasttime - 1
-            )
-        ]
-        [ REGL.clear (Color.rgba 0 0 0 0)
+            else
+                model.lasttime / 10
+    in
+    REGL.Compositors.imgFade "mask" t (genRenderable1 model) (genRenderable2 model)
+
+
+genRenderable1 : Model -> Renderable
+genRenderable1 model =
+    REGL.group
+        [ REGL.gblur 10 ]
+        [ REGL.clear (Color.rgba 1 1 1 1)
         , triangle ( 0, 0 ) ( 1920, 0 ) ( 1920, 1080 ) (Color.rgba 1 0 0 1)
         , triangle ( 0, 0 ) ( 1920 / 2, 0 ) ( 1920 / 2, 1080 ) (Color.rgba 0 1 0 1)
         , triangle ( 1920 / 2, 0 ) ( 1920, 0 ) ( 1920, 1080 ) (Color.rgba 0 1 0 0.5)
+        ]
+
+
+genRenderable2 : Model -> Renderable
+genRenderable2 model =
+    REGL.group
+        [ REGL.crt 50 ]
+        [ REGL.clear (Color.rgba 1 1 1 1)
+        , triangle ( 0, 0 ) ( 1920, 0 ) ( 960, 1080 ) (Color.rgba 0 0 1 1)
         ]
 
 
