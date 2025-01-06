@@ -1,4 +1,4 @@
-port module Main exposing (..)
+port module Basic exposing (..)
 
 import Browser
 import Color

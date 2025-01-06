@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Elm</title>
-    <script type="text/javascript" src="build/main.js"></script>
-    <script type="text/javascript" src="build/regl.js"></script>
-    <link rel="stylesheet" href="build/style.css">
+    <script type="text/javascript" src="Mask.js"></script>
+    <script type="text/javascript" src="regl.js"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body oncontextmenu="return false;">
@@ -14,7 +14,7 @@
 </body>
 
 <script type="text/javascript">
-    var app = Elm.Main.init({
+    var app = Elm.Mask.init({
         node: document.getElementById('myapp')
     });
     if (app.ports.setView) {
