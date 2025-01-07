@@ -48,15 +48,8 @@ init _ =
       , ts = ( 0, 0 )
       }
     , Cmd.batch
-        -- [ loadTexture ( "enemy", "asset/enemy.png" )
-        -- , createREGLProgram <| ( "mytriangle", encodeProgram myTriangleProgram )
-        -- , configREGL <| Encode.object [ ( "interval", Encode.float 0 ) ]
-        -- -- , createGLProgram <| ( "triangle", encodeProgram Triangle.prog )
-        -- ]
         (batchExec execREGLCmd
             [ loadTexture "enemy" "asset/enemy.png" Nothing
-
-            -- , loadMSDFFont "firacode" "asset/fira.png" "asset/fira.json"
             , startREGL (REGLStartConfig 1920 1080 5 Nothing)
             ]
         )
@@ -66,41 +59,6 @@ init _ =
 type Msg
     = Tick Float
     | REGLRecv Encode.Value
-
-
-genRenderable1 : Model -> Renderable
-genRenderable1 model =
-    let
-        numx =
-            50
-
-        numy =
-            30
-
-        bgColor =
-            Color.rgba 1 1 1 0
-
-        redC =
-            Color.rgba 1 0 0 0.5
-    in
-    REGL.group [] <|
-        REGL.clear bgColor
-            :: (List.concat <|
-                    List.map
-                        (\x ->
-                            List.map
-                                (\y ->
-                                    -- mytriangle
-                                    --     ( model.lasttime / 10 + toFloat x / numx - 1, toFloat y / numy - 1 )
-                                    triangle ( model.lasttime * 30 + toFloat x / numx * 640, toFloat y / numy * 360 + 5 )
-                                        ( model.lasttime * 30 + toFloat x / numx * 640 + 5, toFloat y / numy * 360 + 15 )
-                                        ( model.lasttime * 30 + toFloat x / numx * 640 + 10, toFloat y / numy * 360 + 5 )
-                                        redC
-                                )
-                                (List.range 0 (numy * 2))
-                        )
-                        (List.range 0 (numx * 2))
-               )
 
 
 lorem =
@@ -119,8 +77,8 @@ dictum felis in, semper nisi.
 Vestibulum a odio quis neque lobortis luctus eget at orci."""
 
 
-genRenderable2 : Model -> Renderable
-genRenderable2 model =
+genRenderable : Model -> Renderable
+genRenderable model =
     let
         ( w, h ) =
             model.ts
@@ -182,7 +140,7 @@ update msg model =
             else
                 ( { model | lasttime = t }
                 , Cmd.batch
-                    [ setView <| render <| genRenderable2 model
+                    [ setView <| render <| genRenderable model
                     ]
                 )
 
