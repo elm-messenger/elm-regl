@@ -3,7 +3,9 @@ module REGL exposing
     , clear, triangle, quad, texture, textbox, circle, centeredTexture, polyPrim, poly, lines, linestrip, lineloop, functionCurve
     , Primitive(..), primitiveToValue
     , REGLConfig, TimeInterval(..), configREGL
-    , REGLStartConfig, TextureMagOption(..), TextureMinOption(..), TextureOptions, batchExec, createREGLProgram, loadTexture, startREGL, loadMSDFFont
+    , REGLStartConfig
+    , TextureMagOption(..), TextureMinOption(..), TextureOptions, batchExec, createREGLProgram, loadTexture, startREGL, loadMSDFFont
+    , decodeRecvMsg, Texture, REGLRecvMsg(..)
     , blur, gblur, crt, fxaa, alphamult
     , toHtmlWith, toRgbaList
     , saveAsTexture
@@ -36,7 +38,11 @@ This module exposes basic primitives for rendering with REGL.
 
 ## Direct REGL Commands
 
-@docs REGLStartConfig, TextureMagOption, TextureMinOption, TextureOptions, batchExec, createREGLProgram, loadTexture, startREGL, loadMSDFFont
+@docs REGLStartConfig
+
+@docs TextureMagOption, TextureMinOption, TextureOptions, batchExec, createREGLProgram, loadTexture, startREGL, loadMSDFFont
+
+@docs decodeRecvMsg, Texture, REGLRecvMsg
 
 
 ## Effects
@@ -59,6 +65,7 @@ import Color exposing (Color)
 import Html exposing (Attribute, Html, canvas)
 import Html.Attributes exposing (height, id, width)
 import Html.Keyed as Keyed
+import Json.Decode as Decode
 import Json.Encode as Encode exposing (Value)
 import REGL.Common as C
 import REGL.Program exposing (REGLProgram, encodeProgram)
@@ -735,3 +742,60 @@ crt count =
                 ]
           )
         ]
+
+
+{-| Texture Information
+-}
+type alias Texture =
+    { name : String
+    , width : Int
+    , height : Int
+    }
+
+
+{-| Receive messages from REGL.
+-}
+type REGLRecvMsg
+    = REGLTextureLoaded Texture
+    | REGLFontLoaded String
+    | REGLProgramCreated String
+
+
+{-| Decode a received message.
+-}
+decodeRecvMsg : Value -> Maybe REGLRecvMsg
+decodeRecvMsg v =
+    let
+        cmd =
+            Decode.decodeValue (Decode.at [ "cmd" ] Decode.string) v
+    in
+    case cmd of
+        Ok "loadTexture" ->
+            let
+                w =
+                    Result.withDefault 0 <| Decode.decodeValue (Decode.at [ "response", "width" ] Decode.int) v
+
+                h =
+                    Result.withDefault 0 <| Decode.decodeValue (Decode.at [ "response", "height" ] Decode.int) v
+
+                txtname =
+                    Result.withDefault "" <| Decode.decodeValue (Decode.at [ "response", "texture" ] Decode.string) v
+            in
+            Just (REGLTextureLoaded { name = txtname, width = w, height = h })
+
+        Ok "loadFont" ->
+            let
+                name =
+                    Result.withDefault "" <| Decode.decodeValue (Decode.at [ "response", "font" ] Decode.string) v
+            in
+            Just (REGLFontLoaded name)
+
+        Ok "createGLProgram" ->
+            let
+                name =
+                    Result.withDefault "" <| Decode.decodeValue (Decode.at [ "response", "name" ] Decode.string) v
+            in
+            Just (REGLProgramCreated name)
+
+        _ ->
+            Nothing

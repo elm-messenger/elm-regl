@@ -7,7 +7,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Json.Decode as Decode
 import Json.Encode as Encode
-import REGL exposing (REGLStartConfig, batchExec, loadTexture, render, startREGL, toHtmlWith, triangle)
+import REGL exposing (REGLStartConfig, batchExec, loadTexture, render, startREGL, toHtmlWith)
 import REGL.Common exposing (Renderable)
 import String exposing (fromInt)
 
