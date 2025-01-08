@@ -1,6 +1,8 @@
 module REGL exposing
     ( Renderable, genProg, group, empty, render, Effect
-    , clear, triangle, quad, texture, textbox, circle, centeredTexture, polyPrim, poly, lines, linestrip, lineloop, functionCurve
+    , clear, triangle, quad, texture, rectTexture
+    , textbox, circle, centeredTexture, polyPrim, poly
+    , lines, linestrip, lineloop, functionCurve
     , Primitive(..), primitiveToValue
     , REGLConfig, TimeInterval(..), configREGL
     , REGLStartConfig
@@ -26,7 +28,9 @@ This module exposes basic primitives for rendering with REGL.
 
 ## Builtin Commands
 
-@docs clear, triangle, quad, texture, textbox, circle, centeredTexture, polyPrim, poly, lines, linestrip, lineloop, functionCurve
+@docs clear, triangle, quad, texture, rectTexture
+@docs textbox, circle, centeredTexture, polyPrim, poly
+@docs lines, linestrip, lineloop, functionCurve
 
 @docs Primitive, primitiveToValue
 
@@ -409,7 +413,7 @@ circle ( x1, y1 ) r color =
             ]
 
 
-{-| Render a texture with 4 points.
+{-| Render a texture with 4 points: left-bottom, right-bottom, right-top and left-top.
 -}
 texture : ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> String -> Renderable
 texture ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) ( x4, y4 ) name =
@@ -421,6 +425,23 @@ texture ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) ( x4, y4 ) name =
               , Encode.object
                     [ ( "texture", Encode.string name )
                     , ( "pos", Encode.list Encode.float [ x1, y1, x2, y2, x3, y3, x4, y4 ] )
+                    ]
+              )
+            ]
+
+
+{-| Render a texture with left-bottom coordinates and size.
+-}
+rectTexture : ( Float, Float ) -> ( Float, Float ) -> String -> Renderable
+rectTexture ( x1, y1 ) ( w, h ) name =
+    genProg <|
+        Encode.object
+            [ ( "cmd", Encode.int 0 )
+            , ( "prog", Encode.string "texture" )
+            , ( "args"
+              , Encode.object
+                    [ ( "texture", Encode.string name )
+                    , ( "pos", Encode.list Encode.float [ x1, y1, x1 + w, y1, x1 + w, y1 + h, x1, y1 + h ] )
                     ]
               )
             ]
