@@ -6,7 +6,8 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Json.Encode as Encode
-import REGL exposing (REGLStartConfig, batchExec, render, startREGL, toHtmlWith, triangle)
+import REGL exposing (REGLStartConfig, batchExec, render, startREGL, toHtmlWith)
+import REGL.BuiltinPrograms as P
 import REGL.Common exposing (Renderable)
 
 
@@ -33,13 +34,15 @@ main =
 
 
 type alias Model =
-    { lasttime : Float
+    { starttime : Float
+    , lasttime : Float
     }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { lasttime = 0
+    ( { starttime = 0
+      , lasttime = 0
       }
     , Cmd.batch
         (batchExec execREGLCmd
@@ -70,13 +73,13 @@ genRenderable model =
             Color.rgba 1 0 0 0.5
     in
     REGL.group [] <|
-        REGL.clear bgColor
+        P.clear bgColor
             :: (List.concat <|
                     List.map
                         (\x ->
                             List.map
                                 (\y ->
-                                    triangle ( model.lasttime * 30 + toFloat x / numx * 1920, toFloat y / numy * 1000 + 15 )
+                                    P.triangle ( model.lasttime * 30 + toFloat x / numx * 1920, toFloat y / numy * 1000 + 15 )
                                         ( model.lasttime * 30 + toFloat x / numx * 1920 + 15, toFloat y / numy * 1000 + 45 )
                                         ( model.lasttime * 30 + toFloat x / numx * 1920 + 30, toFloat y / numy * 1000 + 15 )
                                         redC
@@ -91,7 +94,15 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Tick t ->
-            ( { model | lasttime = t }
+            ( { model
+                | lasttime = t - model.starttime
+                , starttime =
+                    if model.starttime == 0 then
+                        t
+
+                    else
+                        model.starttime
+              }
             , Cmd.batch
                 [ setView <| render <| genRenderable model
                 ]

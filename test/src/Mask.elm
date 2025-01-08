@@ -7,9 +7,11 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Json.Decode as Decode
 import Json.Encode as Encode
-import REGL exposing (REGLStartConfig, batchExec, createREGLProgram, genProg, loadTexture, primitiveToValue, render, startREGL, toHtmlWith, triangle)
+import REGL exposing (REGLStartConfig, batchExec, createREGLProgram, loadTexture, render, startREGL, toHtmlWith)
+import REGL.BuiltinPrograms as P
 import REGL.Common exposing (Renderable)
 import REGL.Compositors
+import REGL.Effects as E
 import REGL.Program exposing (ProgValue(..), REGLProgram)
 
 
@@ -36,14 +38,16 @@ main =
 
 
 type alias Model =
-    { lasttime : Float
+    { starttime : Float
+    , lasttime : Float
     , loadednum : Int
     }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { lasttime = 0
+    ( { starttime = 0
+      , lasttime = 0
       , loadednum = 0
       }
     , Cmd.batch
@@ -77,20 +81,20 @@ genRenderable model =
 genRenderable1 : Model -> Renderable
 genRenderable1 model =
     REGL.group
-        [ REGL.gblur 10 ]
-        [ REGL.clear (Color.rgba 1 1 1 1)
-        , triangle ( 0, 0 ) ( 1920, 0 ) ( 1920, 1080 ) (Color.rgba 1 0 0 1)
-        , triangle ( 0, 0 ) ( 1920 / 2, 0 ) ( 1920 / 2, 1080 ) (Color.rgba 0 1 0 1)
-        , triangle ( 1920 / 2, 0 ) ( 1920, 0 ) ( 1920, 1080 ) (Color.rgba 0 1 0 0.5)
+        [ E.gblur 10 ]
+        [ P.clear (Color.rgba 1 1 1 1)
+        , P.triangle ( 0, 0 ) ( 1920, 0 ) ( 1920, 1080 ) (Color.rgba 1 0 0 1)
+        , P.triangle ( 0, 0 ) ( 1920 / 2, 0 ) ( 1920 / 2, 1080 ) (Color.rgba 0 1 0 1)
+        , P.triangle ( 1920 / 2, 0 ) ( 1920, 0 ) ( 1920, 1080 ) (Color.rgba 0 1 0 0.5)
         ]
 
 
 genRenderable2 : Model -> Renderable
 genRenderable2 model =
     REGL.group
-        [ REGL.crt 50 ]
-        [ REGL.clear (Color.rgba 1 1 1 1)
-        , triangle ( 0, 0 ) ( 1920, 0 ) ( 960, 1080 ) (Color.rgba 0 0 1 1)
+        [ E.crt 50 ]
+        [ P.clear (Color.rgba 1 1 1 1)
+        , P.triangle ( 0, 0 ) ( 1920, 0 ) ( 960, 1080 ) (Color.rgba 0 0 1 1)
         ]
 
 
@@ -102,7 +106,15 @@ update msg model =
                 ( model, setView Encode.null )
 
             else
-                ( { model | lasttime = t }
+                ( { model
+                    | lasttime = t - model.starttime
+                    , starttime =
+                        if model.starttime == 0 then
+                            t
+
+                        else
+                            model.starttime
+                  }
                 , Cmd.batch
                     [ setView <| render <| genRenderable model
                     ]
