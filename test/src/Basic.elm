@@ -67,18 +67,7 @@ type Msg
 
 lorem =
     """
-Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-Vivamus tortor massa, hendrerit eu tellus non, iaculis cursus purus.
-Phasellus at tempor ipsum.
-Quisque efficitur tortor sed tincidunt elementum.
-Aliquam erat volutpat.
-Morbi eu diam a mauris venenatis tincidunt eu et diam.
-In hac habitasse platea dictumst.
-Curabitur vitae massa at justo pellentesque molestie nec a diam. Fusce sed neque neque.
-Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.
-Etiam ut augue gravida,
-dictum felis in, semper nisi.
-Vestibulum a odio quis neque lobortis luctus eget at orci."""
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus tortor massa, hendrerit eu tellus non, iaculis cursus purus. Phasellus at tempor ipsum. Quisque efficitur tortor sed tincidunt elementum. Aliquam erat volutpat. Morbi eu diam a mauris venenatis tincidunt eu et diam. In hac habitasse platea dictumst. Curabitur vitae massa at justo pellentesque molestie nec a diam. Fusce sed neque neque. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Etiam ut augue gravida, dictum felis in, semper nisi. Vestibulum a odio quis neque lobortis luctus eget at orci."""
 
 
 genRenderable : Model -> Renderable
@@ -91,7 +80,7 @@ genRenderable model =
         [ P.clear (Color.rgba 1 1 1 1)
         , P.textbox ( 0, 1050 ) 100 ("hello :)" ++ fromInt (floor model.lasttime)) "arial" Color.black
         , P.quad ( 0, 0 ) ( 1920, 0 ) ( 1920 / 3, 1080 / 3 ) ( 0, 1080 ) (Color.rgba 1 0.2 0.4 1)
-        , P.textbox ( 100, 960 ) 30 lorem "arial" Color.black
+        , P.textboxPro ( 100, 960 ) (P.TextBoxOption "arial" lorem 70 (Color.rgba 0.5 0.5 1.0 0.5) False (Just 1700) Nothing Nothing Nothing Nothing)
         , P.textbox ( 100, 500 ) 500 "[BIG]" "arial" Color.black
         , REGL.group [ E.blur 1 ]
             [ P.clear (Color.rgba 1 0.2 0.4 0)
@@ -143,7 +132,7 @@ update msg model =
 
             else
                 ( { model
-                    | lasttime = t - model.starttime
+                    | lasttime = (t - model.starttime) / 1000
                     , starttime =
                         if model.starttime == 0 then
                             t

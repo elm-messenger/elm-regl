@@ -378,8 +378,8 @@ type alias TextBoxOption =
     , text : String
     , size : Float
     , color : Color
-    , width : Maybe Float
     , wordBreak : Bool
+    , width : Maybe Float
     , lineHeight : Maybe Float
     , wordSpacing : Maybe Float
     , align : Maybe String

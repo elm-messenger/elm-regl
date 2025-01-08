@@ -95,7 +95,7 @@ update msg model =
 
             else
                 ( { model
-                    | lasttime = t - model.starttime
+                    | lasttime = (t - model.starttime) / 1000
                     , starttime =
                         if model.starttime == 0 then
                             t
