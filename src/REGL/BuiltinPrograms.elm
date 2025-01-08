@@ -353,8 +353,8 @@ centeredTexture ( x, y ) ( w, h ) angle name =
 
 {-| Render a textbox.
 -}
-textbox : ( Float, Float ) -> Float -> String -> String -> Renderable
-textbox ( x, y ) size text font =
+textbox : ( Float, Float ) -> Float -> String -> String -> Color -> Renderable
+textbox ( x, y ) size text font color =
     genProg <|
         Encode.object
             [ ( "cmd", Encode.int 0 )
@@ -365,6 +365,47 @@ textbox ( x, y ) size text font =
                     , ( "size", Encode.float size )
                     , ( "offset", Encode.list Encode.float [ x, y ] )
                     , ( "font", Encode.string font )
+                    , ( "color", Encode.list Encode.float <| toRgbaList color )
+                    ]
+              )
+            ]
+
+
+{-| Full TextBox options.
+-}
+type alias TextBoxOption =
+    { font : String
+    , text : String
+    , size : Float
+    , color : Color
+    , wordBreak : Bool
+    , width : Maybe Float
+    , lineHeight : Maybe Float
+    , spaceWidth : Maybe Float
+    , align : Maybe String
+    }
+
+
+{-| Render a textbox with more options.
+-}
+textboxPro : ( Float, Float ) -> TextBoxOption -> Renderable
+textboxPro ( x, y ) opt =
+    genProg <|
+        Encode.object
+            [ ( "cmd", Encode.int 0 )
+            , ( "prog", Encode.string "textbox" )
+            , ( "args"
+              , Encode.object
+                    [ ( "text", Encode.string opt.text )
+                    , ( "size", Encode.float opt.size )
+                    , ( "offset", Encode.list Encode.float [ x, y ] )
+                    , ( "font", Encode.string opt.font )
+                    , ( "color", Encode.list Encode.float <| toRgbaList opt.color )
+                    , ( "wordBreak", Encode.bool opt.wordBreak )
+                    , ( "width", Maybe.withDefault (Encode.null) <| Maybe.map Encode.float opt.width )
+                    , ( "lineHeight", Maybe.withDefault (Encode.null) <| Maybe.map Encode.float opt.lineHeight )
+                    , ( "spaceWidth", Maybe.withDefault (Encode.null) <| Maybe.map Encode.float opt.spaceWidth )
+                    , ( "align", Maybe.withDefault (Encode.null) <| Maybe.map Encode.float opt.align )
                     ]
               )
             ]
