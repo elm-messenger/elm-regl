@@ -1,6 +1,6 @@
 module REGL.BuiltinPrograms exposing
     ( clear, triangle, quad, texture, rectTexture
-    , textbox, circle, centeredTexture, polyPrim, poly
+    , textbox, textboxPro, TextBoxOption, circle, centeredTexture, polyPrim, poly
     , lines, linestrip, lineloop, functionCurve
     , toRgbaList, Primitive(..), primitiveToValue
     , saveAsTexture
@@ -15,7 +15,7 @@ module REGL.BuiltinPrograms exposing
 ## Builtin Commands
 
 @docs clear, triangle, quad, texture, rectTexture
-@docs textbox, circle, centeredTexture, polyPrim, poly
+@docs textbox, textboxPro, TextBoxOption, circle, centeredTexture, polyPrim, poly
 @docs lines, linestrip, lineloop, functionCurve
 
 
@@ -378,11 +378,12 @@ type alias TextBoxOption =
     , text : String
     , size : Float
     , color : Color
-    , wordBreak : Bool
     , width : Maybe Float
+    , wordBreak : Bool
     , lineHeight : Maybe Float
-    , spaceWidth : Maybe Float
+    , wordSpacing : Maybe Float
     , align : Maybe String
+    , letterSpacing : Maybe Float
     }
 
 
@@ -402,10 +403,11 @@ textboxPro ( x, y ) opt =
                     , ( "font", Encode.string opt.font )
                     , ( "color", Encode.list Encode.float <| toRgbaList opt.color )
                     , ( "wordBreak", Encode.bool opt.wordBreak )
-                    , ( "width", Maybe.withDefault (Encode.null) <| Maybe.map Encode.float opt.width )
-                    , ( "lineHeight", Maybe.withDefault (Encode.null) <| Maybe.map Encode.float opt.lineHeight )
-                    , ( "spaceWidth", Maybe.withDefault (Encode.null) <| Maybe.map Encode.float opt.spaceWidth )
-                    , ( "align", Maybe.withDefault (Encode.null) <| Maybe.map Encode.float opt.align )
+                    , ( "align", Encode.string <| Maybe.withDefault "left" opt.align )
+                    , ( "width", Encode.float <| Maybe.withDefault -1 opt.width )
+                    , ( "lineHeight", Encode.float <| Maybe.withDefault 1 opt.lineHeight )
+                    , ( "wordSpacing", Encode.float <| Maybe.withDefault 0 opt.wordSpacing )
+                    , ( "letterSpacing", Encode.float <| Maybe.withDefault 0 opt.letterSpacing )
                     ]
               )
             ]
