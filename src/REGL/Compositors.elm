@@ -67,8 +67,8 @@ maskBySrc src dst =
 Mask image is a gradient image, similar to [this](https://github.com/linsyking/elm-regl/blob/main/docs/asset/mask.jpg).
 
 -}
-imgFade : String -> Float -> Renderable -> Renderable -> Renderable
-imgFade mask t src dst =
+imgFade : String -> Float -> Bool -> Renderable -> Renderable -> Renderable
+imgFade mask t invert src dst =
     genProg <|
         Encode.object
             [ ( "cmd", Encode.int 3 )
@@ -79,6 +79,7 @@ imgFade mask t src dst =
               , Encode.object
                     [ ( "mask", Encode.string mask )
                     , ( "t", Encode.float t )
+                    , ( "invert_mask", Encode.int (if invert then 1 else 0) )
                     ]
               )
             ]

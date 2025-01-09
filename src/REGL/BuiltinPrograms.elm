@@ -384,6 +384,7 @@ type alias TextBoxOption =
     , wordSpacing : Maybe Float
     , align : Maybe String
     , letterSpacing : Maybe Float
+    , thickness: Maybe Float
     }
 
 
@@ -408,6 +409,7 @@ textboxPro ( x, y ) opt =
                     , ( "lineHeight", Encode.float <| Maybe.withDefault 1 opt.lineHeight )
                     , ( "wordSpacing", Encode.float <| Maybe.withDefault 0 opt.wordSpacing )
                     , ( "letterSpacing", Encode.float <| Maybe.withDefault 0 opt.letterSpacing )
+                    , ( "thickness", Encode.float <| Maybe.withDefault 0.5 opt.thickness )
                     ]
               )
             ]
