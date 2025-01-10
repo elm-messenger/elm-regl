@@ -75,7 +75,7 @@ genRenderable model =
             else
                 model.lasttime / 10
     in
-    REGL.Compositors.imgFade "mask" t (genRenderable1 model) (genRenderable2 model)
+    REGL.Compositors.imgFade "mask" t False (genRenderable1 model) (genRenderable2 model)
 
 
 genRenderable1 : Model -> Renderable

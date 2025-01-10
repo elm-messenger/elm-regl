@@ -80,7 +80,7 @@ genRenderable model =
         [ P.clear (Color.rgba 1 1 1 1)
         , P.textbox ( 0, 1050 ) 100 ("hello :)" ++ fromInt (floor model.lasttime)) "arial" Color.black
         , P.quad ( 0, 0 ) ( 1920, 0 ) ( 1920 / 3, 1080 / 3 ) ( 0, 1080 ) (Color.rgba 1 0.2 0.4 1)
-        , P.textboxPro ( 100, 960 ) (P.TextBoxOption "arial" lorem 70 (Color.rgba 0.5 0.5 1.0 0.5) False (Just 1700) Nothing Nothing Nothing Nothing)
+        , P.textboxPro ( 100, 960 ) (P.TextBoxOption "arial" lorem 70 (Color.rgba 0.5 0.5 1.0 0.5) False (Just 1700) Nothing Nothing Nothing Nothing Nothing)
         , P.textbox ( 100, 500 ) 500 "[BIG]" "arial" Color.black
         , REGL.group [ E.blur 1 ]
             [ P.clear (Color.rgba 1 0.2 0.4 0)
