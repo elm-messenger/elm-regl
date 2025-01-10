@@ -359,7 +359,7 @@ rectTextureCropped ( x, y ) ( w, h ) ( cx, cy ) ( cw, ch ) name =
     genProg <|
         Encode.object
             [ ( "cmd", Encode.int 0 )
-            , ( "prog", Encode.string "texture" )
+            , ( "prog", Encode.string "textureCropped" )
             , ( "args"
               , Encode.object
                     [ ( "texture", Encode.string name )

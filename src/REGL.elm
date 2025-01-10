@@ -20,7 +20,6 @@ This module exposes basic primitives for rendering with REGL.
 @docs Renderable, genProg, group, empty, render, Effect
 
 
-
 ## User Configuration
 
 @docs REGLConfig, TimeInterval, configREGL
@@ -177,6 +176,7 @@ type TextureMinOption
 type alias TextureOptions =
     { mag : Maybe TextureMagOption
     , min : Maybe TextureMinOption
+    , crop : Maybe ( ( Int, Int ), ( Int, Int ) )
     }
 
 
@@ -226,6 +226,14 @@ encodeTextureOptions topts =
 
                         Nothing ->
                             "linear"
+              )
+            , ( "subimg"
+              , case opts.crop of
+                    Just ( ( x, y ), ( w, h ) ) ->
+                        Encode.list Encode.int [ x, y, w, h ]
+
+                    Nothing ->
+                        Encode.null
               )
             ]
 
