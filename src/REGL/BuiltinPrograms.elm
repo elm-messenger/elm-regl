@@ -341,17 +341,7 @@ textureCropped ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) ( x4, y4 ) ( cx1, cy1 ) ( cx2, c
 -}
 rectTexture : ( Float, Float ) -> ( Float, Float ) -> String -> Renderable
 rectTexture ( x, y ) ( w, h ) name =
-    genProg <|
-        Encode.object
-            [ ( "cmd", Encode.int 0 )
-            , ( "prog", Encode.string "texture" )
-            , ( "args"
-              , Encode.object
-                    [ ( "texture", Encode.string name )
-                    , ( "pos", Encode.list Encode.float [ x, y, x + w, y, x + w, y + h, x, y + h ] )
-                    ]
-              )
-            ]
+    centeredTexture ( x + w / 2, y + h / 2 ) ( w, h ) 0 name
 
 
 {-| Render a texture with left-bottom coordinates and size, along with a crop rectangle in texture coordinate.
