@@ -96,6 +96,9 @@ genRenderable model =
             ]
             Color.blue
         , P.texture ( 0, 0 ) ( 2 * w, 0 ) ( 2 * w, h ) ( 0, h ) "enemy"
+        , P.rectTextureCropped ( 100, 600 ) ( w / 2, h ) ( 0.5, 0 ) ( 0.5, 1 ) "enemy"
+        , P.centeredTextureCropped ( 1100, 600 ) ( w / 2, h ) 45 ( 0, 0 ) ( 0.5, 1 ) "enemy"
+        , P.circle ( 1100, 600 ) 10 Color.black
         , P.centeredTexture ( 1400, 300 ) ( w, h ) (model.lasttime / 5) "enemy"
         , P.circle ( 1400, 300 ) 30 Color.black
         , REGL.group [ E.gblur 10 ]

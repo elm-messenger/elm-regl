@@ -1,6 +1,7 @@
 module REGL.BuiltinPrograms exposing
     ( clear, triangle, quad, texture, rectTexture
     , textbox, textboxPro, TextBoxOption, circle, centeredTexture, polyPrim, poly
+    , textureCropped, rectTextureCropped, centeredTextureCropped
     , lines, linestrip, lineloop, functionCurve
     , toRgbaList, Primitive(..), primitiveToValue
     , saveAsTexture
@@ -16,6 +17,7 @@ module REGL.BuiltinPrograms exposing
 
 @docs clear, triangle, quad, texture, rectTexture
 @docs textbox, textboxPro, TextBoxOption, circle, centeredTexture, polyPrim, poly
+@docs textureCropped, rectTextureCropped, centeredTextureCropped
 @docs lines, linestrip, lineloop, functionCurve
 
 
@@ -315,10 +317,10 @@ texture ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) ( x4, y4 ) name =
             ]
 
 
-{-| Render a texture with left-bottom coordinates and size.
+{-| Render a texture with 4 points: left-bottom, right-bottom, right-top and left-top, along with 4 cropped points in texture coordinate.
 -}
-rectTexture : ( Float, Float ) -> ( Float, Float ) -> String -> Renderable
-rectTexture ( x1, y1 ) ( w, h ) name =
+textureCropped : ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> String -> Renderable
+textureCropped ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) ( x4, y4 ) ( cx1, cy1 ) ( cx2, cy2 ) ( cx3, cy3 ) ( cx4, cy4 ) name =
     genProg <|
         Encode.object
             [ ( "cmd", Encode.int 0 )
@@ -326,7 +328,43 @@ rectTexture ( x1, y1 ) ( w, h ) name =
             , ( "args"
               , Encode.object
                     [ ( "texture", Encode.string name )
-                    , ( "pos", Encode.list Encode.float [ x1, y1, x1 + w, y1, x1 + w, y1 + h, x1, y1 + h ] )
+                    , ( "pos", Encode.list Encode.float [ x1, y1, x2, y2, x3, y3, x4, y4 ] )
+                    , ( "texc", Encode.list Encode.float [ cx1, cy1, cx2, cy2, cx3, cy3, cx4, cy4 ] )
+                    ]
+              )
+            ]
+
+
+{-| Render a texture with left-bottom coordinates and size.
+-}
+rectTexture : ( Float, Float ) -> ( Float, Float ) -> String -> Renderable
+rectTexture ( x, y ) ( w, h ) name =
+    genProg <|
+        Encode.object
+            [ ( "cmd", Encode.int 0 )
+            , ( "prog", Encode.string "texture" )
+            , ( "args"
+              , Encode.object
+                    [ ( "texture", Encode.string name )
+                    , ( "pos", Encode.list Encode.float [ x, y, x + w, y, x + w, y + h, x, y + h ] )
+                    ]
+              )
+            ]
+
+
+{-| Render a texture with left-bottom coordinates and size, along with a crop rectangle in texture coordinate.
+-}
+rectTextureCropped : ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> String -> Renderable
+rectTextureCropped ( x, y ) ( w, h ) ( cx, cy ) ( cw, ch ) name =
+    genProg <|
+        Encode.object
+            [ ( "cmd", Encode.int 0 )
+            , ( "prog", Encode.string "texture" )
+            , ( "args"
+              , Encode.object
+                    [ ( "texture", Encode.string name )
+                    , ( "pos", Encode.list Encode.float [ x, y, x + w, y, x + w, y + h, x, y + h ] )
+                    , ( "texc", Encode.list Encode.float [ cx, cy, cx + cw, cy, cx + cw, cy + ch, cx, cy + ch ] )
                     ]
               )
             ]
@@ -343,9 +381,27 @@ centeredTexture ( x, y ) ( w, h ) angle name =
             , ( "args"
               , Encode.object
                     [ ( "texture", Encode.string name )
-                    , ( "center", Encode.list Encode.float [ x, y ] )
-                    , ( "size", Encode.list Encode.float [ w, h ] )
+                    , ( "posize", Encode.list Encode.float [ x, y, w, h ] )
                     , ( "angle", Encode.float angle )
+                    ]
+              )
+            ]
+
+
+{-| Render a texture with center, size and angle for rotation.
+-}
+centeredTextureCropped : ( Float, Float ) -> ( Float, Float ) -> Float -> ( Float, Float ) -> ( Float, Float ) -> String -> Renderable
+centeredTextureCropped ( x, y ) ( w, h ) angle ( cx, cy ) ( cw, ch ) name =
+    genProg <|
+        Encode.object
+            [ ( "cmd", Encode.int 0 )
+            , ( "prog", Encode.string "centeredCroppedTexture" )
+            , ( "args"
+              , Encode.object
+                    [ ( "texture", Encode.string name )
+                    , ( "posize", Encode.list Encode.float [ x, y, w, h ] )
+                    , ( "angle", Encode.float angle )
+                    , ( "texc", Encode.list Encode.float [ cx, cy, cw, ch ] )
                     ]
               )
             ]
@@ -384,7 +440,7 @@ type alias TextBoxOption =
     , wordSpacing : Maybe Float
     , align : Maybe String
     , letterSpacing : Maybe Float
-    , thickness: Maybe Float
+    , thickness : Maybe Float
     }
 
 
