@@ -1,7 +1,8 @@
 module REGL.BuiltinPrograms exposing
-    ( clear, triangle, quad, texture, rectTexture
-    , textbox, textboxPro, TextBoxOption, circle, centeredTexture, polyPrim, poly
-    , textureCropped, rectTextureCropped, centeredTextureCropped
+    ( clear
+    , triangle, quad, circle, polyPrim, poly
+    , textbox, textboxPro, TextBoxOption
+    , texture, rectTexture, textureCropped, rectTextureCropped, centeredTexture, centeredTextureCropped
     , lines, linestrip, lineloop, functionCurve
     , toRgbaList, Primitive(..), primitiveToValue
     , saveAsTexture
@@ -15,9 +16,10 @@ module REGL.BuiltinPrograms exposing
 
 ## Builtin Commands
 
-@docs clear, triangle, quad, texture, rectTexture
-@docs textbox, textboxPro, TextBoxOption, circle, centeredTexture, polyPrim, poly
-@docs textureCropped, rectTextureCropped, centeredTextureCropped
+@docs clear
+@docs triangle, quad, circle, polyPrim, poly
+@docs textbox, textboxPro, TextBoxOption
+@docs texture, rectTexture, textureCropped, rectTextureCropped, centeredTexture, centeredTextureCropped
 @docs lines, linestrip, lineloop, functionCurve
 
 
@@ -324,7 +326,7 @@ textureCropped ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) ( x4, y4 ) ( cx1, cy1 ) ( cx2, c
     genProg <|
         Encode.object
             [ ( "cmd", Encode.int 0 )
-            , ( "prog", Encode.string "texture" )
+            , ( "prog", Encode.string "textureCropped" )
             , ( "args"
               , Encode.object
                     [ ( "texture", Encode.string name )
