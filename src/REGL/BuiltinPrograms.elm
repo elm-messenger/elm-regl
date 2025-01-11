@@ -302,7 +302,7 @@ circle ( x1, y1 ) r color =
             ]
 
 
-{-| Render a texture with 4 points: left-bottom, right-bottom, right-top and left-top.
+{-| Render a texture with 4 points: left-top, right-top, right-bottom and left-bottom.
 -}
 texture : ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> String -> Renderable
 texture ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) ( x4, y4 ) name =
@@ -319,7 +319,7 @@ texture ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) ( x4, y4 ) name =
             ]
 
 
-{-| Render a texture with 4 points: left-bottom, right-bottom, right-top and left-top, along with 4 cropped points in texture coordinate.
+{-| Render a texture with 4 points: left-top, right-top, right-bottom and left-bottom, along with 4 cropped points in texture coordinate.
 -}
 textureCropped : ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> String -> Renderable
 textureCropped ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) ( x4, y4 ) ( cx1, cy1 ) ( cx2, cy2 ) ( cx3, cy3 ) ( cx4, cy4 ) name =
@@ -337,14 +337,14 @@ textureCropped ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) ( x4, y4 ) ( cx1, cy1 ) ( cx2, c
             ]
 
 
-{-| Render a texture with left-bottom coordinates and size.
+{-| Render a texture with left-top coordinates and size.
 -}
 rectTexture : ( Float, Float ) -> ( Float, Float ) -> String -> Renderable
 rectTexture ( x, y ) ( w, h ) name =
     centeredTexture ( x + w / 2, y + h / 2 ) ( w, h ) 0 name
 
 
-{-| Render a texture with left-bottom coordinates and size, along with a crop rectangle in texture coordinate.
+{-| Render a texture with left-top coordinates and size, along with a crop rectangle in texture coordinate.
 -}
 rectTextureCropped : ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> String -> Renderable
 rectTextureCropped ( x, y ) ( w, h ) ( cx, cy ) ( cw, ch ) name =
@@ -356,7 +356,7 @@ rectTextureCropped ( x, y ) ( w, h ) ( cx, cy ) ( cw, ch ) name =
               , Encode.object
                     [ ( "texture", Encode.string name )
                     , ( "pos", Encode.list Encode.float [ x, y, x + w, y, x + w, y + h, x, y + h ] )
-                    , ( "texc", Encode.list Encode.float [ cx, cy, cx + cw, cy, cx + cw, cy + ch, cx, cy + ch ] )
+                    , ( "texc", Encode.list Encode.float [ cx, 1 - cy, cx + cw, 1 - cy, cx + cw, 1 - cy - ch, cx, 1 - cy - ch ] )
                     ]
               )
             ]
@@ -427,12 +427,13 @@ type alias TextBoxOption =
     , size : Float
     , color : Color
     , wordBreak : Bool
+    , thickness : Maybe Float
+    , italic : Maybe Float
     , width : Maybe Float
     , lineHeight : Maybe Float
     , wordSpacing : Maybe Float
     , align : Maybe String
     , letterSpacing : Maybe Float
-    , thickness : Maybe Float
     }
 
 
@@ -458,6 +459,7 @@ textboxPro ( x, y ) opt =
                     , ( "wordSpacing", Encode.float <| Maybe.withDefault 0 opt.wordSpacing )
                     , ( "letterSpacing", Encode.float <| Maybe.withDefault 0 opt.letterSpacing )
                     , ( "thickness", Encode.float <| Maybe.withDefault 0.5 opt.thickness )
+                    , ( "it", Encode.float <| Maybe.withDefault 0 opt.italic )
                     ]
               )
             ]

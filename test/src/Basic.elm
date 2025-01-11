@@ -78,9 +78,9 @@ genRenderable model =
     in
     REGL.group []
         [ P.clear (Color.rgba 1 1 1 1)
-        , P.textbox ( 0, 1050 ) 100 ("hello :)" ++ fromInt (floor model.lasttime)) "arial" Color.black
+        , P.textbox ( 0, 0 ) 100 ("hello :)" ++ fromInt (floor model.lasttime)) "arial" Color.black
         , P.quad ( 0, 0 ) ( 1920, 0 ) ( 1920 / 3, 1080 / 3 ) ( 0, 1080 ) (Color.rgba 1 0.2 0.4 1)
-        , P.textboxPro ( 100, 960 ) (P.TextBoxOption "arial" lorem 70 (Color.rgba 0.5 0.5 1.0 0.5) False (Just 1700) Nothing Nothing Nothing Nothing Nothing)
+        , P.textboxPro ( 100, 100 ) (P.TextBoxOption "arial" lorem 70 (Color.rgba 0.5 0.5 1.0 0.5) False (Just 1) (Just 4) (Just 1700) Nothing Nothing Nothing Nothing)
         , P.textbox ( 100, 500 ) 500 "[BIG]" "arial" Color.black
         , REGL.group [ E.blur 1 ]
             [ P.clear (Color.rgba 1 0.2 0.4 0)
@@ -95,8 +95,8 @@ genRenderable model =
             , ( 1200, 600 )
             ]
             Color.blue
-        , P.texture ( 0, 0 ) ( 2 * w, 0 ) ( 2 * w, h ) ( 0, h ) "enemy"
-        , P.rectTextureCropped ( 100, 600 ) ( w / 2, h ) ( 0.5, 0 ) ( 0.5, 1 ) "enemy"
+        , P.texture ( 0, 0 ) ( w, 0 ) ( w, h ) ( 0, h ) "enemy"
+        , P.rectTextureCropped ( 100, 600 ) ( w / 2, h ) ( 0, 0 ) ( 0.5, 1 ) "enemy"
         , P.centeredTextureCropped ( 1100, 600 ) ( w / 2, h ) 45 ( 0, 0 ) ( 0.5, 1 ) "enemy"
         , P.circle ( 1100, 600 ) 10 Color.black
         , P.centeredTexture ( 1400, 300 ) ( w, h ) (model.lasttime / 5) "enemy"
@@ -105,7 +105,7 @@ genRenderable model =
             [ P.clear (Color.rgba 1 1 1 0)
             , P.quad ( 1500, 500 ) ( 1800, 500 ) ( 1800, 900 ) ( 1500, 900 ) (Color.rgba 0.4 0.7 0.9 1)
             ]
-        , P.textbox ( 1510, 890 ) 30 "Hello\nThis is a clear text on\na blurred background." "arial" Color.black
+        , P.textbox ( 1510, 510 ) 30 "Hello\nThis is a clear text on\na blurred background." "arial" Color.black
         , P.lineloop
             [ ( 100, 100 )
             , ( 200, 100 )
