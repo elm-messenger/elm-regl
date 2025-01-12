@@ -78,10 +78,12 @@ genRenderable model =
     in
     REGL.group []
         [ P.clear (Color.rgba 1 1 1 1)
-        , P.textbox ( 0, 0 ) 100 ("hello :)" ++ fromInt (floor model.lasttime)) "arial" Color.black
+        , P.textbox ( 0, 0 ) 100 ("hello :)" ++ fromInt (floor model.lasttime)) "consolas" Color.black
         , P.quad ( 0, 0 ) ( 1920, 0 ) ( 1920 / 3, 1080 / 3 ) ( 0, 1080 ) (Color.rgba 1 0.2 0.4 1)
-        , P.textboxPro ( 100, 100 ) (P.TextBoxOption "arial" lorem 70 (Color.rgba 0.5 0.5 1.0 0.5) False (Just 1) (Just 4) (Just 1700) Nothing Nothing Nothing Nothing)
-        , P.textbox ( 100, 500 ) 500 "[BIG]" "arial" Color.black
+        , P.textboxPro ( 100, 100 ) (P.TextBoxOption "consolas" lorem 70 (Color.rgba 0.5 0.5 1.0 0.5) False (Just 1) (Just 4) (Just 1700) Nothing Nothing Nothing Nothing)
+        , P.textbox ( 100, 500 ) 100 "[BIG]" "consolas" Color.black
+        , P.textbox ( 100, 1000 ) 20 "[small]" "consolas" Color.black
+        , P.textbox ( 100, 1020 ) 30 "[medium]" "consolas" Color.black
         , REGL.group [ E.blur 1 ]
             [ P.clear (Color.rgba 1 0.2 0.4 0)
             , P.triangle ( 700, 100 ) ( 700 + 100, 100 ) ( 700 + 100, 100 / 2 ) Color.red
@@ -105,7 +107,7 @@ genRenderable model =
             [ P.clear (Color.rgba 1 1 1 0)
             , P.quad ( 1500, 500 ) ( 1800, 500 ) ( 1800, 900 ) ( 1500, 900 ) (Color.rgba 0.4 0.7 0.9 1)
             ]
-        , P.textbox ( 1510, 510 ) 30 "Hello\nThis is a clear text on\na blurred background." "arial" Color.black
+        , P.textbox ( 1510, 510 ) 30 "Hello\nThis is a clear text\n on a blurred\nbackground." "consolas" Color.black
         , P.lineloop
             [ ( 100, 100 )
             , ( 200, 100 )
