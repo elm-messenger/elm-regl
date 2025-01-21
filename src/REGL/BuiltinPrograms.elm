@@ -1,6 +1,6 @@
 module REGL.BuiltinPrograms exposing
     ( clear
-    , triangle, quad, circle, polyPrim, poly
+    , triangle, quad, rectCentered, rect, circle, polyPrim, poly
     , textbox, textboxPro, TextBoxOption
     , texture, rectTexture, textureCropped, rectTextureCropped, centeredTexture, centeredTextureCropped
     , lines, linestrip, lineloop, functionCurve
@@ -17,7 +17,7 @@ module REGL.BuiltinPrograms exposing
 ## Builtin Commands
 
 @docs clear
-@docs triangle, quad, circle, polyPrim, poly
+@docs triangle, quad, rectCentered, rect, circle, polyPrim, poly
 @docs textbox, textboxPro, TextBoxOption
 @docs texture, rectTexture, textureCropped, rectTextureCropped, centeredTexture, centeredTextureCropped
 @docs lines, linestrip, lineloop, functionCurve
@@ -124,7 +124,7 @@ triangle ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) color =
             ]
 
 
-{-| Render a quad with three vertices and color.
+{-| Render a quad with four vertices and color.
 -}
 quad : ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> Color -> Renderable
 quad ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) ( x4, y4 ) color =
@@ -139,6 +139,31 @@ quad ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) ( x4, y4 ) color =
                     ]
               )
             ]
+
+
+{-| Render a rectangle with center, size, angle and color.
+-}
+rectCentered : ( Float, Float ) -> ( Float, Float ) -> Float -> Color -> Renderable
+rectCentered ( x, y ) ( w, h ) angle color =
+    genProg <|
+        Encode.object
+            [ ( "cmd", Encode.int 0 )
+            , ( "prog", Encode.string "rect" )
+            , ( "args"
+              , Encode.object
+                    [ ( "posize", Encode.list Encode.float [ x, y, w, h ] )
+                    , ( "angle", Encode.float angle )
+                    , ( "color", Encode.list Encode.float (toRgbaList color) )
+                    ]
+              )
+            ]
+
+
+{-| Render a rectangle with left-top coordinate, size and color.
+-}
+rect : ( Float, Float ) -> ( Float, Float ) -> Color -> Renderable
+rect ( x, y ) ( w, h ) color =
+    rectCentered ( x + w / 2, y + h / 2 ) ( w, h ) 0 color
 
 
 {-| Render a poly with vertices and color.
