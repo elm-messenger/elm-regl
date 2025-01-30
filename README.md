@@ -16,7 +16,128 @@ You can learn how to use Elm-regl in the following ways:
 - See the examples in [test](./test).
 - Read the API docs.
 
-## Example Usage
+### Steup
+
+HTML:
+
+```html
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Elm</title>
+    <script type="text/javascript" src="Main.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/elm-regl-js@1.1.0/dist/regl.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body oncontextmenu="return false;">
+    <div id="myapp"></div>
+</body>
+
+<script type="text/javascript">
+    var app = Elm.Main.init({
+        node: document.getElementById('myapp')
+    });
+    if (app.ports.setView) {
+        app.ports.setView.subscribe(function (v) {
+            ElmREGL.setView(v);
+        });
+    }
+    if (app.ports.execREGLCmd) {
+        app.ports.execREGLCmd.subscribe(function (v) {
+            ElmREGL.execCmd(v);
+        });
+    }
+    const canvas = document.getElementById('elm-regl-canvas');
+    ElmREGL.init(canvas, app, []);
+</script>
+</html>
+```
+
+Note. Change `Main` to your top-level module.
+
+A basic elm module:
+
+```elm
+port module Basic exposing (..)
+
+import Browser
+import Color
+import Html exposing (..)
+import Html.Attributes exposing (..)
+import Html.Events exposing (..)
+import REGL exposing (REGLStartConfig, startREGL, toHtmlWith)
+import String exposing (fromInt)
+
+
+port setView : Encode.Value -> Cmd msg
+
+
+port execREGLCmd : Encode.Value -> Cmd msg
+
+
+port recvREGLCmd : (Encode.Value -> msg) -> Sub msg
+
+
+port reglupdate : (Float -> msg) -> Sub msg
+
+
+main : Program () Model Msg
+main =
+    Browser.element
+        { init = init
+        , view = view
+        , update = update
+        , subscriptions = subscriptions
+        }
+
+
+type alias Model =
+    {}
+
+
+init : () -> ( Model, Cmd Msg )
+init _ =
+    ( {}
+    , Cmd.batch
+        (batchExec execREGLCmd
+            [ startREGL (REGLStartConfig 1920 1080 5 Nothing)
+            ]
+        )
+    )
+
+
+type Msg
+    = Tick Float
+    | REGLRecv Encode.Value
+
+
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
+    (model, Cmd.none)
+
+subscriptions : Model -> Sub Msg
+subscriptions _ =
+    Sub.batch
+        [ reglupdate Tick
+        , recvREGLCmd REGLRecv
+        ]
+
+
+view : Model -> Html Msg
+view _ =
+    toHtmlWith { width = 1280, height = 720 }
+        [ style "left" "0px"
+        , style "top" "0px"
+        , style "position" "fixed"
+        ]
+```
+
+Check examples in `test` to see how to render!
+
+### Example Usage
 
 ```elm
 REGL.group [ REGL.crt 50 ]
