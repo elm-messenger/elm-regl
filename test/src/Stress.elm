@@ -46,7 +46,7 @@ init _ =
       }
     , Cmd.batch
         (batchExec execREGLCmd
-            [ loadTexture "enemy" "asset/enemy.png" Nothing
+            [ loadTexture "enemy" "assets/enemy.png" Nothing
             , startREGL (REGLStartConfig 1920 1080 5 Nothing)
             ]
         )

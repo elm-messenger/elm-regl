@@ -54,7 +54,7 @@ init _ =
         (batchExec execREGLCmd
             [ startREGL (REGLStartConfig 1920 1080 5 Nothing)
             , createREGLProgram "mask" prog
-            , loadTexture "mask" "asset/mask.jpg" Nothing
+            , loadTexture "mask" "assets/mask.jpg" Nothing
             ]
         )
     )
