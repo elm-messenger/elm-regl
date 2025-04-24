@@ -174,10 +174,10 @@ REGL.Compositors.imgFade "mask" t renderable1 renderable2
 
 to composite two groups of `Renderable`s. Users also could write custom compositors through the GLSL shader language.
 
-## Notable Features
+## Special Features
 
 - Use Framebuffer Objects (**FBO**) to draw.
 - Use Multi-channel Signed Distance Field (**MSDF**) to render text.
-- Efficient port in JS.
+- Efficient port implementation in JS.
 
-The corresponding JS port is open-sourced at [elm-regl-js](https://github.com/linsyking/elm-regl-js).
+The corresponding JS port is at [elm-regl-js](https://github.com/linsyking/elm-regl-js).
