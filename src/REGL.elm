@@ -1,5 +1,5 @@
 module REGL exposing
-    ( Renderable, genProg, group, empty, render, Effect
+    ( empty
     , REGLConfig, TimeInterval(..), configREGL
     , REGLStartConfig
     , TextureMagOption(..), TextureMinOption(..), TextureOptions, batchExec, createREGLProgram, loadTexture, startREGL, loadMSDFFont
@@ -45,48 +45,15 @@ import Html.Attributes exposing (height, id, width)
 import Html.Keyed as Keyed
 import Json.Decode as Decode
 import Json.Encode as Encode exposing (Value)
-import REGL.Common as C
+import REGL.Common exposing (Renderable, genProg)
 import REGL.Program exposing (REGLProgram, encodeProgram)
-
-
-{-| A renderable object that can be rendered by REGL.
--}
-type alias Renderable =
-    C.Renderable
-
-
-{-| A post-processing effect.
--}
-type alias Effect =
-    C.Effect
-
-
-{-| Generate a renderable object from settings. Users can use this function to create custom renderable generators.
--}
-genProg : Value -> Renderable
-genProg =
-    C.genProg
-
-
-{-| Group a list of renderables into a single renderable with effects.
--}
-group : List Effect -> List Renderable -> Renderable
-group =
-    C.group
 
 
 {-| An empty renderable object.
 -}
 empty : Renderable
 empty =
-    genProg Encode.null
-
-
-{-| Render a renderable object. Users need to use it to pass the render result to REGL in JS through a port.
--}
-render : Renderable -> Value
-render =
-    C.render
+    genProg []
 
 
 {-| A time interval for the REGL configuration.

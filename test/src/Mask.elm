@@ -7,9 +7,9 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Json.Decode as Decode
 import Json.Encode as Encode
-import REGL exposing (REGLStartConfig, batchExec, createREGLProgram, loadTexture, render, startREGL, toHtmlWith)
+import REGL exposing (REGLStartConfig, batchExec, createREGLProgram, loadTexture, startREGL, toHtmlWith)
 import REGL.BuiltinPrograms as P
-import REGL.Common exposing (Renderable)
+import REGL.Common exposing (Effect, Renderable, group, render)
 import REGL.Compositors
 import REGL.Effects as E
 import REGL.Program exposing (ProgValue(..), REGLProgram)
@@ -80,7 +80,7 @@ genRenderable model =
 
 genRenderable1 : Model -> Renderable
 genRenderable1 model =
-    REGL.group
+    group
         [ E.gblur 10 ]
         [ P.clear (Color.rgba 1 1 1 1)
         , P.triangle ( 0, 0 ) ( 1920, 0 ) ( 1920, 1080 ) (Color.rgba 1 0 0 1)
@@ -91,7 +91,7 @@ genRenderable1 model =
 
 genRenderable2 : Model -> Renderable
 genRenderable2 model =
-    REGL.group
+    group
         [ E.crt 50 ]
         [ P.clear (Color.rgba 1 1 1 1)
         , P.triangle ( 0, 0 ) ( 1920, 0 ) ( 960, 1080 ) (Color.rgba 0 0 1 1)
@@ -180,14 +180,13 @@ prog =
     REGL.Program.makeEffectSimple frag [ ( "t", DynamicValue "t" ), ( "mask", DynamicTextureValue "mask" ) ]
 
 
-mask : Float -> REGL.Effect
+mask : Float -> Effect
 mask t =
-    Encode.object
-        [ ( "prog", Encode.string "mask" )
-        , ( "args"
-          , Encode.object
-                [ ( "t", Encode.float t )
-                , ( "mask", Encode.string "mask" )
-                ]
-          )
-        ]
+    [ ( "prog", Encode.string "mask" )
+    , ( "args"
+      , Encode.object
+            [ ( "t", Encode.float t )
+            , ( "mask", Encode.string "mask" )
+            ]
+      )
+    ]

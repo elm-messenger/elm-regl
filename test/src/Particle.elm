@@ -7,9 +7,9 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Json.Decode as Decode
 import Json.Encode as Encode
-import REGL exposing (REGLStartConfig, batchExec, createREGLProgram, genProg, render, startREGL, toHtmlWith)
+import REGL exposing (REGLStartConfig, batchExec, createREGLProgram, startREGL, toHtmlWith)
 import REGL.BuiltinPrograms as P
-import REGL.Common exposing (Renderable)
+import REGL.Common exposing (Effect, Renderable, genProg, group, render)
 import REGL.Program exposing (ProgValue(..), REGLProgram)
 
 
@@ -65,7 +65,7 @@ type Msg
 
 genRenderable : Model -> Renderable
 genRenderable model =
-    REGL.group []
+    group []
         [ P.clear (Color.rgba 0 0 0 0)
         , particles model.lasttime
 
@@ -73,12 +73,12 @@ genRenderable model =
         -- , triangle (0, 0) (1920/2, 0) (1920/2, 1080) (Color.rgba 0 1 0 1)
         -- , triangle ( 1920 / 2, 0 ) ( 1920 , 0 ) ( 1920, 1080 ) (Color.rgba 0 1 0 0.5)
         -- , REGL.Compositors.dstOverSrc
-        --     (REGL.group
+        --     (group
         --         [ REGL.clear (Color.rgba 0 0 0 0)
         --         -- , triangle ( 0, 0 ) ( 1920, 0 ) ( 1920, 1080 ) (Color.rgba 1 0 0 1)
         --         ]
         --     )
-        --     (REGL.group
+        --     (group
         --         [ REGL.clear (Color.rgba 0 0 0 0)
         --         , triangle ( 0, 0 ) ( 1920 / 2, 0 ) ( 1920 / 2, 1080 ) (Color.rgba 0 1 0 1)
         --         ]
@@ -210,15 +210,14 @@ prog =
 particles : Float -> Renderable
 particles t =
     genProg <|
-        Encode.object
-            [ ( "cmd", Encode.int 0 )
-            , ( "prog", Encode.string "particle" )
-            , ( "args"
-              , Encode.object
-                    [ ( "t", Encode.float t )
-                    ]
-              )
-            ]
+        [ ( "cmd", Encode.int 0 )
+        , ( "prog", Encode.string "particle" )
+        , ( "args"
+          , Encode.object
+                [ ( "t", Encode.float t )
+                ]
+          )
+        ]
 
 
 blurfrag =
@@ -252,13 +251,12 @@ blurprog =
     REGL.Program.makeEffectSimple blurfrag [ ( "radius", DynamicValue "radius" ) ]
 
 
-myblur : Float -> REGL.Effect
+myblur : Float -> Effect
 myblur radius =
-    Encode.object
-        [ ( "prog", Encode.string "myblur" )
-        , ( "args"
-          , Encode.object
-                [ ( "radius", Encode.float radius )
-                ]
-          )
-        ]
+    [ ( "prog", Encode.string "myblur" )
+    , ( "args"
+      , Encode.object
+            [ ( "radius", Encode.float radius )
+            ]
+      )
+    ]

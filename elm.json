@@ -10,6 +10,7 @@
         ],
         "Utilities": [
             "REGL.Program",
+            "REGL.Common",
             "REGL.Compositors",
             "REGL.Effects",
             "REGL.BuiltinPrograms"

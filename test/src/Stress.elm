@@ -6,9 +6,9 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Json.Encode as Encode
-import REGL exposing (REGLStartConfig, batchExec, loadTexture, render, startREGL, toHtmlWith)
+import REGL exposing (REGLStartConfig, batchExec, loadTexture, startREGL, toHtmlWith)
 import REGL.BuiltinPrograms as P
-import REGL.Common exposing (Renderable)
+import REGL.Common exposing (Renderable, group, render)
 
 
 port setView : Encode.Value -> Cmd msg
@@ -73,7 +73,7 @@ genRenderable model =
         redC =
             Color.rgba 1 0 0 0.5
     in
-    REGL.group [] <|
+    group [] <|
         P.clear bgColor
             :: (List.concat <|
                     List.map
