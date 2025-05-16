@@ -17,7 +17,7 @@ This module exposes basic primitives for rendering with REGL.
 
 ## Basics
 
-@docs Renderable, genProg, group, empty, render, Effect
+@docs empty
 
 
 ## User Configuration
