@@ -57,7 +57,7 @@ render renderable =
             Encode.object
                 [ ( "e", Encode.list (\e -> Encode.object e) effects )
                 , ( "c", Encode.list identity (List.map render renderables) )
-                , ( "cmd", Encode.int 2 )
+                , ( "_c", Encode.int 2 )
                 ]
 
 

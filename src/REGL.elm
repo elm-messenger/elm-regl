@@ -214,8 +214,8 @@ loadTexture : String -> String -> Maybe TextureOptions -> ExecPort msg -> Cmd ms
 loadTexture name url topts execPort =
     execPort <|
         Encode.object
-            [ ( "cmd", Encode.string "loadTexture" )
-            , ( "name", Encode.string name )
+            [ ( "_c", Encode.string "loadTexture" )
+            , ( "_n", Encode.string name )
             , ( "opts"
               , Encode.object
                     (( "data", Encode.string url ) :: encodeTextureOptions topts)
@@ -246,7 +246,7 @@ startREGL : REGLStartConfig -> ExecPort msg -> Cmd msg
 startREGL config execPort =
     let
         olddef =
-            [ ( "cmd", Encode.string "start" )
+            [ ( "_c", Encode.string "start" )
             , ( "virtWidth", Encode.float config.virtWidth )
             , ( "virtHeight", Encode.float config.virtHeight )
             , ( "fboNum", Encode.int config.fboNum )
@@ -271,8 +271,8 @@ createREGLProgram : String -> REGLProgram -> ExecPort msg -> Cmd msg
 createREGLProgram name program execPort =
     execPort <|
         Encode.object
-            [ ( "cmd", Encode.string "createGLProgram" )
-            , ( "name", Encode.string name )
+            [ ( "_c", Encode.string "createGLProgram" )
+            , ( "_n", Encode.string name )
             , ( "proto", encodeProgram program )
             ]
 
@@ -283,7 +283,7 @@ configREGL : REGLConfig -> ExecPort msg -> Cmd msg
 configREGL config execPort =
     execPort <|
         Encode.object
-            [ ( "cmd", Encode.string "config" )
+            [ ( "_c", Encode.string "config" )
             , ( "config", encodeConfig config )
             ]
 
@@ -294,8 +294,8 @@ loadMSDFFont : String -> String -> String -> ExecPort msg -> Cmd msg
 loadMSDFFont name imgurl jsonurl execPort =
     execPort <|
         Encode.object
-            [ ( "cmd", Encode.string "loadFont" )
-            , ( "name", Encode.string name )
+            [ ( "_c", Encode.string "loadFont" )
+            , ( "_n", Encode.string name )
             , ( "img", Encode.string imgurl )
             , ( "json", Encode.string jsonurl )
             ]
@@ -324,7 +324,7 @@ decodeRecvMsg : Value -> Maybe REGLRecvMsg
 decodeRecvMsg v =
     let
         cmd =
-            Decode.decodeValue (Decode.at [ "cmd" ] Decode.string) v
+            Decode.decodeValue (Decode.at [ "_c" ] Decode.string) v
     in
     case cmd of
         Ok "loadTexture" ->
@@ -350,7 +350,7 @@ decodeRecvMsg v =
         Ok "createGLProgram" ->
             let
                 name =
-                    Result.withDefault "" <| Decode.decodeValue (Decode.at [ "response", "name" ] Decode.string) v
+                    Result.withDefault "" <| Decode.decodeValue (Decode.at [ "response", "_n" ] Decode.string) v
             in
             Just (REGLProgramCreated name)
 

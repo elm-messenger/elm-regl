@@ -97,11 +97,11 @@ genRenderable model =
             , ( 1200, 600 )
             ]
             Color.blue
-        , P.texture ( 0, 0 ) ( w, 0 ) ( w, h ) ( 0, h ) "enemy"
-        , P.rectTextureCropped ( 100, 600 ) ( w / 2, h ) ( 0, 0 ) ( 0.5, 1 ) "enemy"
-        , P.centeredTextureCropped ( 1100, 600 ) ( w / 2, h ) 45 ( 0, 0 ) ( 0.5, 1 ) "enemy"
+        , P.texture ( 0, 0 ) ( w, 0 ) ( w, h ) ( 0, h ) 1.0 "enemy"
+        , P.rectTextureCropped ( 100, 600 ) ( w / 2, h ) ( 0, 0 ) ( 0.5, 1 ) 1.0 "enemy"
+        , P.centeredTextureCropped ( 1100, 600 ) ( w / 2, h ) 45 ( 0, 0 ) ( 0.5, 1 ) 1.0 "enemy"
         , P.circle ( 1100, 600 ) 10 Color.black
-        , P.centeredTexture ( 1400, 300 ) ( w, h ) (model.lasttime / 5) "enemy"
+        , P.centeredTexture ( 1400, 300 ) ( w, h ) (model.lasttime / 5) 1.0 "enemy"
         , P.circle ( 1400, 300 ) 30 Color.black
         , group [ E.gblur 10 ]
             [ P.clear (Color.rgba 1 1 1 0)
@@ -160,7 +160,7 @@ update msg model =
         REGLRecv x ->
             let
                 cmd =
-                    Decode.decodeValue (Decode.at [ "cmd" ] Decode.string) x
+                    Decode.decodeValue (Decode.at [ "_c" ] Decode.string) x
             in
             case cmd of
                 Ok "loadTexture" ->

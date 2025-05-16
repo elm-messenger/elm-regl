@@ -86,7 +86,7 @@ genRenderable model =
                                     --     redC
                                     -- P.centeredTextureCropped ( model.lasttime * 30 + toFloat x / numx * 1920, toFloat y / numy * 1000 + 20 ) ( 20, 20 ) 0 ( 0, 0 ) ( 0.5, 1 ) "enemy"
                                     -- P.centeredTexture ( model.lasttime * 30 + toFloat x / numx * 1920, toFloat y / numy * 1000 + 20 ) ( 20, 20 ) 0 "enemy"
-                                    P.rectTexture ( model.lasttime * 30 + toFloat x / numx * 1920, toFloat y / numy * 1000 + 20 ) ( 20, 20 ) "enemy"
+                                    P.rectTexture ( model.lasttime * 30 + toFloat x / numx * 1920, toFloat y / numy * 1000 + 20 ) ( 20, 20 ) 1.0 "enemy"
                                  -- P.rectTextureCropped ( model.lasttime * 30 + toFloat x / numx * 1920, toFloat y / numy * 1000 + 20 ) ( 20, 20 ) ( 0, 0 ) ( 0.5, 1 ) "enemy"
                                 )
                                 (List.range 0 (numy * 2))

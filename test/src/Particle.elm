@@ -116,7 +116,7 @@ update msg model =
         REGLRecv x ->
             let
                 cmd =
-                    Decode.decodeValue (Decode.at [ "cmd" ] Decode.string) x
+                    Decode.decodeValue (Decode.at [ "_c" ] Decode.string) x
             in
             case cmd of
                 Ok "createGLProgram" ->
@@ -210,13 +210,9 @@ prog =
 particles : Float -> Renderable
 particles t =
     genProg <|
-        [ ( "cmd", Encode.int 0 )
-        , ( "prog", Encode.string "particle" )
-        , ( "args"
-          , Encode.object
-                [ ( "t", Encode.float t )
-                ]
-          )
+        [ ( "_c", Encode.int 0 )
+        , ( "_p", Encode.string "particle" )
+        , ( "t", Encode.float t )
         ]
 
 
@@ -253,10 +249,6 @@ blurprog =
 
 myblur : Float -> Effect
 myblur radius =
-    [ ( "prog", Encode.string "myblur" )
-    , ( "args"
-      , Encode.object
-            [ ( "radius", Encode.float radius )
-            ]
-      )
+    [ ( "_p", Encode.string "myblur" )
+    , ( "radius", Encode.float radius )
     ]

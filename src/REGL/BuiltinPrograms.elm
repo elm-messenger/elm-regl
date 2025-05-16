@@ -35,8 +35,9 @@ module REGL.BuiltinPrograms exposing
 -}
 
 import Color exposing (Color)
+import Json.Decode as Decode
 import Json.Encode as Encode exposing (Value)
-import REGL.Common exposing (Renderable, genProg)
+import REGL.Common exposing (Renderable, genProg, getField, updateField)
 
 
 {-| OpenGL primitive types
@@ -94,14 +95,10 @@ toRgbaList c =
 clear : Color -> Renderable
 clear color =
     genProg
-        [ ( "cmd", Encode.int 1 )
-        , ( "name", Encode.string "clear" )
-        , ( "args"
-          , Encode.object
-                [ ( "color", Encode.list Encode.float (toRgbaList color) )
-                , ( "depth", Encode.float 1 )
-                ]
-          )
+        [ ( "_c", Encode.int 1 )
+        , ( "_n", Encode.string "clear" )
+        , ( "color", Encode.list Encode.float (toRgbaList color) )
+        , ( "depth", Encode.float 1 )
         ]
 
 
@@ -110,14 +107,10 @@ clear color =
 triangle : ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> Color -> Renderable
 triangle ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) color =
     genProg
-        [ ( "cmd", Encode.int 0 )
-        , ( "prog", Encode.string "triangle" )
-        , ( "args"
-          , Encode.object
-                [ ( "pos", Encode.list Encode.float [ x1, y1, x2, y2, x3, y3 ] )
-                , ( "color", Encode.list Encode.float (toRgbaList color) )
-                ]
-          )
+        [ ( "_c", Encode.int 0 )
+        , ( "_p", Encode.string "triangle" )
+        , ( "pos", Encode.list Encode.float [ x1, y1, x2, y2, x3, y3 ] )
+        , ( "color", Encode.list Encode.float (toRgbaList color) )
         ]
 
 
@@ -126,14 +119,10 @@ triangle ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) color =
 quad : ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> Color -> Renderable
 quad ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) ( x4, y4 ) color =
     genProg
-        [ ( "cmd", Encode.int 0 )
-        , ( "prog", Encode.string "quad" )
-        , ( "args"
-          , Encode.object
-                [ ( "pos", Encode.list Encode.float [ x1, y1, x2, y2, x3, y3, x4, y4 ] )
-                , ( "color", Encode.list Encode.float (toRgbaList color) )
-                ]
-          )
+        [ ( "_c", Encode.int 0 )
+        , ( "_p", Encode.string "quad" )
+        , ( "pos", Encode.list Encode.float [ x1, y1, x2, y2, x3, y3, x4, y4 ] )
+        , ( "color", Encode.list Encode.float (toRgbaList color) )
         ]
 
 
@@ -142,15 +131,11 @@ quad ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) ( x4, y4 ) color =
 rectCentered : ( Float, Float ) -> ( Float, Float ) -> Float -> Color -> Renderable
 rectCentered ( x, y ) ( w, h ) angle color =
     genProg
-        [ ( "cmd", Encode.int 0 )
-        , ( "prog", Encode.string "rect" )
-        , ( "args"
-          , Encode.object
-                [ ( "posize", Encode.list Encode.float [ x, y, w, h ] )
-                , ( "angle", Encode.float angle )
-                , ( "color", Encode.list Encode.float (toRgbaList color) )
-                ]
-          )
+        [ ( "_c", Encode.int 0 )
+        , ( "_p", Encode.string "rect" )
+        , ( "posize", Encode.list Encode.float [ x, y, w, h ] )
+        , ( "angle", Encode.float angle )
+        , ( "color", Encode.list Encode.float (toRgbaList color) )
         ]
 
 
@@ -173,15 +158,11 @@ poly xs color =
             List.concatMap (\x -> [ 0, toFloat x, toFloat x + 1 ]) (List.range 1 (List.length xs - 2))
     in
     genProg
-        [ ( "cmd", Encode.int 0 )
-        , ( "prog", Encode.string "poly" )
-        , ( "args"
-          , Encode.object
-                [ ( "pos", Encode.list Encode.float pos )
-                , ( "elem", Encode.list Encode.float elem )
-                , ( "color", Encode.list Encode.float (toRgbaList color) )
-                ]
-          )
+        [ ( "_c", Encode.int 0 )
+        , ( "_p", Encode.string "poly" )
+        , ( "pos", Encode.list Encode.float pos )
+        , ( "elem", Encode.list Encode.float elem )
+        , ( "color", Encode.list Encode.float (toRgbaList color) )
         ]
 
 
@@ -197,16 +178,12 @@ lines xs color =
             List.map toFloat <| List.range 0 (2 * List.length xs - 1)
     in
     genProg
-        [ ( "cmd", Encode.int 0 )
-        , ( "prog", Encode.string "poly" )
-        , ( "args"
-          , Encode.object
-                [ ( "pos", Encode.list Encode.float pos )
-                , ( "elem", Encode.list Encode.float elem )
-                , ( "color", Encode.list Encode.float (toRgbaList color) )
-                , ( "prim", primitiveToValue Lines )
-                ]
-          )
+        [ ( "_c", Encode.int 0 )
+        , ( "_p", Encode.string "poly" )
+        , ( "pos", Encode.list Encode.float pos )
+        , ( "elem", Encode.list Encode.float elem )
+        , ( "color", Encode.list Encode.float (toRgbaList color) )
+        , ( "prim", primitiveToValue Lines )
         ]
 
 
@@ -222,16 +199,12 @@ linestrip xs color =
             List.map toFloat <| List.range 0 (List.length xs - 1)
     in
     genProg
-        [ ( "cmd", Encode.int 0 )
-        , ( "prog", Encode.string "poly" )
-        , ( "args"
-          , Encode.object
-                [ ( "pos", Encode.list Encode.float pos )
-                , ( "elem", Encode.list Encode.float elem )
-                , ( "color", Encode.list Encode.float (toRgbaList color) )
-                , ( "prim", primitiveToValue LineStrip )
-                ]
-          )
+        [ ( "_c", Encode.int 0 )
+        , ( "_p", Encode.string "poly" )
+        , ( "pos", Encode.list Encode.float pos )
+        , ( "elem", Encode.list Encode.float elem )
+        , ( "color", Encode.list Encode.float (toRgbaList color) )
+        , ( "prim", primitiveToValue LineStrip )
         ]
 
 
@@ -247,16 +220,12 @@ lineloop xs color =
             List.map toFloat <| List.range 0 (List.length xs - 1)
     in
     genProg
-        [ ( "cmd", Encode.int 0 )
-        , ( "prog", Encode.string "poly" )
-        , ( "args"
-          , Encode.object
-                [ ( "pos", Encode.list Encode.float pos )
-                , ( "elem", Encode.list Encode.float elem )
-                , ( "color", Encode.list Encode.float (toRgbaList color) )
-                , ( "prim", primitiveToValue LineLoop )
-                ]
-          )
+        [ ( "_c", Encode.int 0 )
+        , ( "_p", Encode.string "poly" )
+        , ( "pos", Encode.list Encode.float pos )
+        , ( "elem", Encode.list Encode.float elem )
+        , ( "color", Encode.list Encode.float (toRgbaList color) )
+        , ( "prim", primitiveToValue LineLoop )
         ]
 
 
@@ -286,16 +255,12 @@ polyPrim xs elem color prim =
             List.concatMap (\( x, y ) -> [ x, y ]) xs
     in
     genProg
-        [ ( "cmd", Encode.int 0 )
-        , ( "prog", Encode.string "poly" )
-        , ( "args"
-          , Encode.object
-                [ ( "pos", Encode.list Encode.float pos )
-                , ( "elem", Encode.list Encode.float elem )
-                , ( "color", Encode.list Encode.float (toRgbaList color) )
-                , ( "prim", primitiveToValue prim )
-                ]
-          )
+        [ ( "_c", Encode.int 0 )
+        , ( "_p", Encode.string "poly" )
+        , ( "pos", Encode.list Encode.float pos )
+        , ( "elem", Encode.list Encode.float elem )
+        , ( "color", Encode.list Encode.float (toRgbaList color) )
+        , ( "prim", primitiveToValue prim )
         ]
 
 
@@ -304,107 +269,88 @@ polyPrim xs elem color prim =
 circle : ( Float, Float ) -> Float -> Color -> Renderable
 circle ( x1, y1 ) r color =
     genProg
-        [ ( "cmd", Encode.int 0 )
-        , ( "prog", Encode.string "circle" )
-        , ( "args"
-          , Encode.object
-                [ ( "center", Encode.list Encode.float [ x1, y1 ] )
-                , ( "radius", Encode.float r )
-                , ( "color", Encode.list Encode.float (toRgbaList color) )
-                ]
-          )
+        [ ( "_c", Encode.int 0 )
+        , ( "_p", Encode.string "circle" )
+        , ( "center", Encode.list Encode.float [ x1, y1 ] )
+        , ( "radius", Encode.float r )
+        , ( "color", Encode.list Encode.float (toRgbaList color) )
         ]
 
 
 {-| Render a texture with 4 points: left-top, right-top, right-bottom and left-bottom.
 -}
-texture : ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> String -> Renderable
-texture ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) ( x4, y4 ) name =
+texture : ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> Float -> String -> Renderable
+texture ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) ( x4, y4 ) alpha name =
     genProg
-        [ ( "cmd", Encode.int 0 )
-        , ( "prog", Encode.string "texture" )
-        , ( "args"
-          , Encode.object
-                [ ( "texture", Encode.string name )
-                , ( "pos", Encode.list Encode.float [ x1, y1, x2, y2, x3, y3, x4, y4 ] )
-                ]
-          )
+        [ ( "_c", Encode.int 0 )
+        , ( "_p", Encode.string "texture" )
+        , ( "texture", Encode.string name )
+        , ( "pos", Encode.list Encode.float [ x1, y1, x2, y2, x3, y3, x4, y4 ] )
+        , ( "alpha", Encode.float alpha )
         ]
 
 
 {-| Render a texture with 4 points: left-top, right-top, right-bottom and left-bottom, along with 4 cropped points in texture coordinate.
 -}
-textureCropped : ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> String -> Renderable
-textureCropped ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) ( x4, y4 ) ( cx1, cy1 ) ( cx2, cy2 ) ( cx3, cy3 ) ( cx4, cy4 ) name =
+textureCropped : ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> Float -> String -> Renderable
+textureCropped ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) ( x4, y4 ) ( cx1, cy1 ) ( cx2, cy2 ) ( cx3, cy3 ) ( cx4, cy4 ) alpha name =
     genProg
-        [ ( "cmd", Encode.int 0 )
-        , ( "prog", Encode.string "textureCropped" )
-        , ( "args"
-          , Encode.object
-                [ ( "texture", Encode.string name )
-                , ( "pos", Encode.list Encode.float [ x1, y1, x2, y2, x3, y3, x4, y4 ] )
-                , ( "texc", Encode.list Encode.float [ cx1, cy1, cx2, cy2, cx3, cy3, cx4, cy4 ] )
-                ]
-          )
+        [ ( "_c", Encode.int 0 )
+        , ( "_p", Encode.string "textureCropped" )
+        , ( "texture", Encode.string name )
+        , ( "pos", Encode.list Encode.float [ x1, y1, x2, y2, x3, y3, x4, y4 ] )
+        , ( "texc", Encode.list Encode.float [ cx1, cy1, cx2, cy2, cx3, cy3, cx4, cy4 ] )
+        , ( "alpha", Encode.float alpha )
         ]
 
 
 {-| Render a texture with left-top coordinates and size.
 -}
-rectTexture : ( Float, Float ) -> ( Float, Float ) -> String -> Renderable
-rectTexture ( x, y ) ( w, h ) name =
-    centeredTexture ( x + w / 2, y + h / 2 ) ( w, h ) 0 name
+rectTexture : ( Float, Float ) -> ( Float, Float ) -> Float -> String -> Renderable
+rectTexture ( x, y ) ( w, h ) =
+    centeredTexture ( x + w / 2, y + h / 2 ) ( w, h ) 0
 
 
 {-| Render a texture with left-top coordinates and size, along with a crop rectangle in texture coordinate.
 -}
-rectTextureCropped : ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> String -> Renderable
-rectTextureCropped ( x, y ) ( w, h ) ( cx, cy ) ( cw, ch ) name =
+rectTextureCropped : ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> Float -> String -> Renderable
+rectTextureCropped ( x, y ) ( w, h ) ( cx, cy ) ( cw, ch ) alpha name =
     genProg
-        [ ( "cmd", Encode.int 0 )
-        , ( "prog", Encode.string "textureCropped" )
-        , ( "args"
-          , Encode.object
-                [ ( "texture", Encode.string name )
-                , ( "pos", Encode.list Encode.float [ x, y, x + w, y, x + w, y + h, x, y + h ] )
-                , ( "texc", Encode.list Encode.float [ cx, 1 - cy, cx + cw, 1 - cy, cx + cw, 1 - cy - ch, cx, 1 - cy - ch ] )
-                ]
-          )
+        [ ( "_c", Encode.int 0 )
+        , ( "_p", Encode.string "textureCropped" )
+        , ( "texture", Encode.string name )
+        , ( "pos", Encode.list Encode.float [ x, y, x + w, y, x + w, y + h, x, y + h ] )
+        , ( "texc", Encode.list Encode.float [ cx, 1 - cy, cx + cw, 1 - cy, cx + cw, 1 - cy - ch, cx, 1 - cy - ch ] )
+        , ( "alpha", Encode.float alpha )
         ]
 
 
 {-| Render a texture with center, size and angle for rotation.
 -}
-centeredTexture : ( Float, Float ) -> ( Float, Float ) -> Float -> String -> Renderable
-centeredTexture ( x, y ) ( w, h ) angle name =
+centeredTexture : ( Float, Float ) -> ( Float, Float ) -> Float -> Float -> String -> Renderable
+centeredTexture ( x, y ) ( w, h ) angle alpha name =
     genProg
-        [ ( "cmd", Encode.int 0 )
-        , ( "prog", Encode.string "centeredTexture" )
-        , ( "args"
-          , Encode.object
-                [ ( "texture", Encode.string name )
-                , ( "posize", Encode.list Encode.float [ x, y, w, h ] )
-                , ( "angle", Encode.float angle )
-                ]
-          )
+        [ ( "_c", Encode.int 0 )
+        , ( "_p", Encode.string "centeredTexture" )
+        , ( "texture", Encode.string name )
+        , ( "posize", Encode.list Encode.float [ x, y, w, h ] )
+        , ( "angle", Encode.float angle )
+        , ( "alpha", Encode.float alpha )
         ]
 
 
 {-| Render a texture with center, size and angle for rotation.
 -}
-centeredTextureCropped : ( Float, Float ) -> ( Float, Float ) -> Float -> ( Float, Float ) -> ( Float, Float ) -> String -> Renderable
-centeredTextureCropped ( x, y ) ( w, h ) angle ( cx, cy ) ( cw, ch ) name =
+centeredTextureCropped : ( Float, Float ) -> ( Float, Float ) -> Float -> ( Float, Float ) -> ( Float, Float ) -> Float -> String -> Renderable
+centeredTextureCropped ( x, y ) ( w, h ) angle ( cx, cy ) ( cw, ch ) alpha name =
     genProg
-        [ ( "cmd", Encode.int 0 )
-        , ( "prog", Encode.string "centeredCroppedTexture" )
-        , ( "args"
-          , Encode.object
-                [ ( "texture", Encode.string name )
-                , ( "posize", Encode.list Encode.float [ x, y, w, h ] )
-                , ( "angle", Encode.float angle )
-                , ( "texc", Encode.list Encode.float [ cx, cy, cw, ch ] )
-                ]
-          )
+        [ ( "_c", Encode.int 0 )
+        , ( "_p", Encode.string "centeredCroppedTexture" )
+        , ( "texture", Encode.string name )
+        , ( "posize", Encode.list Encode.float [ x, y, w, h ] )
+        , ( "angle", Encode.float angle )
+        , ( "texc", Encode.list Encode.float [ cx, cy, cw, ch ] )
+        , ( "alpha", Encode.float alpha )
         ]
 
 
@@ -413,17 +359,13 @@ centeredTextureCropped ( x, y ) ( w, h ) angle ( cx, cy ) ( cw, ch ) name =
 textbox : ( Float, Float ) -> Float -> String -> String -> Color -> Renderable
 textbox ( x, y ) size text font color =
     genProg
-        [ ( "cmd", Encode.int 0 )
-        , ( "prog", Encode.string "textbox" )
-        , ( "args"
-          , Encode.object
-                [ ( "text", Encode.string text )
-                , ( "size", Encode.float size )
-                , ( "offset", Encode.list Encode.float [ x, y ] )
-                , ( "font", Encode.string font )
-                , ( "color", Encode.list Encode.float <| toRgbaList color )
-                ]
-          )
+        [ ( "_c", Encode.int 0 )
+        , ( "_p", Encode.string "textbox" )
+        , ( "text", Encode.string text )
+        , ( "size", Encode.float size )
+        , ( "offset", Encode.list Encode.float [ x, y ] )
+        , ( "font", Encode.string font )
+        , ( "color", Encode.list Encode.float <| toRgbaList color )
         ]
 
 
@@ -450,25 +392,21 @@ type alias TextBoxOption =
 textboxPro : ( Float, Float ) -> TextBoxOption -> Renderable
 textboxPro ( x, y ) opt =
     genProg
-        [ ( "cmd", Encode.int 0 )
-        , ( "prog", Encode.string "textbox" )
-        , ( "args"
-          , Encode.object
-                [ ( "text", Encode.string opt.text )
-                , ( "size", Encode.float opt.size )
-                , ( "offset", Encode.list Encode.float [ x, y ] )
-                , ( "font", Encode.string opt.font )
-                , ( "color", Encode.list Encode.float <| toRgbaList opt.color )
-                , ( "wordBreak", Encode.bool opt.wordBreak )
-                , ( "align", Encode.string <| Maybe.withDefault "left" opt.align )
-                , ( "width", Encode.float <| Maybe.withDefault -1 opt.width )
-                , ( "lineHeight", Encode.float <| Maybe.withDefault 1 opt.lineHeight )
-                , ( "wordSpacing", Encode.float <| Maybe.withDefault 0 opt.wordSpacing )
-                , ( "letterSpacing", Encode.float <| Maybe.withDefault 0 opt.letterSpacing )
-                , ( "thickness", Encode.float <| Maybe.withDefault 0.5 opt.thickness )
-                , ( "it", Encode.float <| Maybe.withDefault 0 opt.italic )
-                ]
-          )
+        [ ( "_c", Encode.int 0 )
+        , ( "_p", Encode.string "textbox" )
+        , ( "text", Encode.string opt.text )
+        , ( "size", Encode.float opt.size )
+        , ( "offset", Encode.list Encode.float [ x, y ] )
+        , ( "font", Encode.string opt.font )
+        , ( "color", Encode.list Encode.float <| toRgbaList opt.color )
+        , ( "wordBreak", Encode.bool opt.wordBreak )
+        , ( "align", Encode.string <| Maybe.withDefault "left" opt.align )
+        , ( "width", Encode.float <| Maybe.withDefault -1 opt.width )
+        , ( "lineHeight", Encode.float <| Maybe.withDefault 1 opt.lineHeight )
+        , ( "wordSpacing", Encode.float <| Maybe.withDefault 0 opt.wordSpacing )
+        , ( "letterSpacing", Encode.float <| Maybe.withDefault 0 opt.letterSpacing )
+        , ( "thickness", Encode.float <| Maybe.withDefault 0.5 opt.thickness )
+        , ( "it", Encode.float <| Maybe.withDefault 0 opt.italic )
         ]
 
 
@@ -480,6 +418,6 @@ This is only an experimental feature and should be used with caution.
 saveAsTexture : String -> Renderable
 saveAsTexture text =
     genProg
-        [ ( "cmd", Encode.int 4 )
-        , ( "name", Encode.string text )
+        [ ( "_c", Encode.int 4 )
+        , ( "_n", Encode.string text )
         ]

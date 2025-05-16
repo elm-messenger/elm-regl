@@ -128,7 +128,7 @@ update msg model =
         REGLRecv x ->
             let
                 cmd =
-                    Decode.decodeValue (Decode.at [ "cmd" ] Decode.string) x
+                    Decode.decodeValue (Decode.at [ "_c" ] Decode.string) x
             in
             case cmd of
                 Ok "loadTexture" ->
@@ -182,11 +182,7 @@ prog =
 
 mask : Float -> Effect
 mask t =
-    [ ( "prog", Encode.string "mask" )
-    , ( "args"
-      , Encode.object
-            [ ( "t", Encode.float t )
-            , ( "mask", Encode.string "mask" )
-            ]
-      )
+    [ ( "_p", Encode.string "mask" )
+    , ( "t", Encode.float t )
+    , ( "mask", Encode.string "mask" )
     ]

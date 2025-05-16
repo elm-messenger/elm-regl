@@ -23,7 +23,7 @@ Compose two renderables using various shaders.
 -}
 
 import Json.Encode as Encode
-import REGL.Common exposing (Renderable, genProg, render)
+import REGL.Common exposing (Renderable, genProg, render, updateField)
 
 
 {-| Draw the dst renderable over the src renderable.
@@ -31,15 +31,11 @@ import REGL.Common exposing (Renderable, genProg, render)
 dstOverSrc : Renderable -> Renderable -> Renderable
 dstOverSrc src dst =
     genProg
-        [ ( "cmd", Encode.int 3 )
-        , ( "prog", Encode.string "defaultCompositor" )
+        [ ( "_c", Encode.int 3 )
+        , ( "_p", Encode.string "defaultCompositor" )
         , ( "r1", render src )
         , ( "r2", render dst )
-        , ( "args"
-          , Encode.object
-                [ ( "mode", Encode.int 0 )
-                ]
-          )
+        , ( "mode", Encode.int 0 )
         ]
 
 
@@ -48,15 +44,11 @@ dstOverSrc src dst =
 maskBySrc : Renderable -> Renderable -> Renderable
 maskBySrc src dst =
     genProg
-        [ ( "cmd", Encode.int 3 )
-        , ( "prog", Encode.string "defaultCompositor" )
+        [ ( "_c", Encode.int 3 )
+        , ( "_p", Encode.string "defaultCompositor" )
         , ( "r1", render src )
         , ( "r2", render dst )
-        , ( "args"
-          , Encode.object
-                [ ( "mode", Encode.int 1 )
-                ]
-          )
+        , ( "mode", Encode.int 1 )
         ]
 
 
@@ -68,24 +60,20 @@ Mask image is a gradient image, similar to [this](https://github.com/linsyking/e
 imgFade : String -> Float -> Bool -> Renderable -> Renderable -> Renderable
 imgFade mask t invert src dst =
     genProg
-        [ ( "cmd", Encode.int 3 )
-        , ( "prog", Encode.string "imgFade" )
+        [ ( "_c", Encode.int 3 )
+        , ( "_p", Encode.string "imgFade" )
         , ( "r1", render src )
         , ( "r2", render dst )
-        , ( "args"
-          , Encode.object
-                [ ( "mask", Encode.string mask )
-                , ( "t", Encode.float t )
-                , ( "invert_mask"
-                  , Encode.int
-                        (if invert then
-                            1
+        , ( "mask", Encode.string mask )
+        , ( "t", Encode.float t )
+        , ( "invert_mask"
+          , Encode.int
+                (if invert then
+                    1
 
-                         else
-                            0
-                        )
-                  )
-                ]
+                 else
+                    0
+                )
           )
         ]
 
@@ -95,24 +83,11 @@ imgFade mask t invert src dst =
 linearFade : Float -> Renderable -> Renderable -> Renderable
 linearFade t src dst =
     genProg
-        [ ( "cmd", Encode.int 3 )
-        , ( "prog", Encode.string "compFade" )
+        [ ( "_c", Encode.int 3 )
+        , ( "_p", Encode.string "compFade" )
         , ( "r1", render src )
         , ( "r2", render dst )
-        , ( "args"
-          , Encode.object
-                [ ( "mode", Encode.int 0 )
-                , ( "t", Encode.float t )
-                ]
-          )
+        , ( "mode", Encode.int 0 )
+        , ( "t", Encode.float t )
         ]
 
-
-
--- {-| Set the alpha value for texture
--- -}
--- alphaSet : Float -> Renderable -> Renderable
--- alphaSet alpha r =
---     case r of
---         AtomicRenderable tt ->
---             r

@@ -17,12 +17,8 @@ import REGL.Common exposing (Effect)
 -}
 blur : Float -> Effect
 blur radius =
-    [ ( "prog", Encode.string "blur" )
-    , ( "args"
-      , Encode.object
-            [ ( "radius", Encode.float radius )
-            ]
-      )
+    [ ( "_p", Encode.string "blur" )
+    , ( "radius", Encode.float radius )
     ]
 
 
@@ -30,12 +26,8 @@ blur radius =
 -}
 alphamult : Float -> Effect
 alphamult a =
-    [ ( "prog", Encode.string "alphamult" )
-    , ( "args"
-      , Encode.object
-            [ ( "alpha", Encode.float a )
-            ]
-      )
+    [ ( "_p", Encode.string "alphamult" )
+    , ( "alpha", Encode.float a )
     ]
 
 
@@ -43,7 +35,7 @@ alphamult a =
 -}
 fxaa : Effect
 fxaa =
-    [ ( "prog", Encode.string "fxaa" )
+    [ ( "_p", Encode.string "fxaa" )
     ]
 
 
@@ -51,12 +43,8 @@ fxaa =
 -}
 gblur : Float -> Effect
 gblur sigma =
-    [ ( "prog", Encode.string "gblur" )
-    , ( "args"
-      , Encode.object
-            [ ( "sigma", Encode.float sigma )
-            ]
-      )
+    [ ( "_p", Encode.string "gblur" )
+    , ( "sigma", Encode.float sigma )
     ]
 
 
@@ -64,10 +52,6 @@ gblur sigma =
 -}
 crt : Float -> Effect
 crt count =
-    [ ( "prog", Encode.string "crt" )
-    , ( "args"
-      , Encode.object
-            [ ( "count", Encode.float count )
-            ]
-      )
+    [ ( "_p", Encode.string "crt" )
+    , ( "count", Encode.float count )
     ]
