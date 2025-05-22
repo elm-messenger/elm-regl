@@ -8,7 +8,7 @@ import Html.Events exposing (..)
 import Json.Encode as Encode
 import REGL exposing (REGLStartConfig, batchExec, loadTexture, startREGL, toHtmlWith)
 import REGL.BuiltinPrograms as P
-import REGL.Common exposing (Renderable, group, render)
+import REGL.Common exposing (Renderable, group, renderWithCamera)
 
 
 port setView : Encode.Value -> Cmd msg
@@ -80,19 +80,34 @@ genRenderable model =
                         (\x ->
                             List.map
                                 (\y ->
-                                    -- P.triangle ( model.lasttime * 30 + toFloat x / numx * 1920, toFloat y / numy * 1000 + 15 )
-                                    --     ( model.lasttime * 30 + toFloat x / numx * 1920 + 15, toFloat y / numy * 1000 + 45 )
-                                    --     ( model.lasttime * 30 + toFloat x / numx * 1920 + 30, toFloat y / numy * 1000 + 15 )
-                                    --     redC
-                                    -- P.centeredTextureCropped ( model.lasttime * 30 + toFloat x / numx * 1920, toFloat y / numy * 1000 + 20 ) ( 20, 20 ) 0 ( 0, 0 ) ( 0.5, 1 ) "enemy"
-                                    -- P.centeredTexture ( model.lasttime * 30 + toFloat x / numx * 1920, toFloat y / numy * 1000 + 20 ) ( 20, 20 ) 0 "enemy"
-                                    P.rectTexture ( model.lasttime * 30 + toFloat x / numx * 1920, toFloat y / numy * 1000 + 20 ) ( 20, 20 ) 1.0 "enemy"
+                                    P.triangle ( model.lasttime * 30 + toFloat x / numx * 1920, toFloat y / numy * 1000 + 15 )
+                                        ( model.lasttime * 30 + toFloat x / numx * 1920 + 15, toFloat y / numy * 1000 + 45 )
+                                        ( model.lasttime * 30 + toFloat x / numx * 1920 + 30, toFloat y / numy * 1000 + 15 )
+                                        redC
+                                 -- P.centeredTextureCropped ( model.lasttime * 30 + toFloat x / numx * 1920, toFloat y / numy * 1000 + 20 ) ( 20, 20 ) 0 ( 0, 0 ) ( 0.5, 1 ) "enemy"
+                                 -- P.centeredTexture ( model.lasttime * 30 + toFloat x / numx * 1920, toFloat y / numy * 1000 + 20 ) ( 20, 20 ) 0 "enemy"
+                                 -- P.rectTexture ( model.lasttime * 30 + toFloat x / numx * 1920, toFloat y / numy * 1000 + 20 ) ( 20, 20 ) 1.0 "enemy"
                                  -- P.rectTextureCropped ( model.lasttime * 30 + toFloat x / numx * 1920, toFloat y / numy * 1000 + 20 ) ( 20, 20 ) ( 0, 0 ) ( 0.5, 1 ) "enemy"
                                 )
                                 (List.range 0 (numy * 2))
                         )
                         (List.range 0 (numx * 2))
                )
+
+
+genSimple : Renderable
+genSimple =
+    let
+        bgColor =
+            Color.rgba 0 0 0 1
+
+        redC =
+            Color.rgba 1 0 0 0.5
+    in
+    group []
+        [ P.clear bgColor
+        , P.triangle ( 0, 0 ) ( 100, 0 ) ( 50, 100 ) redC
+        ]
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -114,7 +129,7 @@ update msg model =
                         model.starttime
               }
             , Cmd.batch
-                [ setView <| render <| genRenderable model
+                [ setView <| renderWithCamera [ 960, 540, 1, 0 ] <| genRenderable model
                 ]
             )
 

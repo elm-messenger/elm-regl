@@ -75,7 +75,12 @@ renderWithCamera : List Float -> Renderable -> Value
 renderWithCamera camera renderable =
     case renderable of
         AtomicRenderable value ->
-            Encode.object value
+            Encode.object
+                [ ( "e", Encode.list identity [] )
+                , ( "c", Encode.list Encode.object [ value ] )
+                , ( "_c", Encode.int 2 )
+                , ( "_sc", Encode.list Encode.float camera )
+                ]
 
         GroupRenderable effects renderables ->
             Encode.object
