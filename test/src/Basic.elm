@@ -9,7 +9,7 @@ import Json.Decode as Decode
 import Json.Encode as Encode
 import REGL exposing (REGLStartConfig, batchExec, loadTexture, startREGL, toHtmlWith)
 import REGL.BuiltinPrograms as P
-import REGL.Common exposing (Renderable, group, render)
+import REGL.Common exposing (Renderable, group, renderWithCamera)
 import REGL.Effects as E
 import String exposing (fromInt)
 
@@ -153,7 +153,7 @@ update msg model =
                             model.starttime
                   }
                 , Cmd.batch
-                    [ setView <| render <| genRenderable model
+                    [ setView <| renderWithCamera [ 960, 540, 1, 0 ] <| genRenderable model
                     ]
                 )
 
