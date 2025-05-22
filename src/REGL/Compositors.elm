@@ -23,7 +23,7 @@ Compose two renderables using various shaders.
 -}
 
 import Json.Encode as Encode
-import REGL.Common exposing (Renderable, genProg, render, updateField)
+import REGL.Common exposing (Renderable, genProg, render)
 
 
 {-| Draw the dst renderable over the src renderable.

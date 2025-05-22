@@ -1,6 +1,6 @@
 module REGL.Common exposing
     ( Renderable(..), Effect, ProgramCall
-    , genProg, group, render
+    , genProg, group, render, renderWithCamera
     , getField, updateField
     )
 
@@ -14,7 +14,7 @@ module REGL.Common exposing
 
 ## Common functions
 
-@docs genProg, group, render
+@docs genProg, group, render, renderWithCamera
 
 
 ## Convenient helper functions
@@ -58,6 +58,31 @@ render renderable =
                 [ ( "e", Encode.list (\e -> Encode.object e) effects )
                 , ( "c", Encode.list identity (List.map render renderables) )
                 , ( "_c", Encode.int 2 )
+                ]
+
+
+{-| Render a renderable object with a camera.
+
+Only use this function in the outermost renderable object. The camera is a list of 4 floats:
+
+1.  The x position of the camera.
+2.  The y position of the camera.
+3.  The scaling factor of the camera.
+4.  The rotation angle of the camera in radians.
+
+-}
+renderWithCamera : List Float -> Renderable -> Value
+renderWithCamera camera renderable =
+    case renderable of
+        AtomicRenderable value ->
+            Encode.object value
+
+        GroupRenderable effects renderables ->
+            Encode.object
+                [ ( "e", Encode.list (\e -> Encode.object e) effects )
+                , ( "c", Encode.list identity (List.map render renderables) )
+                , ( "_c", Encode.int 2 )
+                , ( "_sc", Encode.list Encode.float camera )
                 ]
 
 

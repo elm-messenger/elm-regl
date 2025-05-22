@@ -35,9 +35,8 @@ module REGL.BuiltinPrograms exposing
 -}
 
 import Color exposing (Color)
-import Json.Decode as Decode
 import Json.Encode as Encode exposing (Value)
-import REGL.Common exposing (Renderable, genProg, getField, updateField)
+import REGL.Common exposing (Renderable, genProg)
 
 
 {-| OpenGL primitive types
