@@ -90,4 +90,3 @@ linearFade t src dst =
         , ( "mode", Encode.int 0 )
         , ( "t", Encode.float t )
         ]
-
