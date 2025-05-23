@@ -3,6 +3,7 @@ module REGL.BuiltinPrograms exposing
     , triangle, quad, rectCentered, rect, circle, polyPrim, poly
     , textbox, textboxPro, TextBoxOption
     , texture, rectTexture, textureCropped, rectTextureCropped, centeredTexture, centeredTextureCropped
+    , centeredTextureWithAlpha, rectTextureCroppedWithAlpha, rectTextureWithAlpha, textureCroppedWithAlpha, textureWithAlpha, centeredTextureCroppedWithAlpha
     , lines, linestrip, lineloop, functionCurve
     , toRgbaList, Primitive(..), primitiveToValue
     , saveAsTexture
@@ -20,6 +21,7 @@ module REGL.BuiltinPrograms exposing
 @docs triangle, quad, rectCentered, rect, circle, polyPrim, poly
 @docs textbox, textboxPro, TextBoxOption
 @docs texture, rectTexture, textureCropped, rectTextureCropped, centeredTexture, centeredTextureCropped
+@docs centeredTextureWithAlpha, rectTextureCroppedWithAlpha, rectTextureWithAlpha, textureCroppedWithAlpha, textureWithAlpha, centeredTextureCroppedWithAlpha
 @docs lines, linestrip, lineloop, functionCurve
 
 
@@ -278,8 +280,80 @@ circle ( x1, y1 ) r color =
 
 {-| Render a texture with 4 points: left-top, right-top, right-bottom and left-bottom.
 -}
-texture : ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> Float -> String -> Renderable
-texture ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) ( x4, y4 ) alpha name =
+texture : ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> String -> Renderable
+texture ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) ( x4, y4 ) name =
+    genProg
+        [ ( "_c", Encode.int 0 )
+        , ( "_p", Encode.string "texture" )
+        , ( "texture", Encode.string name )
+        , ( "pos", Encode.list Encode.float [ x1, y1, x2, y2, x3, y3, x4, y4 ] )
+        ]
+
+
+{-| Render a texture with 4 points: left-top, right-top, right-bottom and left-bottom, along with 4 cropped points in texture coordinate.
+-}
+textureCropped : ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> String -> Renderable
+textureCropped ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) ( x4, y4 ) ( cx1, cy1 ) ( cx2, cy2 ) ( cx3, cy3 ) ( cx4, cy4 ) name =
+    genProg
+        [ ( "_c", Encode.int 0 )
+        , ( "_p", Encode.string "textureCropped" )
+        , ( "texture", Encode.string name )
+        , ( "pos", Encode.list Encode.float [ x1, y1, x2, y2, x3, y3, x4, y4 ] )
+        , ( "texc", Encode.list Encode.float [ cx1, cy1, cx2, cy2, cx3, cy3, cx4, cy4 ] )
+        ]
+
+
+{-| Render a texture with left-top coordinates and size.
+-}
+rectTexture : ( Float, Float ) -> ( Float, Float ) -> String -> Renderable
+rectTexture ( x, y ) ( w, h ) =
+    centeredTexture ( x + w / 2, y + h / 2 ) ( w, h ) 0
+
+
+{-| Render a texture with left-top coordinates and size, along with a crop rectangle in texture coordinate.
+-}
+rectTextureCropped : ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> String -> Renderable
+rectTextureCropped ( x, y ) ( w, h ) ( cx, cy ) ( cw, ch ) name =
+    genProg
+        [ ( "_c", Encode.int 0 )
+        , ( "_p", Encode.string "textureCropped" )
+        , ( "texture", Encode.string name )
+        , ( "pos", Encode.list Encode.float [ x, y, x + w, y, x + w, y + h, x, y + h ] )
+        , ( "texc", Encode.list Encode.float [ cx, 1 - cy, cx + cw, 1 - cy, cx + cw, 1 - cy - ch, cx, 1 - cy - ch ] )
+        ]
+
+
+{-| Render a texture with center, size and angle for rotation.
+-}
+centeredTexture : ( Float, Float ) -> ( Float, Float ) -> Float -> String -> Renderable
+centeredTexture ( x, y ) ( w, h ) angle name =
+    genProg
+        [ ( "_c", Encode.int 0 )
+        , ( "_p", Encode.string "centeredTexture" )
+        , ( "texture", Encode.string name )
+        , ( "posize", Encode.list Encode.float [ x, y, w, h ] )
+        , ( "angle", Encode.float angle )
+        ]
+
+
+{-| Render a texture with center, size and angle for rotation.
+-}
+centeredTextureCropped : ( Float, Float ) -> ( Float, Float ) -> Float -> ( Float, Float ) -> ( Float, Float ) -> String -> Renderable
+centeredTextureCropped ( x, y ) ( w, h ) angle ( cx, cy ) ( cw, ch ) name =
+    genProg
+        [ ( "_c", Encode.int 0 )
+        , ( "_p", Encode.string "centeredCroppedTexture" )
+        , ( "texture", Encode.string name )
+        , ( "posize", Encode.list Encode.float [ x, y, w, h ] )
+        , ( "angle", Encode.float angle )
+        , ( "texc", Encode.list Encode.float [ cx, cy, cw, ch ] )
+        ]
+
+
+{-| Render a texture with 4 points: left-top, right-top, right-bottom and left-bottom.
+-}
+textureWithAlpha : ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> Float -> String -> Renderable
+textureWithAlpha ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) ( x4, y4 ) alpha name =
     genProg
         [ ( "_c", Encode.int 0 )
         , ( "_p", Encode.string "texture" )
@@ -291,8 +365,8 @@ texture ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) ( x4, y4 ) alpha name =
 
 {-| Render a texture with 4 points: left-top, right-top, right-bottom and left-bottom, along with 4 cropped points in texture coordinate.
 -}
-textureCropped : ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> Float -> String -> Renderable
-textureCropped ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) ( x4, y4 ) ( cx1, cy1 ) ( cx2, cy2 ) ( cx3, cy3 ) ( cx4, cy4 ) alpha name =
+textureCroppedWithAlpha : ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> Float -> String -> Renderable
+textureCroppedWithAlpha ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) ( x4, y4 ) ( cx1, cy1 ) ( cx2, cy2 ) ( cx3, cy3 ) ( cx4, cy4 ) alpha name =
     genProg
         [ ( "_c", Encode.int 0 )
         , ( "_p", Encode.string "textureCropped" )
@@ -305,15 +379,15 @@ textureCropped ( x1, y1 ) ( x2, y2 ) ( x3, y3 ) ( x4, y4 ) ( cx1, cy1 ) ( cx2, c
 
 {-| Render a texture with left-top coordinates and size.
 -}
-rectTexture : ( Float, Float ) -> ( Float, Float ) -> Float -> String -> Renderable
-rectTexture ( x, y ) ( w, h ) =
-    centeredTexture ( x + w / 2, y + h / 2 ) ( w, h ) 0
+rectTextureWithAlpha : ( Float, Float ) -> ( Float, Float ) -> Float -> String -> Renderable
+rectTextureWithAlpha ( x, y ) ( w, h ) =
+    centeredTextureWithAlpha ( x + w / 2, y + h / 2 ) ( w, h ) 0
 
 
 {-| Render a texture with left-top coordinates and size, along with a crop rectangle in texture coordinate.
 -}
-rectTextureCropped : ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> Float -> String -> Renderable
-rectTextureCropped ( x, y ) ( w, h ) ( cx, cy ) ( cw, ch ) alpha name =
+rectTextureCroppedWithAlpha : ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float ) -> Float -> String -> Renderable
+rectTextureCroppedWithAlpha ( x, y ) ( w, h ) ( cx, cy ) ( cw, ch ) alpha name =
     genProg
         [ ( "_c", Encode.int 0 )
         , ( "_p", Encode.string "textureCropped" )
@@ -326,8 +400,8 @@ rectTextureCropped ( x, y ) ( w, h ) ( cx, cy ) ( cw, ch ) alpha name =
 
 {-| Render a texture with center, size and angle for rotation.
 -}
-centeredTexture : ( Float, Float ) -> ( Float, Float ) -> Float -> Float -> String -> Renderable
-centeredTexture ( x, y ) ( w, h ) angle alpha name =
+centeredTextureWithAlpha : ( Float, Float ) -> ( Float, Float ) -> Float -> Float -> String -> Renderable
+centeredTextureWithAlpha ( x, y ) ( w, h ) angle alpha name =
     genProg
         [ ( "_c", Encode.int 0 )
         , ( "_p", Encode.string "centeredTexture" )
@@ -340,8 +414,8 @@ centeredTexture ( x, y ) ( w, h ) angle alpha name =
 
 {-| Render a texture with center, size and angle for rotation.
 -}
-centeredTextureCropped : ( Float, Float ) -> ( Float, Float ) -> Float -> ( Float, Float ) -> ( Float, Float ) -> Float -> String -> Renderable
-centeredTextureCropped ( x, y ) ( w, h ) angle ( cx, cy ) ( cw, ch ) alpha name =
+centeredTextureCroppedWithAlpha : ( Float, Float ) -> ( Float, Float ) -> Float -> ( Float, Float ) -> ( Float, Float ) -> Float -> String -> Renderable
+centeredTextureCroppedWithAlpha ( x, y ) ( w, h ) angle ( cx, cy ) ( cw, ch ) alpha name =
     genProg
         [ ( "_c", Encode.int 0 )
         , ( "_p", Encode.string "centeredCroppedTexture" )
