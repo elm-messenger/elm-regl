@@ -165,6 +165,7 @@ vert =
 precision mediump float;
 attribute vec2 pos;
 uniform vec2 view;
+uniform vec4 camera;
 uniform float t;
 
 varying vec2 vRandom;
@@ -174,7 +175,17 @@ void main() {
     float mt = t * 0.6;
     mpos.x += sin(mt * vRandom.x + 6.28 * vRandom.y) * mix(0., 400., vRandom.x);
     mpos.y += cos(mt * vRandom.y + 6.28 * vRandom.x) * mix(0., 300., vRandom.y);
-    gl_Position = vec4((mpos.x / view.x) * 2. - 1., (mpos.y / view.y) * 2. - 1., 0, 1);
+    // gl_Position = vec4((mpos.x / view.x) * 2. - 1., (mpos.y / view.y) * 2. - 1., 0, 1);
+
+    if (camera.w == 0.0){
+        // No rotation
+        vec2 pos = (mpos - camera.xy) * camera.z / view;
+        gl_Position = vec4(pos, 0, 1);
+    } else {
+        mat2 rotation = mat2(cos(camera.w), -sin(camera.w), sin(camera.w), cos(camera.w));
+        vec2 pos = (rotation * (mpos - camera.xy)) * camera.z / view;
+        gl_Position = vec4(pos, 0, 1);
+    }
     gl_PointSize = 10. + vRandom.x * 5.;
 }
 """
