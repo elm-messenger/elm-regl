@@ -8,7 +8,7 @@ import Html.Events exposing (..)
 import Json.Encode as Encode
 import REGL exposing (REGLStartConfig, batchExec, loadTexture, startREGL, toHtmlWith)
 import REGL.BuiltinPrograms as P
-import REGL.Common exposing (Renderable, group, renderWithCamera)
+import REGL.Common exposing (Camera, Renderable, group, groupWithCamera, render)
 
 
 port setView : Encode.Value -> Cmd msg
@@ -129,7 +129,7 @@ update msg model =
                         model.starttime
               }
             , Cmd.batch
-                [ setView <| renderWithCamera [ 960, 540, 1, 0 ] <| genRenderable model
+                [ setView <| render <| genRenderable model
                 ]
             )
 

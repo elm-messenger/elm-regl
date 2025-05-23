@@ -1,4 +1,4 @@
-port module Basic exposing (..)
+port module Camera exposing (..)
 
 import Browser
 import Color
@@ -9,7 +9,7 @@ import Json.Decode as Decode
 import Json.Encode as Encode
 import REGL exposing (REGLStartConfig, batchExec, loadTexture, startREGL, toHtmlWith)
 import REGL.BuiltinPrograms as P
-import REGL.Common exposing (Renderable, group, render)
+import REGL.Common exposing (Camera, Renderable, group, groupWithCamera, render)
 import REGL.Effects as E
 import String exposing (fromInt)
 
@@ -76,57 +76,32 @@ genRenderable model =
         ( w, h ) =
             model.ts
     in
-    group []
-        [ P.clear (Color.rgba 1 1 1 1)
+    groupWithCamera (Camera 960 540 1 0)
+        -- Global camera
+        []
+        [ P.clear (Color.rgba 1 0 1 1)
         , P.textbox ( 0, 0 ) 100 ("hello :)" ++ fromInt (floor model.lasttime)) "consolas" Color.black
-        , P.quad ( 0, 0 ) ( 1920, 0 ) ( 1920 / 3, 1080 / 3 ) ( 0, 1080 ) (Color.rgba 1 0.2 0.4 1)
-        , P.textboxPro ( 100, 100 ) (P.TextBoxOption "consolas" lorem 70 (Color.rgba 0.5 0.5 1.0 0.5) False (Just 1) (Just 4) (Just 1700) Nothing Nothing Nothing Nothing)
-        , P.textbox ( 100, 500 ) 100 "[BIG]" "consolas" Color.black
-        , P.textbox ( 100, 1000 ) 20 "[small]" "consolas" Color.black
-        , P.textbox ( 100, 1020 ) 30 "[medium]" "consolas" Color.black
-        , group [ E.blur 1 ]
-            [ P.clear (Color.rgba 1 0.2 0.4 0)
-            , P.triangle ( 700, 100 ) ( 700 + 100, 100 ) ( 700 + 100, 100 / 2 ) Color.red
-            , P.triangle ( 500, 100 ) ( 500 + 100, 100 ) ( 500 + 100, 100 / 2 ) Color.green
+        , groupWithCamera (Camera (100 + model.lasttime * 10) 840 1 0)
+            []
+            [ P.textbox ( 100, 500 ) 100 "[BIG]" "consolas" Color.black
+            , P.textbox ( 100, 1000 ) 20 "[small]" "consolas" Color.black
+            , P.textbox ( 100, 1020 ) 30 "[medium]" "consolas" Color.black
             ]
-        , P.poly
-            [ ( 1100, 600 )
-            , ( 1100, 650 )
-            , ( 1200, 680 )
-            , ( 1300, 650 )
-            , ( 1200, 600 )
+        , P.textbox ( 0, 200 ) 100 ("hello :)" ++ fromInt (floor model.lasttime)) "consolas" Color.black
+        , groupWithCamera (Camera (960 - model.lasttime * 10) 540 1 0)
+            []
+            [ P.textbox ( 0, 300 ) 100 ("hello :)" ++ fromInt (floor model.lasttime)) "consolas" Color.black
+            , group [ E.blur 1 ]
+                [ P.clear (Color.rgba 1 0 1 0)
+                , P.triangle ( 700, 100 ) ( 700 + 100, 100 ) ( 700 + 100, 100 / 2 ) Color.red
+                , groupWithCamera (Camera 960 540 1 0)
+                    []
+                    [ P.triangle ( 500, 100 ) ( 500 + 100, 100 ) ( 500 + 100, 100 / 2 ) Color.green
+                    ]
+                ]
+            , P.textbox ( 0, 100 ) 100 ("hello :)" ++ fromInt (floor model.lasttime)) "consolas" Color.black
             ]
-            Color.blue
-        , P.texture ( 0, 0 ) ( w, 0 ) ( w, h ) ( 0, h ) "enemy"
-        , P.rectTextureCropped ( 100, 600 ) ( w / 2, h ) ( 0, 0 ) ( 0.5, 1 ) "enemy"
-        , P.centeredTextureCropped ( 1100, 600 ) ( w / 2, h ) 45 ( 0, 0 ) ( 0.5, 1 ) "enemy"
-        , P.circle ( 1100, 600 ) 10 Color.black
-        , P.centeredTexture ( 1400, 300 ) ( w, h ) (model.lasttime / 5) "enemy"
-        , P.circle ( 1400, 300 ) 30 Color.black
-        , group [ E.gblur 10 ]
-            [ P.clear (Color.rgba 1 1 1 0)
-            , P.quad ( 1500, 500 ) ( 1800, 500 ) ( 1800, 900 ) ( 1500, 900 ) (Color.rgba 0.4 0.7 0.9 1)
-            ]
-        , P.textbox ( 1510, 510 ) 30 "Hello\nThis is a clear text\n on a blurred\nbackground." "consolas" Color.black
-        , P.lineloop
-            [ ( 100, 100 )
-            , ( 200, 100 )
-            , ( 300, 200 )
-            , ( 100, 200 )
-            ]
-            Color.black
-        , P.lines
-            [ ( ( 900, 100 )
-              , ( 1000, 100 )
-              )
-            , ( ( 900, 150 )
-              , ( 1000, 150 )
-              )
-            ]
-            Color.black
-        , P.functionCurve (\x -> 100 * sin ((x - model.lasttime * 50) / 25)) ( 1000, 100 ) ( 0, 920 ) 0.2 Color.black
-        , P.rect ( 600, 100 ) ( 20, 20 ) Color.black
-        , P.rectCentered ( 650, 100 ) ( 20, 20 ) 0.1 Color.black
+        , P.textbox ( 500, 0 ) 100 ("hello :)" ++ fromInt (floor model.lasttime)) "consolas" Color.black
         ]
 
 

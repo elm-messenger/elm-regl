@@ -1,6 +1,6 @@
 module REGL.Common exposing
-    ( Renderable(..), Effect, ProgramCall
-    , genProg, group, render, renderWithCamera
+    ( Renderable(..), Effect, ProgramCall, Camera
+    , genProg, group, groupWithCamera, render
     , getField, updateField
     )
 
@@ -9,12 +9,12 @@ module REGL.Common exposing
 
 # Common Type Definitions
 
-@docs Renderable, Effect, ProgramCall
+@docs Renderable, Effect, ProgramCall, Camera
 
 
 ## Common functions
 
-@docs genProg, group, render, renderWithCamera
+@docs genProg, group, groupWithCamera, render
 
 
 ## Convenient helper functions
@@ -38,11 +38,22 @@ type alias Effect =
     ProgramCall
 
 
+{-| Camera settings.
+-}
+type alias Camera =
+    { x : Float
+    , y : Float
+    , zoom : Float
+    , rotation : Float
+    }
+
+
 {-| A renderable object that can be rendered by REGL.
 -}
 type Renderable
     = AtomicRenderable ProgramCall
     | GroupRenderable (List Effect) (List Renderable)
+    | GroupRenderableWithCamera Camera (List Effect) (List Renderable)
 
 
 {-| Render a renderable object. Users need to use it to pass the render result to REGL in JS through a port.
@@ -60,34 +71,12 @@ render renderable =
                 , ( "_c", Encode.int 2 )
                 ]
 
-
-{-| Render a renderable object with a camera.
-
-Only use this function in the outermost renderable object. The camera is a list of 4 floats:
-
-1.  The x position of the camera.
-2.  The y position of the camera.
-3.  The scaling factor of the camera.
-4.  The rotation angle of the camera in radians.
-
--}
-renderWithCamera : List Float -> Renderable -> Value
-renderWithCamera camera renderable =
-    case renderable of
-        AtomicRenderable value ->
-            Encode.object
-                [ ( "e", Encode.list identity [] )
-                , ( "c", Encode.list Encode.object [ value ] )
-                , ( "_c", Encode.int 2 )
-                , ( "_sc", Encode.list Encode.float camera )
-                ]
-
-        GroupRenderable effects renderables ->
+        GroupRenderableWithCamera camera effects renderables ->
             Encode.object
                 [ ( "e", Encode.list (\e -> Encode.object e) effects )
                 , ( "c", Encode.list identity (List.map render renderables) )
                 , ( "_c", Encode.int 2 )
-                , ( "_sc", Encode.list Encode.float camera )
+                , ( "_sc", Encode.list Encode.float [ camera.x, camera.y, camera.zoom, camera.rotation ] )
                 ]
 
 
@@ -96,6 +85,16 @@ renderWithCamera camera renderable =
 group : List Effect -> List Renderable -> Renderable
 group effects renderables =
     GroupRenderable effects renderables
+
+
+{-| Group a list of renderables into a single renderable with effects and camera.
+
+The camera will override current camera if exists.
+
+-}
+groupWithCamera : Camera -> List Effect -> List Renderable -> Renderable
+groupWithCamera camera effects renderables =
+    GroupRenderableWithCamera camera effects renderables
 
 
 updateListFoldr : String -> Value -> ProgramCall -> ProgramCall
