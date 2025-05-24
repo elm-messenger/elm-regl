@@ -28,7 +28,7 @@ HTML:
     <meta charset="UTF-8">
     <title>Elm</title>
     <script type="text/javascript" src="Main.js"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/elm-regl-js@1.1.0/dist/regl.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/elm-regl-js@1.2.1/dist/regl.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 
