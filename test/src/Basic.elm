@@ -75,8 +75,12 @@ genRenderable model =
     let
         ( w, h ) =
             model.ts
+
+        step =
+            2
     in
-    group []
+    group (E.gblur 2)
+        -- group (E.blur 3 ++ E.blur 2 ++ E.blur 1)
         [ P.clear (Color.rgba 1 1 1 1)
         , P.textbox ( 0, 0 ) 100 ("hello :)" ++ fromInt (floor model.lasttime)) "consolas" Color.black
         , P.quad ( 0, 0 ) ( 1920, 0 ) ( 1920 / 3, 1080 / 3 ) ( 0, 1080 ) (Color.rgba 1 0.2 0.4 1)
@@ -84,9 +88,8 @@ genRenderable model =
         , P.textbox ( 100, 500 ) 100 "[BIG]" "consolas" Color.black
         , P.textbox ( 100, 1000 ) 20 "[small]" "consolas" Color.black
         , P.textbox ( 100, 1020 ) 30 "[medium]" "consolas" Color.black
-        , group [ E.blur 1 ]
-            [ P.clear (Color.rgba 1 0.2 0.4 0)
-            , P.triangle ( 700, 100 ) ( 700 + 100, 100 ) ( 700 + 100, 100 / 2 ) Color.red
+        , group []
+            [ P.triangle ( 700, 100 ) ( 700 + 100, 100 ) ( 700 + 100, 100 / 2 ) Color.red
             , P.triangle ( 500, 100 ) ( 500 + 100, 100 ) ( 500 + 100, 100 / 2 ) Color.green
             ]
         , P.poly
@@ -103,7 +106,7 @@ genRenderable model =
         , P.circle ( 1100, 600 ) 10 Color.black
         , P.centeredTexture ( 1400, 300 ) ( w, h ) (model.lasttime / 5) "enemy"
         , P.circle ( 1400, 300 ) 30 Color.black
-        , group [ E.gblur 10 ]
+        , group [ E.blurh 4 ]
             [ P.clear (Color.rgba 1 1 1 0)
             , P.quad ( 1500, 500 ) ( 1800, 500 ) ( 1800, 900 ) ( 1500, 900 ) (Color.rgba 0.4 0.7 0.9 1)
             ]
