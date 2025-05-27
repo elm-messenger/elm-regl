@@ -81,7 +81,7 @@ genRenderable model =
 genRenderable1 : Model -> Renderable
 genRenderable1 model =
     group
-        [ E.gblur 10 ]
+        (E.gblur 1)
         [ P.clear (Color.rgba 1 1 1 1)
         , P.triangle ( 0, 0 ) ( 1920, 0 ) ( 1920, 1080 ) (Color.rgba 1 0 0 1)
         , P.triangle ( 0, 0 ) ( 1920 / 2, 0 ) ( 1920 / 2, 1080 ) (Color.rgba 0 1 0 1)

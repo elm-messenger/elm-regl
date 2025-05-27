@@ -91,7 +91,7 @@ genRenderable model =
         , groupWithCamera (Camera (960 - model.lasttime * 10) 540 1 0)
             []
             [ P.textbox ( 0, 300 ) 100 ("hello :)" ++ fromInt (floor model.lasttime)) "consolas" Color.black
-            , group [ E.blur 1 ]
+            , group (E.blur 1)
                 [ P.clear (Color.rgba 1 0 1 0)
                 , P.triangle ( 700, 100 ) ( 700 + 100, 100 ) ( 700 + 100, 100 / 2 ) Color.red
                 , groupWithCamera (Camera 960 540 1 0)

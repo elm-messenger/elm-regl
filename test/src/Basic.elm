@@ -79,7 +79,7 @@ genRenderable model =
         step =
             2
     in
-    group (E.gblur 2)
+    group []
         -- group (E.blur 3 ++ E.blur 2 ++ E.blur 1)
         [ P.clear (Color.rgba 1 1 1 1)
         , P.textbox ( 0, 0 ) 100 ("hello :)" ++ fromInt (floor model.lasttime)) "consolas" Color.black
@@ -106,9 +106,9 @@ genRenderable model =
         , P.circle ( 1100, 600 ) 10 Color.black
         , P.centeredTexture ( 1400, 300 ) ( w, h ) (model.lasttime / 5) "enemy"
         , P.circle ( 1400, 300 ) 30 Color.black
-        , group [ E.blurh 4 ]
-            [ P.clear (Color.rgba 1 1 1 0)
-            , P.quad ( 1500, 500 ) ( 1800, 500 ) ( 1800, 900 ) ( 1500, 900 ) (Color.rgba 0.4 0.7 0.9 1)
+        , P.quad ( 500, 500 ) ( 800, 500 ) ( 800, 900 ) ( 500, 900 ) (Color.rgba 0 0 0 0.1)
+        , group (E.blur 1)
+            [ P.quad ( 1500, 500 ) ( 1800, 500 ) ( 1800, 900 ) ( 1500, 900 ) (Color.rgba 0.4 0.7 0.9 1)
             ]
         , P.textbox ( 1510, 510 ) 30 "Hello\nThis is a clear text\n on a blurred\nbackground." "consolas" Color.black
         , P.lineloop
