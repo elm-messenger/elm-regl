@@ -1,7 +1,7 @@
 module REGL.BuiltinPrograms exposing
     ( clear
     , triangle, quad, rectCentered, rect, circle, polyPrim, poly
-    , textbox, textboxPro, TextBoxOption
+    , textbox, textboxMF, textboxPro, TextBoxOption, defaultTextBoxOption
     , texture, rectTexture, textureCropped, rectTextureCropped, centeredTexture, centeredTextureCropped
     , centeredTextureWithAlpha, rectTextureCroppedWithAlpha, rectTextureWithAlpha, textureCroppedWithAlpha, textureWithAlpha, centeredTextureCroppedWithAlpha
     , lines, linestrip, lineloop, functionCurve
@@ -19,7 +19,7 @@ module REGL.BuiltinPrograms exposing
 
 @docs clear
 @docs triangle, quad, rectCentered, rect, circle, polyPrim, poly
-@docs textbox, textboxPro, TextBoxOption
+@docs textbox, textboxMF, textboxPro, TextBoxOption, defaultTextBoxOption
 @docs texture, rectTexture, textureCropped, rectTextureCropped, centeredTexture, centeredTextureCropped
 @docs centeredTextureWithAlpha, rectTextureCroppedWithAlpha, rectTextureWithAlpha, textureCroppedWithAlpha, textureWithAlpha, centeredTextureCroppedWithAlpha
 @docs lines, linestrip, lineloop, functionCurve
@@ -442,10 +442,25 @@ textbox ( x, y ) size text font color =
         ]
 
 
+{-| Render a textbox with multiple fonts.
+-}
+textboxMF : ( Float, Float ) -> Float -> String -> List String -> Color -> Renderable
+textboxMF ( x, y ) size text fonts color =
+    genProg
+        [ ( "_c", Encode.int 0 )
+        , ( "_p", Encode.string "textbox" )
+        , ( "text", Encode.string text )
+        , ( "size", Encode.float size )
+        , ( "offset", Encode.list Encode.float [ x, y ] )
+        , ( "fonts", Encode.list Encode.string fonts )
+        , ( "color", Encode.list Encode.float <| toRgbaList color )
+        ]
+
+
 {-| Full TextBox options.
 -}
 type alias TextBoxOption =
-    { font : String
+    { fonts : List String
     , text : String
     , size : Float
     , color : Color
@@ -456,7 +471,30 @@ type alias TextBoxOption =
     , lineHeight : Maybe Float
     , wordSpacing : Maybe Float
     , align : Maybe String
+    , tabSize : Maybe Float
+    , baseline : Maybe String
     , letterSpacing : Maybe Float
+    }
+
+
+{-| Default TextBox options.
+-}
+defaultTextBoxOption : TextBoxOption
+defaultTextBoxOption =
+    { fonts = [ "consolas" ]
+    , text = ""
+    , size = 24
+    , color = Color.black
+    , wordBreak = False
+    , thickness = Nothing
+    , italic = Nothing
+    , width = Nothing
+    , lineHeight = Nothing
+    , wordSpacing = Nothing
+    , align = Nothing
+    , tabSize = Nothing
+    , baseline = Nothing
+    , letterSpacing = Nothing
     }
 
 
@@ -470,14 +508,16 @@ textboxPro ( x, y ) opt =
         , ( "text", Encode.string opt.text )
         , ( "size", Encode.float opt.size )
         , ( "offset", Encode.list Encode.float [ x, y ] )
-        , ( "font", Encode.string opt.font )
+        , ( "fonts", Encode.list Encode.string opt.fonts )
         , ( "color", Encode.list Encode.float <| toRgbaList opt.color )
         , ( "wordBreak", Encode.bool opt.wordBreak )
         , ( "align", Encode.string <| Maybe.withDefault "left" opt.align )
+        , ( "baseline", Encode.string <| Maybe.withDefault "top" opt.baseline )
         , ( "width", Encode.float <| Maybe.withDefault -1 opt.width )
         , ( "lineHeight", Encode.float <| Maybe.withDefault 1 opt.lineHeight )
-        , ( "wordSpacing", Encode.float <| Maybe.withDefault 0 opt.wordSpacing )
+        , ( "wordSpacing", Encode.float <| Maybe.withDefault 1 opt.wordSpacing )
         , ( "letterSpacing", Encode.float <| Maybe.withDefault 0 opt.letterSpacing )
+        , ( "tabSize", Encode.float <| Maybe.withDefault 4 opt.tabSize )
         , ( "thickness", Encode.float <| Maybe.withDefault 0.5 opt.thickness )
         , ( "it", Encode.float <| Maybe.withDefault 0 opt.italic )
         ]

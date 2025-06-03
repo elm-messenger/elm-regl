@@ -15,5 +15,8 @@ docs/Particle.js: test/src/Particle.elm
 docs/Stress.js: test/src/Stress.elm
 	NAME=Stress make -C test release
 
+docs/Text.js: test/src/Text.elm
+	NAME=Text make -C test release
+
 
 .PHONY: docs
