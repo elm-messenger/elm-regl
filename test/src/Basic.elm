@@ -8,7 +8,7 @@ import Html.Events exposing (..)
 import Json.Decode as Decode
 import Json.Encode as Encode
 import REGL exposing (REGLStartConfig, batchExec, loadTexture, startREGL, toHtmlWith)
-import REGL.BuiltinPrograms as P
+import REGL.BuiltinPrograms as P exposing (defaultTextBoxOption)
 import REGL.Common exposing (Renderable, group, render)
 import REGL.Effects as E
 import String exposing (fromInt)
@@ -84,7 +84,7 @@ genRenderable model =
         [ P.clear (Color.rgba 1 1 1 1)
         , P.textbox ( 0, 0 ) 100 ("hello :)" ++ fromInt (floor model.lasttime)) "consolas" Color.black
         , P.quad ( 0, 0 ) ( 1920, 0 ) ( 1920 / 3, 1080 / 3 ) ( 0, 1080 ) (Color.rgba 1 0.2 0.4 1)
-        , P.textboxPro ( 100, 100 ) (P.TextBoxOption "consolas" lorem 70 (Color.rgba 0.5 0.5 1.0 0.5) False (Just 1) (Just 4) (Just 1700) Nothing Nothing Nothing Nothing)
+        , P.textboxPro ( 100, 100 ) { defaultTextBoxOption | fonts = [ "consolas" ], text = lorem, size = 70, color = Color.rgba 0.5 0.5 0.5 0.5, thickness = Just 1, italic = Just 4, width = Just 1700 }
         , P.textbox ( 100, 500 ) 100 "[BIG]" "consolas" Color.black
         , P.textbox ( 100, 1000 ) 20 "[small]" "consolas" Color.black
         , P.textbox ( 100, 1020 ) 30 "[medium]" "consolas" Color.black
@@ -110,7 +110,7 @@ genRenderable model =
         , group (E.blur 1)
             [ P.quad ( 1500, 500 ) ( 1800, 500 ) ( 1800, 900 ) ( 1500, 900 ) (Color.rgba 0.4 0.7 0.9 1)
             ]
-        , P.textbox ( 1510, 510 ) 30 "Hello\nThis is a clear text\n on a blurred\nbackground." "consolas" Color.black
+        , P.textbox ( 1510, 510 ) 30 "Hello\nThis is a clear text\non a blurred\nbackground." "consolas" Color.black
         , P.lineloop
             [ ( 100, 100 )
             , ( 200, 100 )

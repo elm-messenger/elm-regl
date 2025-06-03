@@ -1,0 +1,152 @@
+{
+    "pages": [
+        "Consolas.png"
+    ],
+    "chars": [
+        {
+            "id": 98,
+            "index": 69,
+            "char": "b",
+            "width": 21,
+            "height": 24,
+            "xoffset": -1,
+            "yoffset": 19.09,
+            "xadvance": 19.2,
+            "chnl": 15,
+            "x": 214,
+            "y": 181,
+            "page": 0
+        },
+        {
+            "id": 100,
+            "index": 71,
+            "char": "d",
+            "width": 21,
+            "height": 24,
+            "xoffset": 0,
+            "yoffset": 19.09,
+            "xadvance": 19.2,
+            "chnl": 15,
+            "x": 0,
+            "y": 206,
+            "page": 0
+        },
+        {
+            "id": 8635,
+            "index": 1942,
+            "char": "↻",
+            "width": 20,
+            "height": 18,
+            "xoffset": 0,
+            "yoffset": 21.09,
+            "xadvance": 19.2,
+            "chnl": 15,
+            "x": 236,
+            "y": 183,
+            "page": 0
+        },
+        {
+            "id": 97,
+            "index": 68,
+            "char": "a",
+            "width": 20,
+            "height": 18,
+            "xoffset": -1,
+            "yoffset": 25.09,
+            "xadvance": 19.2,
+            "chnl": 15,
+            "x": 236,
+            "y": 202,
+            "page": 0
+        },
+        {
+            "id": 99,
+            "index": 70,
+            "char": "c",
+            "width": 18,
+            "height": 18,
+            "xoffset": 0,
+            "yoffset": 25.09,
+            "xadvance": 19.2,
+            "chnl": 15,
+            "x": 0,
+            "y": 231,
+            "page": 0
+        },
+        {
+            "id": 101,
+            "index": 72,
+            "char": "e",
+            "width": 18,
+            "height": 18,
+            "xoffset": 0,
+            "yoffset": 25.09,
+            "xadvance": 19.2,
+            "chnl": 15,
+            "x": 19,
+            "y": 231,
+            "page": 0
+        },
+        {
+            "id": 32,
+            "index": 3,
+            "char": " ",
+            "width": 0,
+            "height": 0,
+            "xoffset": -2,
+            "yoffset": 39.09,
+            "xadvance": 19.2,
+            "chnl": 15,
+            "x": 116,
+            "y": 87,
+            "page": 0
+        }
+    ],
+    "info": {
+        "face": "Monospace",
+        "size": 32,
+        "bold": 0,
+        "italic": 0,
+        "charset": [
+            " ",
+            "↻",
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+        ],
+        "unicode": 1,
+        "stretchH": 100,
+        "smooth": 1,
+        "aa": 1,
+        "padding": [
+            2,
+            2,
+            2,
+            2
+        ],
+        "spacing": [
+            0,
+            0
+        ],
+        "outline": 0
+    },
+    "common": {
+        "lineHeight": 52.51,
+        "base": 39.09,
+        "scaleW": 256,
+        "scaleH": 256,
+        "pages": 1,
+        "packed": 0,
+        "alphaChnl": 0,
+        "redChnl": 0,
+        "greenChnl": 0,
+        "blueChnl": 0
+    },
+    "distanceField": {
+        "fieldType": "msdf",
+        "distanceRange": 4
+    },
+    "kernings": []
+}

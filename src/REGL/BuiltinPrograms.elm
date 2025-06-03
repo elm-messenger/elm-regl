@@ -1,7 +1,7 @@
 module REGL.BuiltinPrograms exposing
     ( clear
     , triangle, quad, rectCentered, rect, circle, polyPrim, poly
-    , textbox, textboxMF, textboxPro, TextBoxOption, defaultTextBoxOption
+    , textbox, textboxMF, textboxCentered, textboxMFCentered, textboxPro, TextBoxOption, defaultTextBoxOption
     , texture, rectTexture, textureCropped, rectTextureCropped, centeredTexture, centeredTextureCropped
     , centeredTextureWithAlpha, rectTextureCroppedWithAlpha, rectTextureWithAlpha, textureCroppedWithAlpha, textureWithAlpha, centeredTextureCroppedWithAlpha
     , lines, linestrip, lineloop, functionCurve
@@ -19,7 +19,7 @@ module REGL.BuiltinPrograms exposing
 
 @docs clear
 @docs triangle, quad, rectCentered, rect, circle, polyPrim, poly
-@docs textbox, textboxMF, textboxPro, TextBoxOption, defaultTextBoxOption
+@docs textbox, textboxMF, textboxCentered, textboxMFCentered, textboxPro, TextBoxOption, defaultTextBoxOption
 @docs texture, rectTexture, textureCropped, rectTextureCropped, centeredTexture, centeredTextureCropped
 @docs centeredTextureWithAlpha, rectTextureCroppedWithAlpha, rectTextureWithAlpha, textureCroppedWithAlpha, textureWithAlpha, centeredTextureCroppedWithAlpha
 @docs lines, linestrip, lineloop, functionCurve
@@ -457,6 +457,40 @@ textboxMF ( x, y ) size text fonts color =
         ]
 
 
+{-| Render a textbox, centered.
+-}
+textboxCentered : ( Float, Float ) -> Float -> String -> String -> Color -> Renderable
+textboxCentered ( x, y ) size text font color =
+    genProg
+        [ ( "_c", Encode.int 0 )
+        , ( "_p", Encode.string "textbox" )
+        , ( "text", Encode.string text )
+        , ( "size", Encode.float size )
+        , ( "offset", Encode.list Encode.float [ x, y ] )
+        , ( "font", Encode.string font )
+        , ( "color", Encode.list Encode.float <| toRgbaList color )
+        , ( "align", Encode.string "center" )
+        , ( "valign", Encode.string "center" )
+        ]
+
+
+{-| Render a textbox with multiple fonts, centered.
+-}
+textboxMFCentered : ( Float, Float ) -> Float -> String -> List String -> Color -> Renderable
+textboxMFCentered ( x, y ) size text fonts color =
+    genProg
+        [ ( "_c", Encode.int 0 )
+        , ( "_p", Encode.string "textbox" )
+        , ( "text", Encode.string text )
+        , ( "size", Encode.float size )
+        , ( "offset", Encode.list Encode.float [ x, y ] )
+        , ( "fonts", Encode.list Encode.string fonts )
+        , ( "color", Encode.list Encode.float <| toRgbaList color )
+        , ( "align", Encode.string "center" )
+        , ( "valign", Encode.string "center" )
+        ]
+
+
 {-| Full TextBox options.
 -}
 type alias TextBoxOption =
@@ -472,7 +506,7 @@ type alias TextBoxOption =
     , wordSpacing : Maybe Float
     , align : Maybe String
     , tabSize : Maybe Float
-    , baseline : Maybe String
+    , valign : Maybe String
     , letterSpacing : Maybe Float
     }
 
@@ -493,7 +527,7 @@ defaultTextBoxOption =
     , wordSpacing = Nothing
     , align = Nothing
     , tabSize = Nothing
-    , baseline = Nothing
+    , valign = Nothing
     , letterSpacing = Nothing
     }
 
@@ -512,7 +546,7 @@ textboxPro ( x, y ) opt =
         , ( "color", Encode.list Encode.float <| toRgbaList opt.color )
         , ( "wordBreak", Encode.bool opt.wordBreak )
         , ( "align", Encode.string <| Maybe.withDefault "left" opt.align )
-        , ( "baseline", Encode.string <| Maybe.withDefault "top" opt.baseline )
+        , ( "valign", Encode.string <| Maybe.withDefault "top" opt.valign )
         , ( "width", Encode.float <| Maybe.withDefault -1 opt.width )
         , ( "lineHeight", Encode.float <| Maybe.withDefault 1 opt.lineHeight )
         , ( "wordSpacing", Encode.float <| Maybe.withDefault 1 opt.wordSpacing )

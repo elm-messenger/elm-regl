@@ -7,11 +7,9 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Json.Decode as Decode
 import Json.Encode as Encode
-import REGL exposing (REGLStartConfig, batchExec, loadTexture, startREGL, toHtmlWith)
+import REGL exposing (REGLStartConfig, batchExec, loadMSDFFont, startREGL, toHtmlWith)
 import REGL.BuiltinPrograms as P exposing (defaultTextBoxOption)
 import REGL.Common exposing (Renderable, group, render)
-import REGL.Effects as E
-import String exposing (fromInt)
 
 
 port setView : Encode.Value -> Cmd msg
@@ -54,6 +52,8 @@ init _ =
     , Cmd.batch
         (batchExec execREGLCmd
             [ startREGL (REGLStartConfig 1920 1080 5 Nothing)
+            , loadMSDFFont "Consolas" "assets/Combined.png" "assets/Consolas.json"
+            , loadMSDFFont "mono" "assets/Combined.png" "assets/Monospace.json"
             ]
         )
     )
@@ -61,6 +61,7 @@ init _ =
 
 type Msg
     = Tick Float
+    | REGLRecv Encode.Value
 
 
 lorem =
@@ -68,27 +69,21 @@ lorem =
 
 
 genRenderable : Model -> Renderable
-genRenderable model =
-    let
-        ( w, h ) =
-            model.ts
-
-        step =
-            2
-    in
+genRenderable _ =
     group []
         -- group (E.blur 3 ++ E.blur 2 ++ E.blur 1)
         [ P.clear (Color.rgba 1 1 1 1)
         , P.rect ( 0, 0 ) ( 1000, 1080 ) (Color.rgba 1 0.5 0.5 1)
         , P.rect ( 0, 500 ) ( 500, 1080 ) (Color.rgba 0 1 0.5 1)
-
-        -- , P.textboxPro ( 0, 700 ) (P.TextBoxOption "consolas" "hello world sma blabla nmnbmasdjfssasfdasdfkjk jsadl  ds\ts\tj" 70 Color.black False Nothing Nothing (Just 500) Nothing Nothing Nothing Nothing)
+        , P.textboxPro ( 0, 700 ) { defaultTextBoxOption | fonts = [ "consolas" ], text = "hello world sma blabla nmnbmasdjfssasfdasdfkjk jsadl  ds\ts\tj", size = 70, color = Color.black, width = Just 500 }
         , P.textbox ( 0, 0 ) 100 "hello\na\tb  c\n\n\ta aa\n---" "consolas" Color.black
-
-        -- , P.textboxPro ( 0, 500 ) (P.TextBoxOption "consolas" lorem 70 (Color.rgba 0.5 0.5 1.0 0.5) False (Just 1) (Just 4) (Just 1000) Nothing Nothing Nothing Nothing)
-        , P.textboxPro ( 0, 500 ) { defaultTextBoxOption | fonts = [ "consolas" ], text = lorem, size = 24 }
-
-        -- , P.textboxPro ( 500, 0 ) (P.TextBoxOption "consolas" lorem 50 (Color.rgba 0.5 0.5 1.0 0.5) True Nothing Nothing (Just 500) Nothing Nothing Nothing Nothing)
+        , P.textboxMF ( 0, 200 ) 100 "abcde↻ xyz" [ "Consolas", "mono" ] Color.black
+        , P.textboxPro ( 0, 500 ) { defaultTextBoxOption | fonts = [ "consolas" ], text = lorem, size = 70, color = Color.rgba 0.5 0.5 0.5 0.5, width = Just 1000 }
+        , P.textboxPro ( 500, 0 ) { defaultTextBoxOption | fonts = [ "consolas" ], text = lorem, size = 50, color = Color.rgba 0.5 0.5 0.5 0.5, wordBreak = True, width = Just 500 }
+        , P.rectCentered ( 1200, 300 ) ( 20, 20 ) 0 (Color.rgba 1 0.5 0.5 1)
+        , P.textboxPro ( 1200, 300 ) { defaultTextBoxOption | fonts = [ "consolas" ], text = lorem, size = 50, color = Color.black, width = Just 500, align = Just "center", valign = Just "center" }
+        , P.rectCentered ( 1200, 500 ) ( 20, 20 ) 0 (Color.rgba 1 0.5 0.5 1)
+        , P.textboxCentered ( 1200, 500 ) 100 "hello world" "consolas" Color.black
         ]
 
 
@@ -96,30 +91,47 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Tick t ->
-            ( { model
-                | lasttime =
-                    if model.starttime == 0 then
-                        0
+            if model.loadednum < 1 then
+                ( model, setView Encode.null )
 
-                    else
-                        (t - model.starttime) / 1000
-                , starttime =
-                    if model.starttime == 0 then
-                        t
+            else
+                ( { model
+                    | lasttime =
+                        if model.starttime == 0 then
+                            0
 
-                    else
-                        model.starttime
-              }
-            , Cmd.batch
-                [ setView <| render <| genRenderable model
-                ]
-            )
+                        else
+                            (t - model.starttime) / 1000
+                    , starttime =
+                        if model.starttime == 0 then
+                            t
+
+                        else
+                            model.starttime
+                  }
+                , Cmd.batch
+                    [ setView <| render <| genRenderable model
+                    ]
+                )
+
+        REGLRecv x ->
+            let
+                cmd =
+                    Decode.decodeValue (Decode.at [ "_c" ] Decode.string) x
+            in
+            case cmd of
+                Ok "loadFont" ->
+                    ( { model | loadednum = model.loadednum + 1 }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
         [ reglupdate Tick
+        , recvREGLCmd REGLRecv
         ]
 
 
