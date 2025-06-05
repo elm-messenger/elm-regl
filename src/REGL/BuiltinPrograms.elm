@@ -492,6 +492,22 @@ textboxMFCentered ( x, y ) size text fonts color =
 
 
 {-| Full TextBox options.
+
+  - `fonts`: A prioritized list of font family names (e.g. ["Roboto", "sans-serif"]).
+  - `text`: The actual text content to render.
+  - `size`: The font size in virtual canvas size.
+  - `color`: The color of the text.
+  - `wordBreak`: Whether long words should break across lines (`True`) or overflow (`False`).
+  - `thickness`: Optional stroke thickness for the text (if supported by the renderer).
+  - `italic`: Optional italic shift.
+  - `width`: Optional maximum width of the text box. Used to wrap text.
+  - `lineHeight`: Optional line height, as a multiplier of font size.
+  - `wordSpacing`: Optional spacing between words, in spaces.
+  - `align`: Optional horizontal alignment of text (`"left"`, `"center"`, `"right"`).
+  - `tabSize`: Optional width of a tab character, in spaces.
+  - `valign`: Optional vertical alignment of text block (`"top"`, `"center"`, `"bottom"`).
+  - `letterSpacing`: Optional spacing between letters, in virtual canvas size.
+
 -}
 type alias TextBoxOption =
     { fonts : List String
