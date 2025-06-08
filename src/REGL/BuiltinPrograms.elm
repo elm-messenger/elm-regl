@@ -272,8 +272,7 @@ circle ( x1, y1 ) r color =
     genProg
         [ ( "_c", Encode.int 0 )
         , ( "_p", Encode.string "circle" )
-        , ( "center", Encode.list Encode.float [ x1, y1 ] )
-        , ( "radius", Encode.float r )
+        , ( "cr", Encode.list Encode.float [ x1, y1, r ] )
         , ( "color", Encode.list Encode.float (toRgbaList color) )
         ]
 
