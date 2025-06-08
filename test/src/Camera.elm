@@ -53,8 +53,7 @@ init _ =
       }
     , Cmd.batch
         (batchExec execREGLCmd
-            [ loadTexture "enemy" "assets/enemy.png" Nothing
-            , startREGL (REGLStartConfig 1920 1080 5 Nothing)
+            [ startREGL (REGLStartConfig 1920 1080 5 Nothing)
             ]
         )
     )
@@ -109,50 +108,27 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Tick t ->
-            if model.loadednum < 1 then
-                ( model, setView Encode.null )
+            ( { model
+                | lasttime =
+                    if model.starttime == 0 then
+                        0
 
-            else
-                ( { model
-                    | lasttime =
-                        if model.starttime == 0 then
-                            0
+                    else
+                        (t - model.starttime) / 1000
+                , starttime =
+                    if model.starttime == 0 then
+                        t
 
-                        else
-                            (t - model.starttime) / 1000
-                    , starttime =
-                        if model.starttime == 0 then
-                            t
+                    else
+                        model.starttime
+              }
+            , Cmd.batch
+                [ setView <| render <| genRenderable model
+                ]
+            )
 
-                        else
-                            model.starttime
-                  }
-                , Cmd.batch
-                    [ setView <| render <| genRenderable model
-                    ]
-                )
-
-        REGLRecv x ->
-            let
-                cmd =
-                    Decode.decodeValue (Decode.at [ "_c" ] Decode.string) x
-            in
-            case cmd of
-                Ok "loadTexture" ->
-                    let
-                        w =
-                            Result.withDefault 0 <| Decode.decodeValue (Decode.at [ "response", "width" ] Decode.float) x
-
-                        h =
-                            Result.withDefault 0 <| Decode.decodeValue (Decode.at [ "response", "height" ] Decode.float) x
-                    in
-                    ( { model | loadednum = model.loadednum + 1, ts = ( w, h ) }, Cmd.none )
-
-                Ok "loadFont" ->
-                    ( { model | loadednum = model.loadednum + 1 }, Cmd.none )
-
-                _ ->
-                    ( model, Cmd.none )
+        _ ->
+            ( model, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg

@@ -1,4 +1,4 @@
-docs: docs/Camera.js docs/Basic.js docs/Mask.js docs/Particle.js docs/Stress.js
+docs: docs/Camera.js docs/Basic.js docs/Mask.js docs/Particle.js docs/Stress.js docs/Text.js
 
 docs/Camera.js: test/src/Camera.elm
 	NAME=Camera make -C test release

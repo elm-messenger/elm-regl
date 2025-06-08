@@ -52,8 +52,8 @@ init _ =
     , Cmd.batch
         (batchExec execREGLCmd
             [ startREGL (REGLStartConfig 1920 1080 5 Nothing)
-            , loadMSDFFont "Consolas" "assets/Combined.png" "assets/Consolas.json"
-            , loadMSDFFont "mono" "assets/Combined.png" "assets/Monospace.json"
+            , loadMSDFFont "Consolas" "assets/fonts/Combined.png" "assets/fonts/Consolas.json"
+            , loadMSDFFont "mono" "assets/fonts/Combined.png" "assets/fonts/Monospace.json"
             ]
         )
     )

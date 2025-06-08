@@ -1,11 +1,19 @@
-module REGL.Effects exposing (blur, blurh, blurv, gblur, gblurh, gblurv, crt, fxaa, alphamult)
+module REGL.Effects exposing
+    ( blur, blurh, blurv, gblur, gblurh, gblurv
+    , alphamult, colormult
+    , crt, pixilation
+    , fxaa
+    )
 
 {-|
 
 
 # Effects
 
-@docs blur, blurh, blurv, gblur, gblurh, gblurv, crt, fxaa, alphamult
+@docs blur, blurh, blurv, gblur, gblurh, gblurv
+@docs alphamult, colormult
+@docs crt, pixilation
+@docs fxaa
 
 -}
 
@@ -44,6 +52,24 @@ alphamult : Float -> Effect
 alphamult a =
     [ ( "_p", Encode.string "alphamult" )
     , ( "alpha", Encode.float a )
+    ]
+
+
+{-| Multiply the RGBA of a renderable.
+-}
+colormult : Float -> Float -> Float -> Float -> Effect
+colormult r g b a =
+    [ ( "_p", Encode.string "colormult" )
+    , ( "color", Encode.list Encode.float [ r, g, b, a ] )
+    ]
+
+
+{-| Apply pixilation effect to a renderable.
+-}
+pixilation : Float -> Effect
+pixilation ps =
+    [ ( "_p", Encode.string "pixilation" )
+    , ( "ps", Encode.float ps )
     ]
 
 
