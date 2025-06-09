@@ -9,7 +9,7 @@ import Json.Decode as Decode
 import Json.Encode as Encode
 import REGL exposing (REGLStartConfig, batchExec, loadTexture, startREGL, toHtmlWith)
 import REGL.BuiltinPrograms as P exposing (defaultTextBoxOption)
-import REGL.Common exposing (Renderable, group, render)
+import REGL.Common exposing (Camera, Renderable, group, groupWithCamera, render)
 import REGL.Effects as E
 import String exposing (fromInt)
 
@@ -80,6 +80,7 @@ genRenderable model =
             2
     in
     group []
+        -- groupWithCamera (Camera 760 540 1 -0.1) []
         -- group (E.blur 3 ++ E.blur 2 ++ E.blur 1)
         [ P.clear (Color.rgba 1 1 1 1)
         , P.textbox ( 0, 0 ) 100 ("hello :)" ++ fromInt (floor model.lasttime)) "consolas" Color.black
@@ -130,6 +131,8 @@ genRenderable model =
         , P.functionCurve (\x -> 100 * sin ((x - model.lasttime * 50) / 25)) ( 1000, 100 ) ( 0, 920 ) 0.2 Color.black
         , P.rect ( 600, 100 ) ( 20, 20 ) Color.black
         , P.rectCentered ( 650, 100 ) ( 20, 20 ) 0.1 Color.black
+        , P.roundedRect ( 500, 400 ) ( 200, 100 ) 20 Color.black
+        , P.rectCentered ( 500, 400 ) ( 20, 20 ) 0 Color.yellow
         ]
 
 

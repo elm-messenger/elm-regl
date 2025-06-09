@@ -1,6 +1,6 @@
 module REGL.BuiltinPrograms exposing
     ( clear
-    , triangle, quad, rectCentered, rect, circle, polyPrim, poly
+    , triangle, quad, rectCentered, rect, circle, roundedRect, polyPrim, poly
     , textbox, textboxMF, textboxCentered, textboxMFCentered, textboxPro, TextBoxOption, defaultTextBoxOption
     , texture, rectTexture, textureCropped, rectTextureCropped, centeredTexture, centeredTextureCropped
     , centeredTextureWithAlpha, rectTextureCroppedWithAlpha, rectTextureWithAlpha, textureCroppedWithAlpha, textureWithAlpha, centeredTextureCroppedWithAlpha
@@ -18,7 +18,7 @@ module REGL.BuiltinPrograms exposing
 ## Builtin Commands
 
 @docs clear
-@docs triangle, quad, rectCentered, rect, circle, polyPrim, poly
+@docs triangle, quad, rectCentered, rect, circle, roundedRect, polyPrim, poly
 @docs textbox, textboxMF, textboxCentered, textboxMFCentered, textboxPro, TextBoxOption, defaultTextBoxOption
 @docs texture, rectTexture, textureCropped, rectTextureCropped, centeredTexture, centeredTextureCropped
 @docs centeredTextureWithAlpha, rectTextureCroppedWithAlpha, rectTextureWithAlpha, textureCroppedWithAlpha, textureWithAlpha, centeredTextureCroppedWithAlpha
@@ -273,6 +273,19 @@ circle ( x1, y1 ) r color =
         [ ( "_c", Encode.int 0 )
         , ( "_p", Encode.string "circle" )
         , ( "cr", Encode.list Encode.float [ x1, y1, r ] )
+        , ( "color", Encode.list Encode.float (toRgbaList color) )
+        ]
+
+
+{-| Render a rounded rectangle with center, size, radius and color.
+-}
+roundedRect : ( Float, Float ) -> ( Float, Float ) -> Float -> Color -> Renderable
+roundedRect ( x1, y1 ) ( w, h ) r color =
+    genProg
+        [ ( "_c", Encode.int 0 )
+        , ( "_p", Encode.string "roundedRect" )
+        , ( "cs", Encode.list Encode.float [ x1, y1, w, h ] )
+        , ( "radius", Encode.float r )
         , ( "color", Encode.list Encode.float (toRgbaList color) )
         ]
 
