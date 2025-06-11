@@ -5,7 +5,7 @@ module REGL.BuiltinPrograms exposing
     , texture, rectTexture, textureCropped, rectTextureCropped, centeredTexture, centeredTextureCropped
     , centeredTextureWithAlpha, rectTextureCroppedWithAlpha, rectTextureWithAlpha, textureCroppedWithAlpha, textureWithAlpha, centeredTextureCroppedWithAlpha
     , lines, linestrip, lineloop, functionCurve
-    , toRgbaList, Primitive(..), primitiveToValue
+    , Primitive(..), primitiveToValue
     , saveAsTexture
     )
 
@@ -27,7 +27,7 @@ module REGL.BuiltinPrograms exposing
 
 ## Utils
 
-@docs toRgbaList, Primitive, primitiveToValue
+@docs Primitive, primitiveToValue
 
 
 ## Advanced
@@ -38,7 +38,7 @@ module REGL.BuiltinPrograms exposing
 
 import Color exposing (Color)
 import Json.Encode as Encode exposing (Value)
-import REGL.Common exposing (Renderable, genProg)
+import REGL.Common exposing (Renderable, genProg, toRgbaList)
 
 
 {-| OpenGL primitive types
@@ -78,17 +78,6 @@ primitiveToValue p =
 
         TriangleFan ->
             Encode.string "triangle fan"
-
-
-{-| Convert a color to a list of RGBA values.
--}
-toRgbaList : Color -> List Float
-toRgbaList c =
-    let
-        rgba =
-            Color.toRgba c
-    in
-    [ rgba.red, rgba.green, rgba.blue, rgba.alpha ]
 
 
 {-| Clear the canvas with a color.

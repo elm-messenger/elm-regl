@@ -1,7 +1,7 @@
 module REGL.Effects exposing
     ( blur, blurh, blurv, gblur, gblurh, gblurv
     , alphamult, colormult
-    , crt, pixilation
+    , crt, pixilation, outline
     , fxaa
     )
 
@@ -12,13 +12,14 @@ module REGL.Effects exposing
 
 @docs blur, blurh, blurv, gblur, gblurh, gblurv
 @docs alphamult, colormult
-@docs crt, pixilation
+@docs crt, pixilation, outline
 @docs fxaa
 
 -}
 
+import Color exposing (Color)
 import Json.Encode as Encode
-import REGL.Common exposing (Effect)
+import REGL.Common exposing (Effect, toRgbaList)
 
 
 {-| Blurs a renderable in 2 passes.
@@ -70,6 +71,19 @@ pixilation : Float -> Effect
 pixilation ps =
     [ ( "_p", Encode.string "pixilation" )
     , ( "ps", Encode.float ps )
+    ]
+
+
+{-| Apply outline effect to a renderable.
+
+Needs the width of the outline.
+
+-}
+outline : Float -> Color -> Effect
+outline o color =
+    [ ( "_p", Encode.string "outline" )
+    , ( "outline", Encode.float o )
+    , ( "color", Encode.list Encode.float (toRgbaList color) )
     ]
 
 

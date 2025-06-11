@@ -2,6 +2,7 @@ module REGL.Common exposing
     ( Renderable(..), Effect, ProgramCall, Camera
     , genProg, group, groupWithCamera, render
     , getField, updateField
+    , toRgbaList
     )
 
 {-|
@@ -20,9 +21,11 @@ module REGL.Common exposing
 ## Convenient helper functions
 
 @docs getField, updateField
+@docs toRgbaList
 
 -}
 
+import Color exposing (Color)
 import Json.Encode as Encode exposing (Value)
 
 
@@ -157,3 +160,14 @@ getField key r =
 genProg : ProgramCall -> Renderable
 genProg =
     AtomicRenderable
+
+
+{-| Convert a color to a list of RGBA values.
+-}
+toRgbaList : Color -> List Float
+toRgbaList c =
+    let
+        rgba =
+            Color.toRgba c
+    in
+    [ rgba.red, rgba.green, rgba.blue, rgba.alpha ]
