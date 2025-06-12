@@ -84,7 +84,7 @@ genRenderable model =
         -- group (E.blur 3 ++ E.blur 2 ++ E.blur 1)
         [ P.textbox ( 0, 0 ) 100 ("hello :)" ++ fromInt (floor model.lasttime)) "consolas" Color.black
         , P.quad ( 0, 0 ) ( 1920, 0 ) ( 1920 / 3, 1080 / 3 ) ( 0, 1080 ) (Color.rgba 1 0.2 0.4 1)
-        , P.textboxPro ( 100, 100 ) { defaultTextBoxOption | fonts = [ "consolas" ], text = lorem, size = 70, color = Color.rgba 0.5 0.5 0.5 0.5, thickness = Just 1, italic = Just 4, width = Just 1700, outline = Just 1 }
+        , P.textboxPro ( 100, 100 ) { defaultTextBoxOption | fonts = [ "consolas" ], text = lorem, size = 70, color = Color.rgba 0.5 0.5 0.5 0.5, thickness = Just 0.5, italic = Just 4, width = Just 1700, outline = Just 1 }
         , P.textbox ( 100, 500 ) 100 "[BIG]" "consolas" Color.black
         , P.textbox ( 100, 1000 ) 20 "[small]" "consolas" Color.black
         , P.textbox ( 100, 1020 ) 30 "[medium]" "consolas" Color.black
