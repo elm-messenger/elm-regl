@@ -84,7 +84,7 @@ genRenderable model =
         -- group (E.blur 3 ++ E.blur 2 ++ E.blur 1)
         [ P.textbox ( 0, 0 ) 100 ("hello :)" ++ fromInt (floor model.lasttime)) "consolas" Color.black
         , P.quad ( 0, 0 ) ( 1920, 0 ) ( 1920 / 3, 1080 / 3 ) ( 0, 1080 ) (Color.rgba 1 0.2 0.4 1)
-        , P.textboxPro ( 100, 100 ) { defaultTextBoxOption | fonts = [ "consolas" ], text = lorem, size = 70, color = Color.rgba 0.5 0.5 0.5 0.5, thickness = Just 1, italic = Just 4, width = Just 1700 }
+        , P.textboxPro ( 100, 100 ) { defaultTextBoxOption | fonts = [ "consolas" ], text = lorem, size = 70, color = Color.rgba 0.5 0.5 0.5 0.5, thickness = Just 1, italic = Just 4, width = Just 1700, outline = Just 1 }
         , P.textbox ( 100, 500 ) 100 "[BIG]" "consolas" Color.black
         , P.textbox ( 100, 1000 ) 20 "[small]" "consolas" Color.black
         , P.textbox ( 100, 1020 ) 30 "[medium]" "consolas" Color.black
@@ -105,12 +105,12 @@ genRenderable model =
         , P.centeredTextureCropped ( 1100, 600 ) ( w / 2, h ) 45 ( 0, 0 ) ( 0.5, 1 ) "enemy"
         , P.circle ( 1100, 600 ) 10 Color.black
         , P.centeredTexture ( 1400, 300 ) ( w, h ) (model.lasttime / 5) "enemy"
-        , P.circle ( 1400, 300 ) 30 Color.black
+        , P.circle ( 1400, 300 ) 100 (Color.rgba 1 1 1 0.5)
         , P.quad ( 500, 500 ) ( 800, 500 ) ( 800, 900 ) ( 500, 900 ) (Color.rgba 0 0 0 0.1)
         , group (E.blur 1)
             [ P.quad ( 1500, 500 ) ( 1800, 500 ) ( 1800, 900 ) ( 1500, 900 ) (Color.rgba 0.4 0.7 0.9 1)
             ]
-        , P.textbox ( 1510, 510 ) 30 "Hello\nThis is a clear text\non a blurred\nbackground." "consolas" Color.black
+        , P.textbox ( 1510, 510 ) 30 "Hello\nThis is a clear text\non a blurred\nbackground." "consolas" (Color.rgba 1 1 1 0.5)
         , P.lineloop
             [ ( 100, 100 )
             , ( 200, 100 )
