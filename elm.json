@@ -3,7 +3,7 @@
     "name": "linsyking/elm-regl",
     "summary": "Elm bindings for REGL",
     "license": "BSD-3-Clause",
-    "version": "9.2.1",
+    "version": "10.0.0",
     "exposed-modules": {
         "Main": [
             "REGL"
