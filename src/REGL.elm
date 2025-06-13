@@ -1,6 +1,5 @@
 module REGL exposing
-    ( empty
-    , REGLConfig, TimeInterval(..), configREGL
+    ( REGLConfig, TimeInterval(..), configREGL
     , REGLStartConfig
     , TextureMagOption(..), TextureMinOption(..), TextureOptions, batchExec, createREGLProgram, loadTexture, startREGL, loadMSDFFont
     , decodeRecvMsg, Texture, REGLRecvMsg(..)
@@ -13,11 +12,6 @@ module REGL exposing
 # REGL
 
 This module exposes basic primitives for rendering with REGL.
-
-
-## Basics
-
-@docs empty
 
 
 ## User Configuration
@@ -45,15 +39,7 @@ import Html.Attributes exposing (height, id, width)
 import Html.Keyed as Keyed
 import Json.Decode as Decode
 import Json.Encode as Encode exposing (Value)
-import REGL.Common exposing (Renderable, genProg)
 import REGL.Program exposing (REGLProgram, encodeProgram)
-
-
-{-| An empty renderable object.
--}
-empty : Renderable
-empty =
-    genProg []
 
 
 {-| A time interval for the REGL configuration.

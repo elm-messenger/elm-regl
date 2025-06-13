@@ -1,5 +1,5 @@
 module REGL.BuiltinPrograms exposing
-    ( clear
+    ( empty, clear
     , triangle, quad, rectCentered, rect, circle, roundedRect, polyPrim, poly
     , textbox, textboxMF, textboxCentered, textboxMFCentered, textboxPro, TextBoxOption, defaultTextBoxOption
     , texture, rectTexture, textureCropped, rectTextureCropped, centeredTexture, centeredTextureCropped
@@ -17,7 +17,7 @@ module REGL.BuiltinPrograms exposing
 
 ## Builtin Commands
 
-@docs clear
+@docs empty, clear
 @docs triangle, quad, rectCentered, rect, circle, roundedRect, polyPrim, poly
 @docs textbox, textboxMF, textboxCentered, textboxMFCentered, textboxPro, TextBoxOption, defaultTextBoxOption
 @docs texture, rectTexture, textureCropped, rectTextureCropped, centeredTexture, centeredTextureCropped
@@ -80,18 +80,21 @@ primitiveToValue p =
             Encode.string "triangle fan"
 
 
+{-| An empty renderable object.
+-}
+empty : Renderable
+empty =
+    genProg []
+
+
 {-| Clear the canvas with a color.
 -}
 clear : Color -> Renderable
 clear color =
-    let
-        rgba =
-            Color.toRgba color
-    in
     genProg
         [ ( "_c", Encode.int 1 )
         , ( "_n", Encode.string "clear" )
-        , ( "color", Encode.list Encode.float [ rgba.red * rgba.alpha, rgba.green * rgba.alpha, rgba.blue * rgba.alpha, rgba.alpha ] )
+        , ( "color", Encode.list Encode.float (toRgbaList color) )
         , ( "depth", Encode.float 1 )
         ]
 
@@ -521,8 +524,6 @@ type alias TextBoxOption =
     , color : Color
     , wordBreak : Bool
     , thickness : Maybe Float
-    , outline : Maybe Float
-    , outlineColor : Maybe Color
     , italic : Maybe Float
     , width : Maybe Float
     , lineHeight : Maybe Float
@@ -544,8 +545,6 @@ defaultTextBoxOption =
     , color = Color.black
     , wordBreak = False
     , thickness = Nothing
-    , outline = Nothing
-    , outlineColor = Nothing
     , italic = Nothing
     , width = Nothing
     , lineHeight = Nothing
@@ -577,9 +576,7 @@ textboxPro ( x, y ) opt =
         , ( "wordSpacing", Encode.float <| Maybe.withDefault 1 opt.wordSpacing )
         , ( "letterSpacing", Encode.float <| Maybe.withDefault 0 opt.letterSpacing )
         , ( "tabSize", Encode.float <| Maybe.withDefault 4 opt.tabSize )
-        , ( "thickness", Encode.float <| Maybe.withDefault 0.5 opt.thickness )
-        , ( "outline", Encode.float <| Maybe.withDefault 0 opt.outline )
-        , ( "ocolor", Encode.list Encode.float <| toRgbaList <| Maybe.withDefault Color.black opt.outlineColor )
+        , ( "thickness", Encode.float <| Maybe.withDefault 0 opt.thickness )
         , ( "it", Encode.float <| Maybe.withDefault 0 opt.italic )
         ]
 
