@@ -131,7 +131,7 @@ genRenderable model =
         , P.functionCurve (\x -> 100 * sin ((x - model.lasttime * 50) / 25)) ( 1000, 100 ) ( 0, 920 ) 0.2 Color.black
         , P.rect ( 600, 100 ) ( 20, 20 ) Color.black
         , P.rectCentered ( 650, 100 ) ( 20, 20 ) 0.1 Color.black
-        , P.roundedRect ( 500, 400 ) ( 200, 100 ) 20 Color.black
+        , P.roundedRect ( 500, 400 ) ( 200, 100 ) 20 (Color.rgba 1 1 1 0.5)
         , P.rectCentered ( 500, 400 ) ( 20, 20 ) 0 Color.yellow
         ]
 
